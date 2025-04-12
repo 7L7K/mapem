@@ -1,0 +1,78 @@
+/* src/styles/main.css */
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+h2 {
+  color: #333;
+}
+
+nav ul {
+  list-style-type: none;
+  display: flex;
+  gap: 10px;
+  padding: 0;
+}
+
+nav ul li {
+  margin-right: 10px;
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: #0074D9;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Leaflet map container fix */
+.leaflet-container {
+  height: 600px !important;
+  width: 100% !important;
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.15);
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Common UI components */
+.loader {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+}
+
+.error-box {
+  background: #ffe6e6;
+  border: 1px solid #ffcccc;
+  padding: 1rem;
+  border-radius: 4px;
+  color: #cc0000;
+  margin: 1rem 0;
+}
+
+.panel {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 2rem 0;
+}
+
+.response-box {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: #eef;
+  border-left: 4px solid #4f46e5;
+}
