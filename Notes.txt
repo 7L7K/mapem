@@ -22,3 +22,9 @@ Deleting .vite cache -> rm -rf node_modules/.vite
 Just to be safe, wipe the Vite dev server’s cache and restart:
 rm -rf node_modules/.vite
 npm run dev
+
+🧼 Bonus Tip: Track Geocoding Progress
+Run:
+SELECT COUNT(*) FROM locations;
+SELECT COUNT(*) FROM locations WHERE latitude IS NOT NULL;
+This helps track how many still need geocoding.

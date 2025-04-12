@@ -25,15 +25,39 @@ sleep 2
 echo -e "\n🐍 Activating venv & deps…"
 if [ ! -d ".venv" ]; then python3 -m venv .venv; fi
 source .venv/bin/activate
-python check_dependencies.py
-pip install -r backend/requirements.txt > /dev/null
+
+if [ -f .env ]; then
+  export $(grep -v '^#' .env | xargs)
+  success ".env loaded"
+fi
+
+echo -e "\n📦 Checking Python dependencies..."
+MISSING_PKGS=()
+for pkg in psycopg2-binary python-dotenv python-Levenshtein; do
+  python -c "import $pkg" 2>/dev/null || MISSING_PKGS+=($pkg)
+done
+
+if [ ${#MISSING_PKGS[@]} -gt 0 ]; then
+  echo -e "⚠️  Missing modules detected:"
+  for pkg in "${MISSING_PKGS[@]}"; do echo "   • $pkg"; done
+  echo -e "\n📦 Installing missing modules now..."
+  pip install "${MISSING_PKGS[@]}"
+else
+  success "All Python packages installed"
+fi
+
+echo -e "\n🔁 Re-freezing requirements.txt..."
+pip freeze > backend/requirements.txt
+
+echo -e "\n🧽 Cleaning logs…"
+rm -f flask.log
+rm -f frontend/genealogy-frontend/frontend.log
 
 echo -e "\n🚀 Launching Flask…"
 export FLASK_APP=backend/app.py
 export FLASK_ENV=development
 export FLASK_RUN_PORT=5050
 export FLASK_RUN_HOST=127.0.0.1
-
 flask run --debug > flask.log 2>&1 &
 FLASK_PID=$!
 sleep 3
@@ -46,9 +70,36 @@ else
   exit 1
 fi
 
-echo -e "\n⚛️ Launching Vite React frontend…"
+echo -e "\n📦 Checking frontend deps..."
 cd frontend/genealogy-frontend || { error "Missing frontend folder!"; exit 1; }
-npm install > /dev/null
+
+# Node version check
+NODE_MIN=18
+NODE_VER=$(node -v | sed 's/v//;s/\..*//')
+if [ "$NODE_VER" -lt "$NODE_MIN" ]; then
+  error "Node.js version too old. Please use v$NODE_MIN+"
+  exit 1
+fi
+
+# Install Node deps
+npm install > /dev/null || { error "npm install failed"; exit 1; }
+
+# Ensure vite is a project dependency
+if ! npm ls vite --depth=0 >/dev/null 2>&1; then
+  echo -e "📦 Adding Vite to devDependencies..."
+  npm install --save-dev vite
+  success "Vite installed locally"
+fi
+
+# Run frontend
+echo -e "\n⚛️ Launching Vite React frontend…"
+export PATH="./node_modules/.bin:$PATH"
+echo -e "\n🔍 Debug Info:"
+echo "   Node version: $(node -v)"
+echo "   NPM version: $(npm -v)"
+echo "   Vite path: $(which vite || echo 'vite not found')"
+echo "   node_modules/.bin exists: $(ls -ld ./node_modules/.bin || echo 'not found')"
+echo "   PATH: $PATH"
 npm run dev > frontend.log 2>&1 &
 FRONT_PID=$!
 sleep 3
@@ -65,7 +116,6 @@ else
   exit 1
 fi
 
-# Optional API check
 echo -e "\n🔎 Checking Flask API connectivity…"
 curl -s --max-time 5 http://127.0.0.1:5050/api/people | grep -q 'name' && success "Flask API responding" || {
   error "Flask API did not respond properly"

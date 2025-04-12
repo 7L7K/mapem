@@ -1,7 +1,10 @@
+# scan_schema.py
 from sqlalchemy import create_engine, inspect
-from backend.config import DATABASE_URI
+from app.config import settings
+from app.db import get_engine
 
-engine = create_engine(DATABASE_URI)
+# Use our central engine created from settings
+engine = get_engine()
 inspector = inspect(engine)
 
 print("🧠 Scanning your PostgreSQL DB...\n")
@@ -12,6 +15,6 @@ for table_name in inspector.get_table_names():
         name = column["name"]
         dtype = str(column["type"])
         nullable = column["nullable"]
-        default = column["default"]
+        default = column.get("default")
         print(f"   └─ {name} ({dtype}){' NULLABLE' if nullable else ''}{f' DEFAULT={default}' if default else ''}")
     print("")
