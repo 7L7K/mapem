@@ -1,0 +1,42 @@
+.
+├── backend
+│   ├── __init__.py
+│   ├── app.py
+│   ├── config.py
+│   ├── data
+│   ├── geocode.py
+│   ├── log_utils.py
+│   ├── logs
+│   ├── models.py
+│   ├── parser.py
+│   ├── requirements.txt
+│   ├── scripts
+│   ├── utils.py
+│   └── versioning.py
+├── backend.zip
+├── check_imports.py
+├── cmp_checker.py
+├── env_check.sh
+├── frontend
+│   ├── genealogy-frontend
+│   ├── migration-check.js
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── public
+│   └── src
+├── level 1 files.zip
+├── mapem.egg-info
+│   ├── dependency_links.txt
+│   ├── PKG-INFO
+│   ├── SOURCES.txt
+│   └── top_level.txt
+├── package-lock.json
+├── package.json
+├── public
+│   └── index.html
+├── Sample_Ged
+│   └── sample.ged
+├── setup.py
+└── structure.txt
+
+12 directories, 28 files

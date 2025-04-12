@@ -1,0 +1,15 @@
+2025-04-07 09:53:03,912 - ERROR: connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+2025-04-07 09:56:02,451 - ERROR: connection to server at "localhost" (::1), port 5432 failed: FATAL:  role "postgres" does not exist
+
+2025-04-07 09:57:58,716 - ERROR: column "name" does not exist
+LINE 1: SELECT id, name FROM locations WHERE latitude IS NULL OR lon...
+                   ^
+
+2025-04-07 10:04:22,651 - Found 2 locations to geocode.
+2025-04-07 10:04:22,652 - ERROR: 'name'
+2025-04-07 10:07:29,531 - Found 2 locations to geocode.
+2025-04-07 10:07:29,532 - 🔍 Querying OSM for: Mississippi
+2025-04-07 10:07:31,346 - 🌍 Updating DB for Mississippi: (32.9715285, -89.7348497)
+2025-04-07 10:07:31,349 - 🔍 Querying OSM for: Alabama
+2025-04-07 10:07:33,735 - 🌍 Updating DB for Alabama: (33.2588817, -86.8295337)

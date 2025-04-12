@@ -1,0 +1,22 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -89.7348497,
+          32.9715285
+        ]
+      },
+      "properties": {
+        "event_id": 1,
+        "event_type": "residence",
+        "date": "1930-04-01",
+        "person": "Gloria Blackmon",
+        "location": "Mississippi"
+      }
+    }
+  ]
+}

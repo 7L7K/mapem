@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Residence Map Test</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    #map { width: 100%; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+  <script>
+    // Initialize map centered at the residence point
+    var map = L.map('map').setView([32.9715285, -89.7348497], 6);
+    
+    // Add tile layer from OpenStreetMap
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Load GeoJSON using fetch API
+    fetch('residences.geojson')
+      .then(response => response.json())
+      .then(data => {
+        console.log("GeoJSON loaded:", data);
+        L.geoJson(data, {
+          onEachFeature: function(feature, layer) {
+            if(feature.properties && feature.properties.person) {
+              layer.bindPopup("Person: " + feature.properties.person + "<br>Location: " + feature.properties.location);
+            }
+          }
+        }).addTo(map);
+      })
+      .catch(error => console.error('Error loading GeoJSON:', error));
+  </script>
+</body>
+</html>

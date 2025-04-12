@@ -1,0 +1,137 @@
+
+📄 File: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/MapView.jsx
+🔍 Purpose: Main Leaflet map
+----------------------------------------
+// src/components/MapView.jsx
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { getMovements } from '../services/api';
+import Loader from './ui/Loader';
+import { useTree } from '../context/TreeContext';
+import 'leaflet/dist/leaflet.css';
+
+console.trace("🔥 MapView mounted trace");
+
+const MapView = () => {
+  const { treeId } = useTree();
+  const [loading, setLoading] = useState(true);
+  const [movements, setMovements] = useState([]);
+  const [error, setError] = useState(null);
+  const [mapReady, setMapReady] = useState(false);
+
+  useEffect(() => {
+    console.log('🌀 treeId changed:', treeId);
+    setLoading(true);
+    setMapReady(false);
+    getMovements(treeId)
+      .then(data => {
+        console.log("✅ Movements loaded for tree", treeId, ":", data);
+        setMovements(Array.isArray(data) ? data : []);
+        setLoading(false);
+        setTimeout(() => {
+          console.log("🎯 Map ready to mount");
+          setMapReady(true);
+        }, 10);
+      })
+      .catch(err => {
+        console.error("❌ Migration data error:", err);
+        setError("Migration data unavailable.");
+        setLoading(false);
+      });
+  }, [treeId]);
+
+  if (loading) return <Loader />;
+  if (error) return <div>{error}</div>;
+  if (!movements.length) return <div>No migration data found for this tree.</div>;
+
+  return (
+    <div>
+      <h2>🗺️ Migration Map</h2>
+      {mapReady ? (
+        <MapContainer
+          key={`map-${treeId}`}
+          center={[39.8283, -98.5795]}
+          zoom={4}
+          scrollWheelZoom={true}
+          style={{ height: '600px', width: '100%' }}
+        >
+          <TileLayer
+            attribution='&copy; OpenStreetMap contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          {movements.map((move, idx) => {
+            const { lat, lng, name, year } = move;
+            if (lat == null || lng == null) {
+              console.warn("⛔ Missing lat/lng:", move);
+              return null;
+            }
+            return (
+              <Marker key={idx} position={[lat, lng]}>
+                <Popup>
+                  <strong>{name || 'Unknown'}</strong><br />
+                  {year ? `Year: ${year}` : 'No year'}
+                </Popup>
+              </Marker>
+            );
+          })}
+        </MapContainer>
+      ) : (
+        <div style={{ height: '600px' }}>🧩 Preparing map…</div>
+      )}
+    </div>
+  );
+};
+
+export default MapView;
+
+
+
+📄 File: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/Sidebar.jsx
+🔍 Purpose: Filtering logic + sidebar UI
+----------------------------------------
+⚠️ File not found: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/Sidebar.jsx
+
+
+
+📄 File: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/Legend.jsx
+🔍 Purpose: Map icon meanings + toggles
+----------------------------------------
+⚠️ File not found: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/Legend.jsx
+
+
+
+📄 File: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/Header.jsx
+🔍 Purpose: Tree selector + theme toggle
+----------------------------------------
+⚠️ File not found: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/Header.jsx
+
+
+
+📄 File: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/PersonPanel.jsx
+🔍 Purpose: Click-to-view details
+----------------------------------------
+⚠️ File not found: /Users/kingal/mapem/frontend/genealogy-frontend/src/components/PersonPanel.jsx
+
+
+
+📄 File: /Users/kingal/mapem/backend/routes/movements.py
+🔍 Purpose: API to return movement paths
+----------------------------------------
+⚠️ File not found: /Users/kingal/mapem/backend/routes/movements.py
+
+
+
+📄 File: /Users/kingal/mapem/backend/utils/geopoints.py
+🔍 Purpose: Add path smoothing, etc.
+----------------------------------------
+⚠️ File not found: /Users/kingal/mapem/backend/utils/geopoints.py
+
+
+
+📄 File: /Users/kingal/mapem/frontend/genealogy-frontend/src/styles/theme.css
+🔍 Purpose: Color, typography tokens
+----------------------------------------
+⚠️ File not found: /Users/kingal/mapem/frontend/genealogy-frontend/src/styles/theme.css
+
+
+
