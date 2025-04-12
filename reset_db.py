@@ -1,9 +1,9 @@
 #!/usr/bin/env python
-from backend import config, models  # Adjust import paths as needed
-from sqlalchemy import create_engine
+from backend.app import config, models  # Adjust import paths as needed
+from app.db import get_engine
 
 # Create the engine using your configuration
-engine = create_engine(config.DATABASE_URI)
+engine = get_engine()
 
 def reset_database():
     print("Dropping all tables...")

@@ -1,18 +1,16 @@
 # clear_db.py
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from backend import models
-
+from app.db import get_engine, SessionLocal
+from sqlalchemy.sql import text
+from app.models import Base  # Adjust import if your models live elsewhere
 
 def clear_database():
-    # Connect to the database
-    engine = create_engine('genealogy_db')
-    Session = sessionmaker(bind=engine)
-    session = Session()
-
-    # Truncate all tables and reset auto-incrementing IDs
+    engine = get_engine()
+    session = SessionLocal()
     try:
-        session.execute('TRUNCATE TABLE individuals, families, events, locations, residence_history, tree_versions, tree_people, tree_relationships RESTART IDENTITY CASCADE')
+        # Using text() to safely execute raw SQL
+        session.execute(text(
+            "TRUNCATE TABLE individuals, families, events, locations, residence_history, tree_versions, tree_people, tree_relationships RESTART IDENTITY CASCADE"
+        ))
         session.commit()
         print("Database cleared successfully!")
     except Exception as e:
