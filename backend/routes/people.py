@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.models import Individual
-from backend.app.db import get_db_connection
+from backend.models import Individual
+from backend.db import get_db_connection
 
 people_routes = Blueprint("people", __name__, url_prefix="/api/people")
 

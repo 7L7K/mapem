@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from sqlalchemy import inspect
-from app.utils.helpers import get_engine
+from backend.utils.helpers import get_engine
 
 schema_routes = Blueprint("schema", __name__, url_prefix="/api/schema")
 

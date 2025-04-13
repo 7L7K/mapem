@@ -1,7 +1,7 @@
 # scan_schema.py
 from sqlalchemy import create_engine, inspect
-from app.config import settings
-from app.db import get_engine
+from backend.config import settings
+from backend.db import get_engine
 
 # Use our central engine created from settings
 engine = get_engine()

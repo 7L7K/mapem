@@ -2,10 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import cytoscape from 'cytoscape';
 import dagre from 'cytoscape-dagre';
-import { getTree } from '../services/api';
-import Loader from './ui/Loader';
-import ErrorBox from './ui/ErrorBox';
-import { useTree } from '../context/TreeContext';
+import { getTree } from '../../services/api.js';
+import Loader from '../views/ui/Loader.jsx';
+import ErrorBox from '../views/ui/ErrorBox.jsx';
+import { useTree } from '../../context/TreeContext.jsx';
 
 cytoscape.use(dagre);
 

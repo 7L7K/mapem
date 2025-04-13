@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify
 from sqlalchemy import func
-from app.models import TreeVersion
-from app.utils.helpers import get_db_connection
+from backend.models import TreeVersion
+from backend.utils.helpers import get_db_connection
 
 tree_routes = Blueprint("trees", __name__, url_prefix="/api/trees")
 

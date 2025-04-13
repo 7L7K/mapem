@@ -3,8 +3,8 @@ from logging.config import fileConfig
 from sqlalchemy import pool
 from alembic import context  # type: ignore[reportAttributeAccessIssue]
 
-from app.db import get_engine
-from app.models import Base  # Ensure your models folder is a package (has __init__.py)
+from backend.db import get_engine
+from backend.models import Base  # Ensure your models folder is a package (has __init__.py)
 
 # Alembic Config object, which provides access to the values within the .ini file.
 config = context.config

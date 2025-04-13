@@ -1,7 +1,7 @@
 # clear_db.py
-from app.db import get_engine, SessionLocal
 from sqlalchemy.sql import text
-from app.models import Base  # Adjust import if your models live elsewhere
+from backend.db import get_engine, SessionLocal
+from backend.models import Base
 
 def clear_database():
     engine = get_engine()

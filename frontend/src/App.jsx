@@ -1,19 +1,19 @@
 // src/App.jsx
 import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
-import Dashboard from './components/Dashboard.jsx';
-import UploadPanel from './components/UploadPanel.jsx';
-import TreeViewer from './components/TreeViewer.jsx';
-import MapView from './components/MapView.jsx';
-import Timeline from './components/Timeline.jsx';
-import DiffViewer from './components/DiffViewer.jsx';
-import SearchPanel from './components/SearchPanel.jsx';
-import SchemaViewer from './components/SchemaViewer.jsx';
-import PeopleViewer from './components/PeopleViewer.jsx';
-import EventPanel from './components/EventPanel.jsx';
-import TreeSelector from './components/TreeSelector.jsx';
-import { UploadStatusProvider } from './components/UploadStatusContext';
-import UploadStatusOverlay from './components/UploadStatusOverlay';
+import Dashboard from '../views/Components/Dashboard.jsx';
+import UploadPanel from '../views/Upload/UploadPanel.jsx';
+import TreeViewer from '../views/Tree/TreeViewer.jsx';
+import MapView from '../views/Map/MapView.jsx';
+import Timeline from '../views/Components/Timeline.jsx';
+import DiffViewer from '../views/Components/DiffViewer.jsx';
+import SearchPanel from '../views/Components/SearchPanel.jsx';
+import SchemaViewer from '../views/People/SchemaViewer.jsx';
+import PeopleViewer from '../views/People/PeopleViewer.jsx';
+import EventPanel from '../views/Components/EventPanel.jsx';
+import TreeSelector from '../views/Tree/TreeSelector.jsx';
+import { UploadStatusProvider } from '../views/Upload/UploadStatusContext.jsx';
+import UploadStatusOverlay from '../views/Upload/UploadStatusOverlay.jsx';
 
 
 const App = () => {

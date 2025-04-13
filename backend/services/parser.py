@@ -11,7 +11,7 @@ from .gedcom_normalizer import (
 )
 # ✅ RIGHT
 from ..models import Individual, Family, TreeRelationship, Event, Location
-from app.utils.helpers import normalize_location_name
+from backend.utils.helpers import normalize_location_name
 from sqlalchemy.orm import Session
 # near the top of parser.py
 import logging

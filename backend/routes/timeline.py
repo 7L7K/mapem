@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
-from app.models import Event
-from app.utils.helpers import get_db_connection
+from backend.models import Event
+from backend.utils.helpers import get_db_connection
 
 timeline_routes = Blueprint("timeline", __name__, url_prefix="/api/timeline")
 

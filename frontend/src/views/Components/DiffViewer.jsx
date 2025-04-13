@@ -1,8 +1,8 @@
 // src/components/DiffViewer.jsx
 import React, { useState } from 'react';
-import { compareTrees } from '../services/api';
-import Loader from './ui/Loader';
-import ErrorBox from './ui/ErrorBox';
+import Loader from '../views/ui/Loader.jsx';
+import ErrorBox from '../views/ui/ErrorBox.jsx';
+import { compareTrees } from '../../services/api.js';
 
 const DiffViewer = () => {
   const [newId, setNewId] = useState('');

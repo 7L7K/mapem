@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
-from app.models import Event
-from backend.app.db import get_db_connection
+from backend.models import Event
+from backend.db import get_db_connection
 from datetime import datetime
 
 event_routes = Blueprint("events", __name__, url_prefix="/api/events")

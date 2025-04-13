@@ -6,8 +6,8 @@ import {
   Popup,
   Polyline
 } from 'react-leaflet';
-import { getMovements } from '../services/api';
-import Loader from './ui/Loader';
+import { getMovements } from '../../services/api.js';
+import Loader from '../views/ui/Loader.jsx';
 import ErrorBox from './ui/ErrorBox';
 import 'leaflet/dist/leaflet.css';
 import '../styles/MapView.css';
