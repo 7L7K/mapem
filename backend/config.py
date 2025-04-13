@@ -1,5 +1,7 @@
-# config.py
+# /Users/kingal/mapem/backend/config.py
 from pydantic_settings import BaseSettings
+from pydantic import computed_field
+
 
 class Settings(BaseSettings):
     DB_NAME: str = "genealogy_db"
@@ -9,10 +11,10 @@ class Settings(BaseSettings):
     DB_PORT: int = 5432
     PORT: int = 5050
     DEBUG: bool = False
-    GOOGLE_MAPS_API_KEY: str = "AIza..."
+    GOOGLE_MAPS_API_KEY: str = ""
 
     @property
-    def DATABASE_URI(self):
+    def database_uri(self):
         return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     class Config:
