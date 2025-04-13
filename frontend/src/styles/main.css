@@ -1,0 +1,43 @@
+html, body {
+  background-color: #111;
+  color: #f9f9f9;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+a {
+  color: #7ecfff; /* Light blue links */
+}
+
+h2, h3, h4, h5 {
+  color: #fff;
+}
+
+.panel {
+  background-color: #222;
+  color: #f9f9f9;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
+}
+
+nav ul li a {
+  color: #7ecfff;
+  font-weight: bold;
+}
+
+nav ul li a:hover {
+  color: #00cfff;
+  text-decoration: underline;
+}
+
+.tree-card {
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #f9f9f9;
+}
+
+.error-box {
+  background: #2a0000;
+  border: 1px solid #990000;
+  color: #ff6666;
+}
