@@ -9,9 +9,13 @@ from .gedcom_normalizer import (
     extract_events_from_family,
     parse_date_flexible,
 )
-from .models import Individual, Family, TreeRelationship, Event, Location
-from .utils import normalize_location_name
+# ✅ RIGHT
+from ..models import Individual, Family, TreeRelationship, Event, Location
+from app.utils.helpers import normalize_location_name
 from sqlalchemy.orm import Session
+# near the top of parser.py
+import logging
+logger = logging.getLogger(__name__)
 
 # Tag → category map (unchanged)
 TAG_CATEGORY_MAP = {
@@ -128,8 +132,8 @@ class GEDCOMParser:
 
             existing_fam = session.query(Family).filter_by(gedcom_id=fam_id, tree_id=tree_id).first()
             if existing_fam:
-                existing_fam.husband_id = h_id
-                existing_fam.wife_id = w_id
+                existing_fam.husband_id = h_id  # type: ignore[attr-defined]
+                existing_fam.wife_id   = w_id  # type: ignore[attr-defined]
             else:
                 f = Family(
                     gedcom_id=fam_id,
@@ -141,14 +145,14 @@ class GEDCOMParser:
             # parent-child edges
             for child_ged in fam.get("children", []):
                 child_db = ged2db.get(child_ged)
-                if h_id and child_db:
+                if h_id is not None and child_db is not None:
                     session.add(TreeRelationship(
                         tree_id=tree_id,
                         person_id=h_id,
                         related_person_id=child_db,
                         relationship_type="father"
                     ))
-                if w_id and child_db:
+                if w_id is not None and child_db is not None:
                     session.add(TreeRelationship(
                         tree_id=tree_id,
                         person_id=w_id,
@@ -172,7 +176,7 @@ class GEDCOMParser:
             )
             # link individual/family
             if "individual_gedcom_id" in evt:
-                e.individual_id = ged2db.get(evt["individual_gedcom_id"])
+                e.individual_id = ged2db.get(evt["individual_gedcom_id"])  # type: ignore[attr-defined]
             if "family_gedcom_id" in evt:
                 # assume you build fam2db similarly if you need family events
                 pass
@@ -180,17 +184,21 @@ class GEDCOMParser:
             # LOCATION HANDLING
             place = evt.get("location") or evt.get("place")
             if place:
-                # 1) ensure Location row
                 loc_id = get_or_create_location(session, place)
-                # 2) geocode it if we have a client
-                if geocode_client and loc_id:
+
+                if geocode_client and loc_id is not None:
                     lat, lon, norm_name, conf = geocode_client.get_or_create_location(session, place)
                     loc = session.query(Location).get(loc_id)
-                    loc.latitude = lat
-                    loc.longitude = lon
-                    loc.confidence_score = conf
-                    session.add(loc)
-                e.location_id = loc_id
+                    if loc is not None:
+                        loc.latitude         = lat
+                        loc.longitude        = lon
+                        loc.confidence_score = conf
+                        session.add(loc)
+                        logger.debug(f"📍 Linked event to geocoded location: {place} → ID {loc_id}")
+                else:
+                    logger.debug(f"📍 No geocode client, linking to raw location: {place} → ID {loc_id}")
+
+                e.location_id = loc_id  # type: ignore[attr-defined]
 
             session.add(e)
             summary["event_count"] += 1
