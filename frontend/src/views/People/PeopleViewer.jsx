@@ -1,9 +1,9 @@
 // src/components/PeopleViewer.jsx
 import React, { useEffect, useState } from 'react';
-import { getPeople } from '../services/api';
-import Loader from './ui/Loader';
-import ErrorBox from './ui/ErrorBox';
-import { useTree } from '../context/TreeContext';
+import { getPeople } from '../../services/api.js';
+import Loader from '../views/ui/Loader.jsx';
+import ErrorBox from '../views/ui/ErrorBox.jsx';
+import { useTree } from '../../context/TreeContext.jsx';
 
 const PeopleViewer = () => {
   const { treeId } = useTree();

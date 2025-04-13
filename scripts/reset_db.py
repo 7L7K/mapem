@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from backend.app import config, models  # Adjust import paths as needed
-from app.db import get_engine
+from backend import config, models  # Adjust import paths as needed
+from backend.db import get_engine
 
 # Create the engine using your configuration
 engine = get_engine()

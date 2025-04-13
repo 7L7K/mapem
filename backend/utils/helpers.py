@@ -6,8 +6,8 @@
 import re
 from fuzzywuzzy import fuzz
 from sqlalchemy.orm import sessionmaker
-from app.db import get_engine
-from app.config import settings
+from backend.db import get_engine
+from backend.config import settings
 
 def normalize_name(name):
     """Lowercase and strip whitespace."""

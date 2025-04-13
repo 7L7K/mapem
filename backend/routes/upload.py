@@ -1,11 +1,11 @@
 #/Users/kingal/mapem/backend/app/routes/upload.py
 from flask import Blueprint, request, jsonify
 import traceback, threading
-from app.services.parser import GEDCOMParser
-from app.services.geocode import Geocode
-from app.utils.helpers import get_db_connection
-from app.models import UploadedTree
-#from app.services import geocode
+from backend.services.parser import GEDCOMParser
+from backend.services.geocode import Geocode
+from backend.utils.helpers import get_db_connection
+from backend.models import UploadedTree
+#from backend.services import geocode
 import os
 
 upload_routes = Blueprint("upload", __name__)

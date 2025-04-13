@@ -4,9 +4,9 @@ import json
 import time
 import requests
 from urllib.parse import urlencode
-from app import models
-from app.utils.helpers import normalize_location_name
-from app.utils.helpers import calculate_name_similarity
+from backend import models
+from backend.utils.helpers import normalize_location_name
+from backend.utils.helpers import calculate_name_similarity
 
 
 
