@@ -1,12 +1,12 @@
-# main.py
+# /Users/kingal/mapem/backend/app/main.py
 from flask import Flask
 from flask_cors import CORS
 import logging
 
-from app.routes import register_routes
-from app.models import Base
-from app.config import settings
-from app.db import get_engine, SessionLocal
+from .routes import register_routes
+from .models import Base
+from .config import settings
+from .db import get_engine, SessionLocal
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger("app")

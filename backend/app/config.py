@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
     PORT: int = 5050
-    DEBUG: bool = True
+    DEBUG: bool = False
     GOOGLE_MAPS_API_KEY: str = "AIza..."
 
     @property
@@ -18,6 +18,8 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "allow"  # <-- this right here
+
 
 # Global settings instance
 settings = Settings()
