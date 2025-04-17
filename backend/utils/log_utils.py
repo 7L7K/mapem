@@ -9,6 +9,8 @@
 # logging.py
 from backend.models import UserAction
 from datetime import datetime
+from backend.services.location_processor import normalize_location
+
 
 def log_action(session, user_id, action_type, context, decision, tree_id=None):
     """
@@ -24,3 +26,10 @@ def log_action(session, user_id, action_type, context, decision, tree_id=None):
     )
     session.add(action)
     session.commit()
+
+def normalize_place(raw: str) -> str:
+    """
+    Single source of truth for place normalization.
+    Uses the existing normalization logic from location_processor.
+    """
+    return normalize_location(raw)

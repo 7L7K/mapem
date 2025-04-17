@@ -5,7 +5,7 @@ from datetime import datetime
 
 event_routes = Blueprint("events", __name__, url_prefix="/api/events")
 
-@event_routes.route("/", methods=["GET"])
+@event_routes.route("/", methods=["GET"], strict_slashes=False)
 def get_events():
     tree_id = request.args.get("tree_id")
     category = request.args.get("category")

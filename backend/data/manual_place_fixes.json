@@ -1,0 +1,40 @@
+{
+    "boliver, mississippi": {
+      "modern_equivalent": "Bolivar County, Mississippi, USA",
+      "lat": 33.7683,
+      "lng": -90.8676
+    },
+    "phoebe, mississippi": {
+      "modern_equivalent": "Pheba, Clay County, Mississippi, USA",
+      "lat": 33.5837,
+      "lng": -88.8839
+    },
+    "hazelhurst, mississippi": {
+      "modern_equivalent": "Hazlehurst, Copiah County, Mississippi, USA",
+      "lat": 31.8604,
+      "lng": -90.3957
+    },
+    "greenwood, leflore, mississippi": {
+      "modern_equivalent": "Greenwood, Leflore County, Mississippi, USA",
+      "lat": 33.5162,
+      "lng": -90.179,
+      "source": "manual"
+    },
+
+    "cleveland ms": {
+      "modern_equivalent": "Cleveland, Bolivar County, Mississippi, USA",
+      "lat": 33.744,
+      "lng": -90.7246
+    },
+    "itta bena": {
+      "modern_equivalent": "Itta Bena, Leflore County, Mississippi, USA",
+      "lat": 33.4945,
+      "lng": -90.3198
+    },
+    "beat 4 weir": {
+      "modern_equivalent": "Beat 4, Choctaw County, Mississippi, USA",
+      "lat": 33.2602,
+      "lng": -89.2789
+    }
+  }
+  

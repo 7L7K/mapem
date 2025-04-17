@@ -1,7 +1,7 @@
 #!/bin/bash
 
-TARGET_DIR="/Users/kingal/mapem/frontend/genealogy-frontend/src/components"
-OUTPUT_FILE="/Users/kingal/Desktop/component_contents.txt"
+TARGET_DIR="$HOME/mapem/frontend/genealogy-frontend/src/components"
+OUTPUT_FILE="$HOME/Desktop/component_contents.txt"
 
 echo "📝 Writing file names + contents from $TARGET_DIR into $OUTPUT_FILE..."
 

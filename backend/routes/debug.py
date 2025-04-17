@@ -1,3 +1,4 @@
+#os.path.expanduser("~")/mapem/backend/routes/debug.py
 from flask import Blueprint, jsonify
 
 debug_routes = Blueprint("debug", __name__)
