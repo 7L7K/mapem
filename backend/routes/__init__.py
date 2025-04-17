@@ -8,6 +8,7 @@ from .schema import schema_routes
 from .debug import debug_routes
 from backend.routes.movements import movements_bp
 from backend.routes.health import health_routes
+from backend.routes.heatmap import heatmap_routes
 
 
 
@@ -22,7 +23,8 @@ def register_routes(app):
         schema_routes,
         debug_routes,
         movements_bp,
-        health_routes
+        health_routes,
+        heatmap_routes
 
     ]
 

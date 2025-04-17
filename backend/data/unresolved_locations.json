@@ -1,1 +1,212 @@
-[]
+[
+  {
+    "raw_name": "Meridian",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:02:41.446090",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "Meridian",
+    "normalized_name": "Meridian",
+    "status": "geocode_failed",
+    "source_tag": "DEAT",
+    "timestamp": "2025-04-17T17:02:41.446868"
+  },
+  {
+    "raw_name": "died young never married",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:03:00.641818",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "died young never married",
+    "normalized_name": "died young never married",
+    "status": "geocode_failed",
+    "source_tag": "DEAT",
+    "timestamp": "2025-04-17T17:03:00.642251"
+  },
+  {
+    "raw_name": "never married died at an early age",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:03:00.859570",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "never married died at an early age",
+    "normalized_name": "never married died at an early age",
+    "status": "geocode_failed",
+    "source_tag": "DEAT",
+    "timestamp": "2025-04-17T17:03:00.859960"
+  },
+  {
+    "raw_name": "?",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:03:33.343130",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "?",
+    "normalized_name": "?",
+    "status": "geocode_failed",
+    "source_tag": "BIRT",
+    "timestamp": "2025-04-17T17:03:33.343553"
+  },
+  {
+    "raw_name": "?",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:03:33.768493",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "?",
+    "normalized_name": "?",
+    "status": "geocode_failed",
+    "source_tag": "BIRT",
+    "timestamp": "2025-04-17T17:03:33.768932"
+  },
+  {
+    "raw_name": "Windson",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:03:40.487583",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "Windson",
+    "normalized_name": "Windson",
+    "status": "geocode_failed",
+    "source_tag": "BIRT",
+    "timestamp": "2025-04-17T17:03:40.488096"
+  },
+  {
+    "raw_name": "Opposition Cemetery",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:03:47.459349",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "Opposition Cemetery",
+    "normalized_name": "Opposition Cemetery",
+    "status": "geocode_failed",
+    "source_tag": "DEAT",
+    "timestamp": "2025-04-17T17:03:47.459823"
+  },
+  {
+    "raw_name": "Greenwood Le, Mississippi",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:03:53.763817",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "Greenwood Le, Mississippi",
+    "normalized_name": "Greenwood Le, Mississippi",
+    "status": "geocode_failed",
+    "source_tag": "BIRT",
+    "timestamp": "2025-04-17T17:03:53.764358"
+  },
+  {
+    "raw_name": "MS",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:04:29.434035",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "MS",
+    "normalized_name": "MS",
+    "status": "geocode_failed",
+    "source_tag": "BIRT",
+    "timestamp": "2025-04-17T17:04:29.434533"
+  },
+  {
+    "raw_name": "MS",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:04:29.627969",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "MS",
+    "normalized_name": "MS",
+    "status": "geocode_failed",
+    "source_tag": "DEAT",
+    "timestamp": "2025-04-17T17:04:29.628492"
+  },
+  {
+    "raw_name": "MS",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:04:42.751045",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "MS",
+    "normalized_name": "MS",
+    "status": "geocode_failed",
+    "source_tag": "BIRT",
+    "timestamp": "2025-04-17T17:04:42.751680"
+  },
+  {
+    "raw_name": "Child",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:04:44.563624",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "Child",
+    "normalized_name": "Child",
+    "status": "geocode_failed",
+    "source_tag": "DEAT",
+    "timestamp": "2025-04-17T17:04:44.564231"
+  },
+  {
+    "raw_name": "MS",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:04:45.893185",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "MS",
+    "normalized_name": "MS",
+    "status": "geocode_failed",
+    "source_tag": "BIRT",
+    "timestamp": "2025-04-17T17:04:45.893994"
+  },
+  {
+    "raw_name": "Child",
+    "source_tag": "unknown",
+    "timestamp": "2025-04-17T17:04:46.171903",
+    "reason": "geocode_failed",
+    "status": "manual_fix_pending",
+    "suggested_fix": null
+  },
+  {
+    "raw_name": "Child",
+    "normalized_name": "Child",
+    "status": "geocode_failed",
+    "source_tag": "DEAT",
+    "timestamp": "2025-04-17T17:04:46.192289"
+  }
+]
