@@ -7,10 +7,13 @@ import {
   Polyline
 } from 'react-leaflet';
 import { getMovements } from '../services/api';
+import { useTree } from '../context/TreeContext';
+
 import Loader from './ui/Loader';
 import ErrorBox from './ui/ErrorBox';
 import 'leaflet/dist/leaflet.css';
 import '../styles/MapView.css';
+
 
 // 🎨 Generates a consistent color per person
 const getColorForId = (id) => {
@@ -21,7 +24,9 @@ const getColorForId = (id) => {
   return colors[id % colors.length];
 };
 
-const MapView = ({ treeId = 1 }) => {
+const MapView = () => {
+  const { treeId } = useTree(); // 👈 this is now reactive!
+  console.log("🌲 [Debug] treeId from context:", treeId);
   const [loading, setLoading] = useState(true);
   const [movements, setMovements] = useState([]);
   const [error, setError] = useState(null);
@@ -35,6 +40,7 @@ const MapView = ({ treeId = 1 }) => {
   });
   const [yearRange, setYearRange] = useState([1900, 2000]);
   const [filteredMovements, setFilteredMovements] = useState([]);
+//
 
   useEffect(() => {
     if (!treeId || isNaN(treeId)) {
@@ -48,10 +54,13 @@ const MapView = ({ treeId = 1 }) => {
 
     getMovements(treeId)
       .then((res) => {
-        const raw = Array.isArray(res.data) ? res.data : [];
-
-        const flattened = raw.flatMap(person => {
-          return person.movements.map(movement => ({
+        console.log("🌐 [API] GET /api/movements/" + treeId);
+        console.log("📬 [Debug] Raw response from getMovements:", res);
+        const raw = Array.isArray(res) ? res : [];
+        console.log("📦 [Debug] Parsed raw person list:", raw);
+        
+        const flattened = raw.flatMap(person =>
+          person.movements.map(movement => ({
             ...movement,
             lat: movement.latitude,
             lng: movement.longitude,
@@ -60,10 +69,11 @@ const MapView = ({ treeId = 1 }) => {
               id: person.person_id,
               name: person.person_name
             }
-          }));
-        });
+          }))
+        );
 
-        console.log(`📦 Total movements fetched: ${flattened.length}`);
+        console.log(`📉 [Debug] Flattened movement count: ${flattened.length}`);
+        console.log("🧭 [Debug] First few movements:", flattened.slice(0, 3));      
 
         const missingCoords = flattened.filter(e => !e.lat || !e.lng);
         if (missingCoords.length > 0) {
@@ -78,6 +88,7 @@ const MapView = ({ treeId = 1 }) => {
         console.log("📊 Event types:", typeCounts);
 
         setMovements(flattened);
+        setFilteredMovements(flattened);
         setLoading(false);
         setTimeout(() => {
           setMapReady(true);
@@ -87,6 +98,7 @@ const MapView = ({ treeId = 1 }) => {
       .catch((err) => {
         console.error("❌ Migration data load error:", err);
         setError("Migration data unavailable.");
+        setFilteredMovements([]);
         setLoading(false);
       });
   }, [treeId]);
@@ -235,10 +247,22 @@ const MapView = ({ treeId = 1 }) => {
             />
             {filteredMovements.map((move, idx) => {
               const { lat, lng, name, year } = move;
-              if (lat == null || lng == null) return null;
+              if (lat == null || lng == null) {
+                console.warn("❌ [Skipped] Missing coordinates for:", move);
+                return null;
+              }
+              
+              console.log("📍 [Render] Marker for:", {
+                idx,
+                lat,
+                lng,
+                name,
+                year
+              });
+              
               return (
                 <Marker key={idx} position={[lat, lng]}>
-                  <Popup>
+                                <Popup>
                     <strong>{name || 'Unknown'}</strong>
                     <br />
                     {year ? `Year: ${year}` : 'No year provided'}

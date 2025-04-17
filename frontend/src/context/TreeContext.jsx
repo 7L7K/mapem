@@ -6,7 +6,8 @@ const TreeContext = createContext();
 export const TreeProvider = ({ children }) => {
   const [treeId, setTreeId] = useState(() => {
     const saved = localStorage.getItem("selectedTreeId");
-    return saved ? Number(saved) : 1;
+    const parsed = Number(saved);
+    return !isNaN(parsed) && parsed > 0 ? parsed : null;
   });
 
   useEffect(() => {
