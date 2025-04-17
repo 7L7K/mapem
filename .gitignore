@@ -4,3 +4,5 @@ notes.txt
 *.zip
 __pycache__/
 *.pyc
+/releases/
+/releases/
