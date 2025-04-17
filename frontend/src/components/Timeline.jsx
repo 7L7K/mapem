@@ -14,11 +14,14 @@ const Timeline = () => {
     axios.get(`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050'}/api/timeline/${treeId}`)
       .then(res => {
         console.log("Timeline data for tree", treeId, ":", res.data);
-        setTimelineData(res.data);
-      })
+        setTimeline(res.data || []);
+        setLoading(false);
+          })
       .catch(err => {
         setError("Failed to load timeline");
         console.error("❌ Timeline fetch error:", err);
+        setLoading(false);
+
       });
   }, [treeId]);
 

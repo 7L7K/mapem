@@ -1,7 +1,7 @@
 import os
 
 # Target folder
-folder_path = "/Users/kingal/mapem/frontend/genealogy-frontend/src/components"
+folder_path = "os.path.expanduser("~")/mapem/frontend/genealogy-frontend/src/components"
 output_file = "components_dump.txt"
 
 with open(output_file, "w", encoding="utf-8") as out:

@@ -4,7 +4,7 @@ from backend.utils.helpers import get_engine
 
 schema_routes = Blueprint("schema", __name__, url_prefix="/api/schema")
 
-@schema_routes.route("/", methods=["GET"])
+@schema_routes.route("/", methods=["GET"], strict_slashes=False)
 def get_schema():
     try:
         insp = inspect(get_engine())

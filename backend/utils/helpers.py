@@ -8,6 +8,8 @@ from fuzzywuzzy import fuzz
 from sqlalchemy.orm import sessionmaker
 from backend.db import get_engine
 from backend.config import settings
+import json
+
 
 def normalize_name(name):
     """Lowercase and strip whitespace."""
@@ -39,3 +41,23 @@ def get_db_connection():
 
 def normalize_location_name(name):
     return re.sub(r'\W+', '_', name.strip().lower())
+
+def print_json(obj):
+    print(json.dumps(obj, indent=2, ensure_ascii=False))
+
+def normalize_confidence_score(value):
+    """Convert string/numeric confidence values to a float."""
+    mapping = {
+        "very high": 0.95,
+        "high": 0.85,
+        "medium": 0.5,
+        "low": 0.25,
+        "very low": 0.1,
+        "unknown": 0.0,
+        None: 0.0,
+    }
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        return mapping.get(value.strip().lower(), 0.0)
+    return 0.0

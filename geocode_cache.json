@@ -1,0 +1,542 @@
+{
+  "Mississippi": [
+    32.3546679,
+    -89.3985283,
+    "Mississippi, USA",
+    0.75
+  ],
+  "mississippi": [
+    32.3546679,
+    -89.3985283,
+    "Mississippi, USA",
+    0.75
+  ],
+  "mississippi_usa": [
+    32.3546679,
+    -89.3985283,
+    "Mississippi, USA",
+    0.75
+  ],
+  "pheba_clay_mississippi_usa": [
+    33.5847365,
+    -88.9495943,
+    "Pheba, MS 39755, USA",
+    0.75
+  ],
+  "mississippi_united_states": [
+    32.3546679,
+    -89.3985283,
+    "Mississippi, USA",
+    0.75
+  ],
+  "beat_2_beat_2_sunflower_mississippi_usa": [
+    33.4490688,
+    -90.6420363,
+    "2nd St, Indianola, MS 38751, USA",
+    0.75
+  ],
+  "chicago_cook_illinois_united_states_of_america": [
+    41.8781136,
+    -87.6297982,
+    "Chicago, IL, USA",
+    0.75
+  ],
+  "ruleville_sunflower_mississippi_usa": [
+    33.7259478,
+    -90.55148059999999,
+    "Ruleville, MS 38771, USA",
+    0.75
+  ],
+  "st_louis_missouri_usa": [
+    38.6270025,
+    -90.19940419999999,
+    "St. Louis, MO, USA",
+    0.75
+  ],
+  "boliver_mississippi_usa": [
+    33.6598339,
+    -91.0531635,
+    "Bolivar, MS 38725, USA",
+    0.75
+  ],
+  "shelby_bolivar_mississippi_united_states_of_america": [
+    33.9509439,
+    -90.76787809999999,
+    "Shelby, MS 38774, USA",
+    0.75
+  ],
+  "itta_bena_mississippi_usa": [
+    33.49512,
+    -90.3198067,
+    "Itta Bena, MS 38941, USA",
+    0.75
+  ],
+  "greenville_washington_mississippi_usa": [
+    33.399661,
+    -91.0377029,
+    "Greenville, MS, USA",
+    0.75
+  ],
+  "phoebe_mississippi_usa": [
+    33.5847365,
+    -88.9495943,
+    "Pheba, MS 39755, USA",
+    0.75
+  ],
+  "hillside_cook_county_illinois_united_states_of_america": [
+    41.8778084,
+    -87.90283980000001,
+    "Hillside, IL 60162, USA",
+    0.75
+  ],
+  "chicago_cook_illinois_usa": [
+    41.8781136,
+    -87.6297982,
+    "Chicago, IL, USA",
+    0.75
+  ],
+  "south_carolina_usa": [
+    33.836081,
+    -81.1637245,
+    "South Carolina, USA",
+    0.75
+  ],
+  "franklin_monroe_county_alabama_united_states_of_america": [
+    31.7145942,
+    -87.4113819,
+    "Franklin, AL 36444, USA",
+    0.75
+  ],
+  "winston_mississippi": [
+    33.1650338,
+    -89.0179332,
+    "Winston County, MS, USA",
+    0.75
+  ],
+  "tennessee": [
+    35.5174913,
+    -86.5804473,
+    "Tennessee, USA",
+    0.75
+  ],
+  "ackerman_mississippi": [
+    33.3101243,
+    -89.17284339999999,
+    "Ackerman, MS 39735, USA",
+    0.75
+  ],
+  "ackerman_mississippi_united_states": [
+    33.3101243,
+    -89.17284339999999,
+    "Ackerman, MS 39735, USA",
+    0.75
+  ],
+  "louisiana_united_states": [
+    30.5190775,
+    -91.5208624,
+    "Louisiana, USA",
+    0.75
+  ],
+  "choctaw_mississippi": [
+    32.8294273,
+    -89.1311937,
+    "Choctaw, MS 39350, USA",
+    0.75
+  ],
+  "greenville_west_mississippi": [
+    33.399661,
+    -91.0377029,
+    "Greenville, MS, USA",
+    0.75
+  ],
+  "itta_bena": [
+    33.49512,
+    -90.3198067,
+    "Itta Bena, MS 38941, USA",
+    0.75
+  ],
+  "greenwood_leflore_mississippi_usa": [
+    33.5162315,
+    -90.1795281,
+    "Greenwood, MS, USA",
+    0.75
+  ],
+  "tunica_county_mississippi_usa": [
+    34.6407083,
+    -90.4125181,
+    "Tunica County, MS, USA",
+    0.75
+  ],
+  "shaw_bolivar_mississippi": [
+    33.6017815,
+    -90.7737075,
+    "Shaw, MS 38773, USA",
+    0.75
+  ],
+  "milwaukee_milwaukee_wisconsin_united_states_of_america": [
+    43.0410344,
+    -87.9096783,
+    "Milwaukee, WI, USA",
+    0.75
+  ],
+  "dodge_wisconsin": [
+    44.1321852,
+    -91.5520942,
+    "Dodge, WI, USA",
+    0.75
+  ],
+  "_sunflower_mississippi_usa": [
+    33.5428954,
+    -90.5370327,
+    "Sunflower, MS 38778, USA",
+    0.75
+  ],
+  "milwaukee_milwaukee_wisconsin_usa": [
+    43.0410344,
+    -87.9096783,
+    "Milwaukee, WI, USA",
+    0.75
+  ],
+  "sunflower_county_mississippi_usa": [
+    33.526164,
+    -90.6773046,
+    "Sunflower County, MS, USA",
+    0.75
+  ],
+  "moorhead_sunflower_mississippi_usa": [
+    33.4501195,
+    -90.5056427,
+    "Moorhead, MS 38761, USA",
+    0.75
+  ],
+  "louisiana": [
+    30.5190775,
+    -91.5208624,
+    "Louisiana, USA",
+    0.75
+  ],
+  "collinston_louisiana": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, LA 71229, USA",
+    0.75
+  ],
+  "chicago_cook_illinois": [
+    41.8781136,
+    -87.6297982,
+    "Chicago, IL, USA",
+    0.75
+  ],
+  "collinston_morehouse_louisiana_usa": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, LA 71229, USA",
+    0.75
+  ],
+  "hazelhurst_mississippi_usa": [
+    31.8604382,
+    -90.39592549999999,
+    "Hazlehurst, MS 39083, USA",
+    0.75
+  ],
+  "cleveland_bolivar_mississippi_usa": [
+    33.7440023,
+    -90.7248187,
+    "Cleveland, MS 38732, USA",
+    0.75
+  ],
+  "leland_washington_county_mississippi_usa": [
+    33.4053949,
+    -90.89760070000001,
+    "Leland, MS 38756, USA",
+    0.75
+  ],
+  "crete_will_illinois_usa": [
+    41.4444791,
+    -87.6314312,
+    "Crete, IL, USA",
+    0.75
+  ],
+  "leland_washington_mississippi_usa": [
+    33.4053949,
+    -90.89760070000001,
+    "Leland, MS 38756, USA",
+    0.75
+  ],
+  "chicago_cook_illinois_united_states": [
+    41.8781136,
+    -87.6297982,
+    "Chicago, IL, USA",
+    0.75
+  ],
+  "louisiana_usa": [
+    30.5190775,
+    -91.5208624,
+    "Louisiana, USA",
+    0.75
+  ],
+  "collinston_louisiana_usa": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, LA 71229, USA",
+    0.75
+  ],
+  "united_kingdom": [
+    55.378051,
+    -3.435973,
+    "United Kingdom",
+    0.75
+  ],
+  "windsor_more_louisiana": [
+    30.5190775,
+    -91.5208624,
+    "Louisiana, USA",
+    0.75
+  ],
+  "collinston_morehouse_louisiana": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, LA 71229, USA",
+    0.75
+  ],
+  "collinston_morehouse_louisiana_united_states": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, LA 71229, USA",
+    0.75
+  ],
+  "compton_los_angeles_california_usa": [
+    33.8959097,
+    -118.2243901,
+    "Compton, CA, USA",
+    0.75
+  ],
+  "louisana_usa": [
+    30.5190775,
+    -91.5208624,
+    "Louisiana, USA",
+    0.75
+  ],
+  "moorehead_miss": [
+    33.4501195,
+    -90.5056427,
+    "Moorhead, MS 38761, USA",
+    0.75
+  ],
+  "cook_illinois_united_states": [
+    41.7376587,
+    -87.697554,
+    "Cook County, IL, USA",
+    0.75
+  ],
+  "elwood_will_county_illinois_united_states_of_america": [
+    41.4039201,
+    -88.1117242,
+    "Elwood, IL, USA",
+    0.75
+  ],
+  "morehead_mississippi_usa": [
+    33.4501195,
+    -90.5056427,
+    "Moorhead, MS 38761, USA",
+    0.75
+  ],
+  "fayette_tennessee_usa": [
+    35.1520266,
+    -86.57055079999999,
+    "Fayetteville, TN 37334, USA",
+    0.75
+  ],
+  "indianola_sunflower_mississippi_usa": [
+    33.4509513,
+    -90.6550917,
+    "Indianola, MS 38751, USA",
+    0.75
+  ],
+  "winston_county_mississippi_usa": [
+    33.1650338,
+    -89.0179332,
+    "Winston County, MS, USA",
+    0.75
+  ],
+  "pheba_clay_mississippi": [
+    33.5847365,
+    -88.9495943,
+    "Pheba, MS 39755, USA",
+    0.75
+  ],
+  "beat_2_sunflower_mississippi": [
+    33.526164,
+    -90.6773046,
+    "Sunflower County, MS, USA",
+    0.75
+  ],
+  "ruleville_sunflower_mississippi": [
+    33.7259478,
+    -90.55148059999999,
+    "Ruleville, MS 38771, USA",
+    0.75
+  ],
+  "st_louis_missouri": [
+    38.6270025,
+    -90.19940419999999,
+    "St. Louis, MO, USA",
+    0.75
+  ],
+  "boliver_mississippi": [
+    33.6598339,
+    -91.0531635,
+    "Bolivar, MS 38725, USA",
+    0.75
+  ],
+  "shelby_bolivar_mississippi": [
+    33.9509439,
+    -90.76787809999999,
+    "Shelby, MS 38774, USA",
+    0.75
+  ],
+  "itta_bena_mississippi": [
+    33.49512,
+    -90.3198067,
+    "Itta Bena, MS 38941, USA",
+    0.75
+  ],
+  "greenville_washington_mississippi": [
+    33.399661,
+    -91.0377029,
+    "Greenville, MS, USA",
+    0.75
+  ],
+  "phoebe_mississippi": [
+    33.5847365,
+    -88.9495943,
+    "Pheba, MS 39755, USA",
+    0.75
+  ],
+  "hillside_cook_county_illinois": [
+    41.8778084,
+    -87.90283980000001,
+    "Hillside, IL 60162, USA",
+    0.75
+  ],
+  "south_carolina": [
+    33.836081,
+    -81.1637245,
+    "South Carolina, USA",
+    0.75
+  ],
+  "franklin_monroe_county_alabama": [
+    31.7145942,
+    -87.4113819,
+    "Franklin, AL 36444, USA",
+    0.75
+  ],
+  "greenwood_leflore_mississippi": [
+    33.5162315,
+    -90.1795281,
+    "Greenwood, MS, USA",
+    0.75
+  ],
+  "tunica_county_mississippi": [
+    34.6407083,
+    -90.4125181,
+    "Tunica County, MS, USA",
+    0.75
+  ],
+  "milwaukee_wisconsin": [
+    43.0410344,
+    -87.9096783,
+    "Milwaukee, WI, USA",
+    0.75
+  ],
+  "sunflower_mississippi": [
+    33.5428954,
+    -90.5370327,
+    "Sunflower, MS 38778, USA",
+    0.75
+  ],
+  "sunflower_county_mississippi": [
+    33.526164,
+    -90.6773046,
+    "Sunflower County, MS, USA",
+    0.75
+  ],
+  "moorhead_sunflower_mississippi": [
+    33.4501195,
+    -90.5056427,
+    "Moorhead, MS 38761, USA",
+    0.75
+  ],
+  "hazelhurst_mississippi": [
+    31.8604382,
+    -90.39592549999999,
+    "Hazlehurst, MS 39083, USA",
+    0.75
+  ],
+  "cleveland_bolivar_mississippi": [
+    33.7440023,
+    -90.7248187,
+    "Cleveland, MS 38732, USA",
+    0.75
+  ],
+  "leland_washington_county_mississippi": [
+    33.4053949,
+    -90.89760070000001,
+    "Leland, MS 38756, USA",
+    0.75
+  ],
+  "crete_will_illinois": [
+    41.4444791,
+    -87.6314312,
+    "Crete, IL, USA",
+    0.75
+  ],
+  "leland_washington_mississippi": [
+    33.4053949,
+    -90.89760070000001,
+    "Leland, MS 38756, USA",
+    0.75
+  ],
+  "compton_los_angeles_california": [
+    33.8959097,
+    -118.2243901,
+    "Compton, CA, USA",
+    0.75
+  ],
+  "louisana": [
+    30.5190775,
+    -91.5208624,
+    "Louisiana, USA",
+    0.75
+  ],
+  "elwood_will_county_illinois": [
+    41.4039201,
+    -88.1117242,
+    "Elwood, IL, USA",
+    0.75
+  ],
+  "morehead_mississippi": [
+    33.4501195,
+    -90.5056427,
+    "Moorhead, MS 38761, USA",
+    0.75
+  ],
+  "fayette_tennessee": [
+    35.1257427,
+    -89.4742177,
+    "Fayette County, TN, USA",
+    0.75
+  ],
+  "indianola_sunflower_mississippi": [
+    33.4509513,
+    -90.6550917,
+    "Indianola, MS 38751, USA",
+    0.75
+  ],
+  "winston_county_mississippi": [
+    33.1650338,
+    -89.0179332,
+    "Winston County, MS, USA",
+    0.75
+  ]
+}

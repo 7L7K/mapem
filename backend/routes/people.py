@@ -1,10 +1,11 @@
+#os.path.expanduser("~")/mapem/backend/routes/people.py
 from flask import Blueprint, request, jsonify
 from backend.models import Individual
 from backend.db import get_db_connection
 
 people_routes = Blueprint("people", __name__, url_prefix="/api/people")
 
-@people_routes.route("/", methods=["GET"])
+@people_routes.route("/", methods=["GET"], strict_slashes=False)
 def get_people():
     tree_id = request.args.get("tree_id")
     limit = int(request.args.get("limit", 500))

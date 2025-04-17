@@ -41,9 +41,18 @@ const UploadPanel = () => {
       setStatus("❌ Upload failed.");
       setTimeout(() => setVisible(false), 1500);
 
+      let backendTrace = "";
+      try {
+        const parsed = JSON.parse(err.request?.responseText);
+        backendTrace = parsed?.trace || "";
+        console.log("🧠 Backend Trace:\n", backendTrace);
+      } catch (parseErr) {
+        console.warn("⚠️ Could not parse backend trace:", parseErr);
+      }
+
       setUploadStatus(`Upload failed: ${err.message}`);
-      console.error(err);
-    }
+      console.error("❌ Upload error:", err);
+    } // <-- THIS was missing
   };
 
   return (

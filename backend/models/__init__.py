@@ -1,3 +1,4 @@
+# os.path.expanduser("~")/mapem/backend/models/__init__.py
 from sqlalchemy import (
     Column, BigInteger, Integer, String, Date, DateTime,
     Float, JSON, ForeignKey, Index
@@ -48,8 +49,8 @@ class Event(Base):
     date           = Column(Date)
     date_precision = Column(String)
     notes          = Column(String)
-    source_tag     = Column(String)          # NEW: GEDCOM tag that generated this event
-    category       = Column(String)          # NEW: e.g. "life_event", "migration", "religious"
+    source_tag     = Column(String)          # GEDCOM tag that generated this event
+    category       = Column(String)          # e.g. "life_event", "migration", etc.
     
     individual_id  = Column(BigInteger, ForeignKey("individuals.id"))
     family_id      = Column(Integer, ForeignKey("families.id"))
@@ -60,18 +61,21 @@ class Event(Base):
     family     = relationship("Family", back_populates="events")
     location   = relationship("Location")
 
-
 class Location(Base):
     __tablename__ = "locations"
-    id              = Column(Integer, primary_key=True, autoincrement=True)
-    raw_name        = Column(String, nullable=False)      # ✅ ADD THIS
-    name            = Column(String, unique=True)
-    normalized_name = Column(String)          # NEW: Standardized version for deduplication
-    latitude        = Column(Float)
-    longitude       = Column(Float)
-    confidence_score= Column(Float)           # NEW: Confidence of the geocode result
-    timestamp       = Column(DateTime, default=datetime.utcnow)
-    historical_data = Column(JSON)
+    id               = Column(Integer, primary_key=True, autoincrement=True)
+    raw_name         = Column(String, nullable=False)      # Original GEDCOM input
+    name             = Column(String, unique=True)         # Best display name
+    normalized_name  = Column(String, nullable=False)        # Standardized for deduplication
+    latitude         = Column(Float)
+    longitude        = Column(Float)
+    confidence_score = Column(Float)                         # Confidence of geocode result
+    timestamp        = Column(DateTime, default=datetime.utcnow)
+    historical_data  = Column(JSON)                          # Store extra metadata
+    source           = Column(String)                          # "google", "nominatim", "manual", "historical"
+    status           = Column(String)                          # "ok", "vague", "manual", "failed"
+    confidence_label = Column(String)  # <-- add this
+
 
 class ResidenceHistory(Base):
     __tablename__ = "residence_history"
@@ -92,6 +96,7 @@ class TreeVersion(Base):
     version_number = Column(Integer, nullable=False)
     created_at     = Column(DateTime, default=datetime.utcnow)
     diff_summary   = Column(JSON)
+    uploaded_tree_id  = Column(BigInteger, ForeignKey("uploaded_trees.id"), index=True)
 
 class Source(Base):
     __tablename__ = "sources"
@@ -154,6 +159,6 @@ class TreeRelationship(Base):
     relationship_type= Column(String)
     notes            = Column(String)
 
-# handy composite indexes
+# Handy composite indexes for performance.
 Index("ix_individuals_tree_gedcom", Individual.tree_id, Individual.gedcom_id)
-Index("ix_families_tree_gedcom",   Family.tree_id,     Family.gedcom_id)
+Index("ix_families_tree_gedcom",   Family.tree_id, Family.gedcom_id)
