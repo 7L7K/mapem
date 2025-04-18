@@ -1,16 +1,34 @@
-#!/usr/bin/env python
-from backend import config, models  # Adjust import paths as needed
-from backend.db import get_engine
+# scripts/reset_db.py
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Create the engine using your configuration
-engine = get_engine()
+from backend.db import get_db_connection
+from backend.models import (
+    Individual, Family, TreeRelationship, Event,
+    Location, UploadedTree, TreeVersion
+)
 
-def reset_database():
-    print("Dropping all tables...")
-    models.Base.metadata.drop_all(engine)
-    print("Creating all tables...")
-    models.Base.metadata.create_all(engine)
-    print("Database reset complete.")
+def nuke_everything():
+    session = get_db_connection()
+    print("🔥 Deleting all data...")
 
-if __name__ == '__main__':
-    reset_database()
+    deletion_order = [
+        TreeRelationship,
+        Event,
+        Individual,
+        Family,
+        Location,
+        TreeVersion,        # 🔥 Move this BEFORE UploadedTree
+        UploadedTree
+    ]
+
+    for model in deletion_order:
+        count = session.query(model).delete()
+        print(f"🧨 Deleted {count} from {model.__tablename__}")
+
+    session.commit()
+    session.close()
+    print("✅ Database wiped clean.")
+
+if __name__ == "__main__":
+    nuke_everything()

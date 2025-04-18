@@ -24,7 +24,7 @@ This document gives Codex (or any dev) full insight into the MapEm system — wh
 - `manual_place_fixes.json` 
 - `residences.geojson` 
 - `residences_map.html` 
-- `test_map.html` 
+- `test_mapp` 
 - `unresolved_locations.json` 
 
 **data/historical_places/**

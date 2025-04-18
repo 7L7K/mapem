@@ -74,5 +74,6 @@ def create_app():
         logger.info("🗺️ Warming up heatmap shapes on first request...")
         warmup_heatmap()
 
+    app.logger.setLevel("DEBUG")
     logger.info(f"✅ Flask app created and ready on port {settings.PORT}.")
     return app

@@ -89,9 +89,9 @@ def get_heatmap():
         # Dedupe per person+location
         heat = {}
         for evt, loc in raw:
-            if loc.latitude is None or loc.longitude is None:
-                current_app.logger.debug(f"Skipping loc {loc.id} missing coords")
-                continue
+            #if loc.latitude is None or loc.longitude is None:
+                #current_app.logger.debug(f"Skipping loc {loc.id} missing coords")
+                #continue
             key = loc.id
             if key not in heat:
                 heat[key] = {

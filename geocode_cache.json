@@ -3460,5 +3460,41 @@
     -96.83509989999999,
     "Lavaca County, TX, USA",
     0.75
+  ],
+  "white_arkansas": [
+    35.2900612,
+    -91.7538817,
+    "White County, AR, USA",
+    0.75
+  ],
+  "reno_nevada": [
+    39.529919,
+    -119.8142691,
+    "Reno, NV, USA",
+    0.75
+  ],
+  "marengo_alabama": [
+    32.2459085,
+    -87.77633329999999,
+    "Marengo County, AL, USA",
+    0.75
+  ],
+  "reform_pickens_al": [
+    33.378451,
+    -88.01530079999999,
+    "Reform, AL, USA",
+    0.75
+  ],
+  "littlebury_essex_england": [
+    52.032417,
+    0.209853,
+    "Littlebury, Saffron Walden CB11, UK",
+    0.75
+  ],
+  "bertie_north_carolina": [
+    36.0245185,
+    -76.964306,
+    "Bertie County, NC, USA",
+    0.75
   ]
 }

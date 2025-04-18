@@ -206,6 +206,10 @@ class GEDCOMParser:
                 )
 
                 print("   ➡ [RESOLVED]\n", loc_out.model_dump_json(indent=2))
+                if loc_out.latitude is None or not loc_out.normalized_name:
+                    print("⚠️ [UNRESOLVED] No lat/lng or normalized_name:")
+                    print(loc_out.model_dump_json(indent=2))
+
 
 
                 # Check if we already have this normalized_name in DB

@@ -8,68 +8,64 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050
 const TreeSelector = () => {
   const { treeId, setTreeId } = useTree();
   const [trees, setTrees] = useState([]);
-  const [selectedTree, setSelectedTree] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedTree, setSelectedTree] = useState(null);
 
-  // Fetch tree list
   useEffect(() => {
     console.log("📡 Fetching tree list...");
     axios.get(`${API_BASE_URL}/api/trees`)
       .then(res => {
-        console.log("✅ Tree list loaded:", res.data);
-        setTrees(res.data);
+        const treeList = res.data || [];
+        setTrees(treeList);
         setLoading(false);
 
-        // Try to restore selected tree from localStorage
-        const savedTreeId = localStorage.getItem("selectedTreeId");
-        if (savedTreeId && res.data.some(t => t.id === Number(savedTreeId))) {
-          setTreeId(Number(savedTreeId));
+        if (treeList.length === 0) {
+          console.warn("🪵 No trees available.");
+          localStorage.removeItem("selectedTreeId");
+          return;
+        }
+
+        // Try restoring saved treeId
+        const savedTreeId = parseInt(localStorage.getItem("selectedTreeId"), 10);
+        const isValid = treeList.some(t => t.id === savedTreeId);
+
+        if (isValid) {
+          console.log(`🌲 Restoring saved treeId: ${savedTreeId}`);
+          setSelectedTree(savedTreeId);
+          setTreeId(savedTreeId);
+        } else {
+          const fallbackId = treeList[treeList.length - 1].id;
+          console.warn(`⚠️ Invalid saved treeId (${savedTreeId}). Falling back to: ${fallbackId}`);
+          localStorage.setItem("selectedTreeId", fallbackId);
+          setSelectedTree(fallbackId);
+          setTreeId(fallbackId);
         }
       })
       .catch(err => {
-        console.error("❌ Failed to fetch tree list:", err);
+        console.error("❌ Failed to load tree list:", err);
         setLoading(false);
       });
   }, []);
 
-  // Update local state and save to localStorage
-  useEffect(() => {
-    if (treeId && trees.length) {
-      localStorage.setItem("selectedTreeId", treeId);
-      const match = trees.find(t => t.id === treeId);
-      setSelectedTree(match || null);
-    }
-  }, [treeId, trees]);
+  const handleChange = (e) => {
+    const newId = parseInt(e.target.value, 10);
+    localStorage.setItem("selectedTreeId", newId);
+    setSelectedTree(newId);
+    setTreeId(newId);
+  };
 
-  if (loading) return <div>Loading tree list...</div>;
+  if (loading) return <div>Loading trees...</div>;
 
   return (
-    <div style={{ marginBottom: '1.5rem' }}>
-      <label><strong>🌲 Select Tree:</strong></label>
-      <select
-        value={treeId || ""}
-        onChange={(e) => {
-          const newId = Number(e.target.value);
-          console.log("🔄 Tree changed to:", newId);
-          setTreeId(newId);
-        }}
-      >
-        <option value="" disabled>Select a tree...</option>
+    <div className="tree-selector">
+      <label htmlFor="treeSelect">🌳 Select Tree:</label>
+      <select id="treeSelect" value={selectedTree || ''} onChange={handleChange}>
         {trees.map(tree => (
           <option key={tree.id} value={tree.id}>
-            {tree.name || `Tree ${tree.id}`}
+            {tree.name}
           </option>
         ))}
       </select>
-
-      {/* Tree metadata preview */}
-      {selectedTree && (
-        <div style={{ marginTop: '0.75rem', fontSize: '0.9rem' }}>
-          <div><strong>ID:</strong> {selectedTree.id}</div>
-          <div><strong>Name:</strong> {selectedTree.name}</div>
-          <div><strong>Uploaded:</strong> {new Date(selectedTree.created_at).toLocaleString()}</div>
-        </div>
-      )}
     </div>
   );
 };
