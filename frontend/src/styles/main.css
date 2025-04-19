@@ -1,41 +1,51 @@
+/* frontend/src/styles/main.css */
+@import './tokens.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 
-a {
-  @apply text-inherit no-underline;
+@layer base {
+  html, body {
+    margin:  0;
+    padding: 0;
+    font-family: var(--font-sans, Inter), sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-display, "Chillax"), sans-serif;
+    color: var(--text);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 }
 
-html, body {
-  background-color: #111;
-  color: #f9f9f9;
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 20px;
+@layer components {
+  .panel {
+    background-color: var(--surface);
+    color: var(--text);
+    /* raw CSS box-shadow = Tailwind’s shadow-md */
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1),
+                0 2px 4px -2px rgba(0,0,0,0.1);
+  }
+
+  .tree-card {
+    background-color: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .error-box {
+    background-color: var(--error);
+    color: white;
+    border: 1px solid #7f1d1d; /* tailwind’s red-900 fallback */
+    padding: 0.5rem 1rem;       /* equals px-4 py-2 */
+    border-radius: 0.25rem;     /* equals rounded */
+  }
 }
 
-
-h2, h3, h4, h5 {
-  color: #fff;
-}
-
-.panel {
-  background-color: #222;
-  color: #f9f9f9;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
-}
-
-
-
-.tree-card {
-  background: #1a1a1a;
-  border: 1px solid #333;
-  color: #f9f9f9;
-}
-
-.error-box {
-  background: #2a0000;
-  border: 1px solid #990000;
-  color: #ff6666;
-}
