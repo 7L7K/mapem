@@ -1,18 +1,18 @@
-// frontend/src/components/Header.jsx
 import React, { useEffect } from "react";
-import { NavLink, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import SegmentedNav from "./ui/SegmentedNav";
+import TabLink from "./ui/TabLink";
 
 export default function Header() {
   const loc = useLocation();
 
   useEffect(() => {
-    console.log("🧭 [Header.jsx] Rendering for route:", loc.pathname);
-  }, [loc.pathname]);
+    console.log("🚀 [Header] Mounted.");
+  }, []);
 
-  const navClass = ({ isActive }) =>
-    isActive
-      ? "text-white border-b-2 border-amber-500 pb-1"
-      : "text-gray-300 hover:text-white transition";
+  useEffect(() => {
+    console.log("🌍 [Header] Location changed:", loc.pathname);
+  }, [loc.pathname]);
 
   return (
     <header className="bg-zinc-900 text-white px-6 py-4 border-b border-zinc-700 shadow sticky top-0 z-50">
@@ -23,21 +23,13 @@ export default function Header() {
           <h1 className="text-xl font-bold tracking-wide">MapEm</h1>
         </div>
 
-        {/* Center: Nav Tabs with real gap */}
-        <nav className="flex gap-6 text-sm font-medium">
-          <NavLink to="/dashboard" className={navClass}>Dashboard</NavLink>
-          <NavLink to="/map" className={navClass}>Map</NavLink>
-          <NavLink to="/timeline" className={navClass}>Timeline</NavLink>
-          <NavLink to="/people" className={navClass}>People</NavLink>
-        </nav>
+        {/* Center: Segmented Nav */}
+        <div className="flex-1 flex justify-center">
+          <SegmentedNav />
+        </div>
 
         {/* Right: Upload CTA */}
-        <NavLink
-          to="/upload"
-          className="bg-amber-500 text-black px-4 py-2 rounded-lg text-sm font-semibold shadow hover:bg-amber-600 transition"
-        >
-          📤 Upload GEDCOM
-        </NavLink>
+        <TabLink to="/upload">📤 Upload GEDCOM</TabLink>
       </div>
     </header>
   );

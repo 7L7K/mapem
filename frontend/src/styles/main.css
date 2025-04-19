@@ -1,7 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-yeah
+
+
+a {
+  @apply text-inherit no-underline;
+}
+
 html, body {
   background-color: #111;
   color: #f9f9f9;
@@ -10,9 +15,6 @@ html, body {
   padding: 20px;
 }
 
-a {
-  color: #7ecfff; /* Light blue links */
-}
 
 h2, h3, h4, h5 {
   color: #fff;
