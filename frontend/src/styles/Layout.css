@@ -21,19 +21,6 @@ html, body, #root {
     border-bottom: 1px solid #333;
   }
   
-  .nav-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    padding: 0;
-    margin: 0.5rem 0;
-    list-style: none;
-  }
-  
-  .nav-links li a {
-    color: #00d9ff;
-    text-decoration: none;
-  }
   
   .app-main {
     flex: 1;
@@ -62,7 +49,3 @@ html, body, #root {
     color: #fff;
   }
 
-  /* optional: smooth underline animation */
-  a {
-    transition: all 0.15s ease-in-out;
-  }

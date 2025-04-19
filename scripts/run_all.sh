@@ -174,7 +174,6 @@ launch_flask() {
 launch_vite() {
   start_timer "Vite boot"
   echo -e "\n📦 Checking frontend…"
-  # Adjust FRONTEND_DIR if needed; here it’s set to the root of your frontend
   FRONTEND_DIR="$PROJECT_ROOT/frontend"
   cd "$FRONTEND_DIR" || { error "frontend folder missing at $FRONTEND_DIR"; exit 1; }
   if [ ! -f package.json ]; then
@@ -183,7 +182,7 @@ launch_vite() {
   fi
 
   [[ "$CLEAN_NODE" == "1" ]] && { rm -rf node_modules package-lock.json; echo "🧹 Cleaned node_modules"; }
-  
+
   if [[ "$SKIP_INSTALL" != "1" ]]; then
     start_timer "Node deps"
     echo -e "\n📦 Checking Node deps hash…"
@@ -192,7 +191,12 @@ launch_vite() {
     OLD_PKG_HASH=$(cat "$CACHE_PATH" 2>/dev/null || echo "")
     if [[ "$PKG_HASH" != "$OLD_PKG_HASH" ]]; then
       echo -e "\n📦 Installing Node deps…"
-      npm install --no-fund --no-audit || { error "npm install failed"; exit 1; }
+      npm install --no-fund --no-audit || {
+        echo -e "⚠️ Standard install failed. Retrying with --legacy-peer-deps…"
+        npm install --legacy-peer-deps --no-fund --no-audit || {
+          error "npm install (even with legacy-peer-deps) failed"; exit 1;
+        }
+      }
       echo "$PKG_HASH" > "$CACHE_PATH"
       success "Node deps installed"
     else
@@ -203,26 +207,23 @@ launch_vite() {
     echo "🚀 Skipping Node install"
   fi
 
-  # Only check critical frontend packages if Node deps were reinstalled
   if [[ "$PKG_HASH" != "$OLD_PKG_HASH" ]]; then
-    for pkg in react-router-dom axios cytoscape cytoscape-dagre react-leaflet leaflet; do
-      npm list "$pkg" >/dev/null 2>&1 || { npm install "$pkg" || { error "Failed $pkg"; exit 1; }; }
-      echo "✅ $pkg OK"
-    done
-  else
     echo "📦 Skipping individual package checks (deps unchanged)"
   fi
 
-  # Vite config check
   echo -e "\n🔍 Vite config check…"
-  grep -q '"vite":' package.json && grep -q '"dev": "vite' package.json || { error "Vite config missing in package.json"; exit 1; }
+  grep -q '"vite":' package.json && grep -q '"dev": "vite' package.json || {
+    error "Vite config missing in package.json"; exit 1;
+  }
   if ! npm list vite >/dev/null 2>&1; then
-    npm install vite --save-dev --no-audit --loglevel=error || { error "Vite install failed"; exit 1; }
+    npm install vite --save-dev --no-audit --loglevel=error || {
+      error "Vite install failed"; exit 1;
+    }
   else
     echo "✅ Vite already installed"
   fi
   success "Vite ready"
-  
+
   echo -e "\n⚛️ Starting Vite…"
   export PATH="$PWD/node_modules/.bin:$PATH"
   npm run dev > frontend.log 2>&1 &
@@ -237,7 +238,6 @@ launch_vite() {
   fi
   end_timer "Vite boot"
 }
-
 echo -e "\n🚀 Launching Flask and Vite concurrently…"
 launch_flask & FLASK_LAUNCH_PID=$!
 launch_vite & VITE_LAUNCH_PID=$!

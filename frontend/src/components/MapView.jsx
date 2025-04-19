@@ -1,3 +1,4 @@
+///Users/kingal/mapem/frontend/src/components/MapView.jsx
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTree } from '../context/TreeContext';
 import { getMovements } from '../services/api';
@@ -9,9 +10,9 @@ import Legend from './Map/Legend';
 import PersonDrawer from './Map/PersonDrawer';
 import Loader from './ui/Loader';
 import ErrorBox from './ui/ErrorBox';
-
-import "../styles/MapView.postcss";
 import MigrationMapBoundary from './Map/MigrationMapBoundary';
+
+import '../styles/MapView.postcss';
 
 const log = (...args) => console.log('🗺️ [MapView]', ...args);
 
@@ -33,22 +34,21 @@ const MapView = () => {
   });
 
   useEffect(() => {
-    log("🔄 [MapView] filterState changed:", filterState);
+    log("🔄 filterState changed:", filterState);
   }, [filterState]);
 
-  // fetch movements
   const [movements, setMovements] = useState([]);
   useEffect(() => {
     if (!treeId) return;
     setLoading(true);
     setError(null);
-    log(`📡 [MapView] fetching movements for treeId=${treeId}`);
+    log(`📡 fetching movements for treeId=${treeId}`);
     getMovements(treeId)
       .then(res => {
         const flat = (res || []).flatMap(p =>
           p.movements.map(m => ({ ...m, person_id: p.person_id, person_name: p.person_name }))
         );
-        log('✅ [MapView] loaded', flat.length, 'total events');
+        log('✅ loaded', flat.length, 'total events');
         setMovements(flat);
       })
       .catch(err => {
@@ -58,29 +58,24 @@ const MapView = () => {
       .finally(() => setLoading(false));
   }, [treeId]);
 
-  // apply filters
   const [filteredMovements, setFilteredMovements] = useState([]);
   const applyFilters = useCallback(() => {
-    log('🔍 [MapView] applying filters to', movements.length, 'movements');
+    log('🔍 applying filters to', movements.length, 'movements');
     const result = movements.filter(mv => {
       const { person, year, eventTypes, vague } = filterState;
-      // type
       const t = (mv.event_type || '').toLowerCase();
       const okType =
         (t.includes('birth') && eventTypes.birth) ||
         (t.includes('death') && eventTypes.death) ||
         (t.includes('residence') && eventTypes.residence);
-      // year
-      const yr = parseInt(mv.year,10);
+      const yr = parseInt(mv.year, 10);
       const okYear = isNaN(yr) ? true : yr >= year[0] && yr <= year[1];
-      // person
       const okPerson = person.trim() === '' ||
         mv.person_name.toLowerCase().includes(person.toLowerCase());
-      // vague
       const okVague = vague || (!!mv.latitude && !!mv.longitude);
       return okType && okYear && okPerson && okVague;
     });
-    log('✅ [MapView] filter result count:', result.length);
+    log('✅ filter result count:', result.length);
     setFilteredMovements(result);
   }, [movements, filterState]);
   useEffect(applyFilters, [applyFilters]);
@@ -94,26 +89,41 @@ const MapView = () => {
     if (!filteredMovements.length) return [37.8, -96];
     const avg = filteredMovements.reduce(
       (acc, m) => {
-        acc.lat += m.latitude; acc.lng += m.longitude; return acc;
+        acc.lat += m.latitude;
+        acc.lng += m.longitude;
+        return acc;
       },
       { lat: 0, lng: 0 }
     );
-    return [avg.lat / filteredMovements.length, avg.lng / filteredMovements.length];
+    const center = [avg.lat / filteredMovements.length, avg.lng / filteredMovements.length];
+    log('📍 mapCenter:', center);
+    return center;
   }, [filteredMovements]);
-  log('🔭 [MapView] mapCenter:', mapCenter);
 
-// …everything above stays the same …
+  // 👀 MapView render log
+  useEffect(() => {
+    const el = document.querySelector('#map-debug-container');
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      console.log('%c[MapView] Map container height:', 'color:magenta', rect.height);
+    } else {
+      console.warn('%c[MapView] #map-debug-container not found', 'color:red');
+    }
+  }, [filteredMovements]);
 
   return (
-    <div className="map-view-container mt-20">   {/* 20 = 5rem; tweak if needed */}
-      {/* Filter bar + drawer sit just inside MapView, not fixed */}
-      <div className="relative z-10">
+    <div className="flex h-[calc(100vh-5rem)] mt-20 overflow-hidden bg-neutral-900">
+      {/* Left Panel (Sidebar) */}
+      <div className="w-[300px] text-white p-2 border-r border-neutral-800 overflow-y-auto bg-neutral-900">
         <QuickFilterBar
           filterState={filterState}
           setFilterState={setFilterState}
           onToggleDrawer={() => setDrawerOpen(true)}
         />
+      </div>
 
+      {/* Main Map Area */}
+      <div className="flex-1 flex flex-col bg-transparent h-full min-h-[600px] relative">
         <AdvancedFilterDrawer
           isOpen={isDrawerOpen}
           filterState={filterState}
@@ -124,26 +134,32 @@ const MapView = () => {
             setDrawerOpen(false);
           }}
         />
+
+        {/* Map + Loader/Error */}
+        <div
+          id="map-debug-container"
+          className="relative w-full z-0 border-4 border-red-500"
+          style={{
+            height: 'calc(100vh - 100px)',
+            minHeight: '600px',
+          }}
+        >
+          {loading && <Loader />}
+          {error && <ErrorBox message={error} />}
+          {!loading && !error && filteredMovements.length > 0 && (
+            <MigrationMapBoundary>
+                <MigrationMap
+                  movements={filteredMovements}
+                  center={mapCenter}
+                  onMarkerClick={setDrawerPerson}
+                  activePersonIds={activePersonIds}
+                />
+            </MigrationMapBoundary>
+          )}
+        </div>
       </div>
 
-      {/* Map & legend */}
-      <div className="map-container">
-        {loading && <Loader />}
-        {error && <ErrorBox message={error} />}
-        {!loading && !error && (
-          <MigrationMapBoundary>
-            <MigrationMap
-              movements={filteredMovements}
-              center={mapCenter}
-              onMarkerClick={setDrawerPerson}
-              activePersonIds={activePersonIds}
-            />
-            <Legend movements={filteredMovements} />
-          </MigrationMapBoundary>
-        )}
-      </div>
-
-      {/* Person side‑drawer */}
+      {/* Person Info Drawer */}
       <PersonDrawer
         personId={drawerPerson?.person_id}
         personName={drawerPerson?.person_name}

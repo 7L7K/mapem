@@ -1,18 +1,14 @@
-// src/index.jsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router } from 'react-router-dom';
-import App from './App.jsx';
+import { BrowserRouter } from 'react-router-dom';
+
+import WrappedApp from './App.jsx';  // 👈 this includes all the providers
 import './styles/main.css';
-import { TreeProvider } from './context/TreeContext';
 
-
-ReactDOM.createRoot(document.getElementById('root')).
- render(
-     <Router>
-       <TreeProvider>
-         <App />
-       </TreeProvider>
-     </Router>
-   );
-  
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <WrappedApp />
+    </BrowserRouter>
+  </React.StrictMode>
+);

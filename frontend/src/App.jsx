@@ -1,4 +1,3 @@
-///Users/kingal/mapem/frontend/src/App.jsx
 import React, { useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 
@@ -14,11 +13,13 @@ import PeopleViewer from "./components/PeopleViewer.jsx";
 import EventPanel from "./components/EventPanel.jsx";
 import AnalyticsPage from "./views/Analytics.jsx";
 
-import Header from "./components/Header.jsx";
+import Layout from "./components/Layout.jsx";
 import UploadStatusOverlay from "./components/UploadStatusOverlay.jsx";
 import { UploadStatusProvider } from "./components/UploadStatusContext";
+import { TreeProvider } from "./context/TreeContext"; // ✅ THIS RIGHT HERE
 
 import "./styles/Layout.css";
+
 
 const AppRoutes = () => {
   const loc = useLocation();
@@ -48,19 +49,15 @@ const AppRoutes = () => {
 };
 
 const App = () => (
-  <div className="bg-black min-h-screen text-white">
-    <Header />
-    <main className="pt-6 px-6">
-      <AppRoutes />
-    </main>
-  </div>
+  <UploadStatusProvider>
+    <TreeProvider>
+      <UploadStatusOverlay />
+      <Layout>
+        <AppRoutes />
+      </Layout>
+    </TreeProvider>
+  </UploadStatusProvider>
 );
 
-export default function WrappedApp() {
-  return (
-    <UploadStatusProvider>
-      <UploadStatusOverlay />
-      <App />
-    </UploadStatusProvider>
-  );
-}
+export default App;
+

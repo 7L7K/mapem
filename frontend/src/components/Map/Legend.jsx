@@ -1,34 +1,35 @@
-import React, { useMemo } from 'react';
-import { colorForPerson } from '../../utils/colors';
+import React from "react";
 
+const Legend = ({ movements = [] }) => {
+  const eventCounts = movements.reduce((acc, m) => {
+    const type = (m.event_type || "unknown").toLowerCase();
+    acc[type] = (acc[type] || 0) + 1;
+    return acc;
+  }, {});
 
-const Legend = ({ movements }) => {
-  // build unique map of person_id → name
-  const entries = useMemo(() => {
-    const map = {};
-    movements.forEach(m => {
-      if (!map[m.person_id]) {
-        map[m.person_id] = m.person_name;
-      }
-    });
-    return Object.entries(map);
-  }, [movements]);
+  const uniquePeople = new Set(movements.map(m => m.person_id));
+  const yearRange = movements
+    .map(m => parseInt(m.year))
+    .filter(y => !isNaN(y))
+    .reduce(
+      (acc, y) => {
+        acc.min = Math.min(acc.min, y);
+        acc.max = Math.max(acc.max, y);
+        return acc;
+      },
+      { min: Infinity, max: -Infinity }
+    );
 
-  if (entries.length === 0) return null;
   return (
-    <div className="fixed bottom-4 right-4 bg-black bg-opacity-60 text-white text-sm p-2 rounded shadow-lg max-h-60 overflow-y-auto z-40">
-      <h4 className="font-semibold mb-1">Legend</h4>
-      <ul className="space-y-1">
-        {entries.map(([pid, name]) => (
-          <li key={pid} className="flex items-center gap-2">
-            <span
-              className="w-4 h-4 rounded"
-              style={{ backgroundColor: colorForPerson(pid) }}
-            />
-            {name}
-          </li>
-        ))}
-      </ul>
+    <div className="text-sm space-y-1">
+      <p>🧍 People: <strong>{uniquePeople.size}</strong></p>
+      <p>📍 Events: <strong>{movements.length}</strong></p>
+      {Object.entries(eventCounts).map(([type, count]) => (
+        <p key={type}>• {type.charAt(0).toUpperCase() + type.slice(1)}: {count}</p>
+      ))}
+      {yearRange.min !== Infinity && (
+        <p>📅 Years: {yearRange.min}–{yearRange.max}</p>
+      )}
     </div>
   );
 };
