@@ -1,31 +1,49 @@
-import React, { useEffect } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useEffect } from "react";
+import { NavLink } from "react-router-dom";
+import Button from "./ui/Button";
+import GlowPulse from "./ui/GlowPulse";
 
-const Dashboard = () => {
+export default function Dashboard() {
   useEffect(() => {
     console.log("📊 [Dashboard.jsx] Dashboard view rendered");
   }, []);
 
   return (
-    <div className="flex flex-col items-center justify-center text-center min-h-[calc(100vh-80px)] px-6 bg-zinc-900 text-white">
-      <h2 className="text-4xl font-extrabold mb-4">Welcome to MapEm</h2>
-      <p className="text-lg text-gray-300 max-w-xl">
-        Discover your family's journey through time and space. Upload a GEDCOM file to begin visualizing ancestral movements.
-      </p>
+    <div className="min-h-screen bg-background text-text flex flex-col items-center justify-center text-center px-6 py-16 space-y-10">
 
-      <NavLink
-        to="/upload"
-        className="mt-6 bg-amber-500 text-black px-6 py-3 rounded-xl text-lg font-semibold shadow-lg hover:bg-amber-600 transition"
-      >
-        📤 Upload Your GEDCOM
-      </NavLink>
+      {/* 🔥 MapEm Logo + Name */}
+      <div className="flex flex-col items-center space-y-2">
+        <span className="text-6xl font-display font-bold text-white drop-shadow-lg">
+          🧬 MapEm
+        </span>
+        <span className="text-dim tracking-wide text-base uppercase">
+          Ancestral Mapping System
+        </span>
+      </div>
 
-      {/* ✅ Tailwind test block */}
-      <div className="mt-8 bg-green-500 text-white p-4 rounded-lg shadow">
-        ✅ If this block is green, Tailwind is working.
+      {/* 💬 Headline + Subtext */}
+      <div className="max-w-2xl space-y-4">
+        <h1 className="text-4xl md:text-5xl font-display font-bold leading-tight text-white">
+          Trace your family's journey through time & place.
+        </h1>
+        <p className="text-dim text-lg leading-relaxed">
+          Upload a GEDCOM file and watch your ancestors move across the world through space, time, and memory.
+        </p>
+      </div>
+
+      {/* 📤 CTA Upload Button */}
+      <GlowPulse className="mt-2">
+        <NavLink to="/upload">
+          <Button variant="primary" className="text-lg px-8 py-3 rounded-full shadow-lg">
+            📤 Upload Your GEDCOM
+          </Button>
+        </NavLink>
+      </GlowPulse>
+
+      {/* 🧠 Optional Soul Detail */}
+      <div className="text-dim text-sm italic pt-4">
+        “I am my ancestors’ wildest dreams.”
       </div>
     </div>
   );
-};
-
-export default Dashboard;
+}

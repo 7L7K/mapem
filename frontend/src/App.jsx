@@ -22,6 +22,7 @@ import Layout from "./components/Layout.jsx";
 import UploadStatusOverlay from "./components/UploadStatusOverlay.jsx";
 import { UploadStatusProvider } from "./components/UploadStatusContext";
 import { TreeProvider } from "./context/TreeContext";
+import MapPage from "./pages/MapPage";
 
 import "./styles/Layout.css";
 
@@ -38,7 +39,7 @@ const AppRoutes = () => {
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/upload" element={<UploadPanel />} />
       <Route path="/tree" element={<TreeViewer />} />
-      <Route path="/map" element={<MapView />} />
+      <Route path="/map" element={<MapPage />} />
       <Route path="/timeline" element={<Timeline />} />
       <Route path="/diff" element={<DiffViewer />} />
       <Route path="/search" element={<SearchPanel />} />
@@ -56,7 +57,12 @@ const AppRoutes = () => {
   );
 };
 
-const App = () => (
+const App = () => {
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", "dark");
+  }, []);
+
+  return (
   <UploadStatusProvider>
     <TreeProvider>
       <UploadStatusOverlay />
@@ -66,5 +72,6 @@ const App = () => (
     </TreeProvider>
   </UploadStatusProvider>
 );
+};
 
 export default App;

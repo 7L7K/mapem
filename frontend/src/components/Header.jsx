@@ -16,20 +16,25 @@ export default function Header() {
 
   return (
     <header className="bg-zinc-900 text-white px-6 py-4 border-b border-zinc-700 shadow sticky top-0 z-50">
-      <div className="flex items-center justify-between">
-        {/* Left: Logo + Title */}
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🧬</span>
-          <h1 className="text-xl font-bold tracking-wide">MapEm</h1>
+      <div className="relative flex items-center justify-between max-w-7xl mx-auto">
+        
+        {/* Left: Logo */}
+        <div className="flex items-center gap-2 z-10">
+          <span className="text-2xl text-white">🧬</span>
+          <h1 className="text-xl font-bold tracking-wide text-white drop-shadow-sm">
+            MapEm
+          </h1>
         </div>
 
         {/* Center: Segmented Nav */}
-        <div className="flex-1 flex justify-center">
+        <div className="absolute left-1/2 transform -translate-x-1/2 z-0">
           <SegmentedNav />
         </div>
 
         {/* Right: Upload CTA */}
-        <TabLink to="/upload">📤 Upload GEDCOM</TabLink>
+        <div className="z-10">
+          <TabLink to="/upload">📤 Upload GEDCOM</TabLink>
+        </div>
       </div>
     </header>
   );

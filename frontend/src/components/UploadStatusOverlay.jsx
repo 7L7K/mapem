@@ -1,3 +1,4 @@
+// frontend/src/components/UploadStatusOverlay.jsx
 import React, { useContext } from 'react';
 import { UploadStatusContext } from './UploadStatusContext';
 
@@ -6,20 +7,21 @@ const UploadStatusOverlay = () => {
 
   if (!visible) return null;
 
+  const getIcon = () => {
+    if (status?.startsWith("✅")) return "✅";
+    if (status?.startsWith("❌")) return "❌";
+    if (status?.startsWith("📤")) return "📤";
+    if (status?.startsWith("🧬")) return "🧬";
+    if (status?.startsWith("🌍")) return "🌍";
+    return "🔄";
+  };
+
   return (
-    <div style={{
-      position: 'fixed',
-      top: 0, left: 0, right: 0, bottom: 0,
-      backgroundColor: 'rgba(0,0,0,0.75)',
-      color: '#fff',
-      fontSize: '1.5rem',
-      zIndex: 9999,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'monospace'
-    }}>
-      <div>{status || "Processing..."}</div>
+    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center animate-fade-in">
+      <div className="bg-surface border border-border text-text rounded-xl px-6 py-5 shadow-xl w-[90%] max-w-md text-center animate-pulse-glow">
+        <div className="text-4xl mb-2">{getIcon()}</div>
+        <div className="text-lg font-semibold tracking-wide">{status || "Processing..."}</div>
+      </div>
     </div>
   );
 };

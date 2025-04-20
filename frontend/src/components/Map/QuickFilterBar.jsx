@@ -1,62 +1,34 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-const QuickFilterBar = ({ filterState, setFilterState, onToggleDrawer }) => {
-  useEffect(() => {
-    console.log("⚙️ [QuickFilterBar] state:", filterState);
-  }, [filterState]);
-
-  const handleYearChange = (idx, val) => {
-    const y = [...filterState.year];
-    y[idx] = parseInt(val, 10);
-    setFilterState({ ...filterState, year: y });
+export default function QuickFilterBar({ filterState, setFilterState, onToggleDrawer }) {
+  const handlePersonChange = (e) => {
+    setFilterState((prev) => ({ ...prev, person: e.target.value }));
   };
 
-  /** NOTE:  NO  `fixed top-0`  here anymore  **/
   return (
-    <div className="bg-neutral-900 text-white w-full p-2 shadow flex flex-wrap items-center gap-4 border-b border-neutral-800">
-      <span className="text-sm">View:</span>
-      <select
-        value={filterState.view}
-        onChange={(e) => setFilterState({ ...filterState, view: e.target.value })}
-        className="bg-neutral-800 px-2 py-1 rounded text-sm"
-      >
-        <option value="person">Person</option>
-        <option value="family">Family</option>
-        <option value="group">Group</option>
-      </select>
-
-      <span className="text-sm ml-4">Years:</span>
-      <input
-        type="number"
-        value={filterState.year[0]}
-        onChange={(e) => handleYearChange(0, e.target.value)}
-        className="w-20 bg-neutral-800 px-2 py-1 rounded text-sm"
-      />
-      <span className="text-sm">to</span>
-      <input
-        type="number"
-        value={filterState.year[1]}
-        onChange={(e) => handleYearChange(1, e.target.value)}
-        className="w-20 bg-neutral-800 px-2 py-1 rounded text-sm"
-      />
-
-      <label className="flex items-center gap-1 text-sm ml-4">
+    <div className="space-y-4">
+      <div className="flex flex-col space-y-2">
+        <label htmlFor="person-search" className="text-sm text-dim">
+          Search Person:
+        </label>
         <input
-          type="checkbox"
-          checked={filterState.vague}
-          onChange={(e) => setFilterState({ ...filterState, vague: e.target.checked })}
+          type="text"
+          id="person-search"
+          placeholder="e.g. John..."
+          value={filterState.person}
+          onChange={handlePersonChange}
+          className="px-3 py-2 rounded-md bg-background border border-border text-sm"
         />
-        Show Vague
-      </label>
+      </div>
 
-      <button
-        onClick={onToggleDrawer}
-        className="ml-auto bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded text-sm font-semibold"
-      >
-        🧠 Advanced
-      </button>
+      <div>
+        <button
+          onClick={onToggleDrawer}
+          className="mt-2 text-accent hover:underline text-sm"
+        >
+          ⚙️ Advanced Filters
+        </button>
+      </div>
     </div>
   );
-};
-
-export default QuickFilterBar;
+}

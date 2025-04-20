@@ -1,131 +1,78 @@
+// src/components/Filters/AdvancedFilterDrawer.jsx
 import React from "react";
+import Drawer from "../ui/Drawer";
+import PanelSection from "../ui/PanelSection";
 
-const AdvancedFilterDrawer = ({ filterState, setFilterState, isOpen, onClose, onApply }) => {
-  if (!isOpen) return null;
-
-  const toggleRelation = (key) => {
-    console.log(`🔁 Toggling relation: ${key}`);
-    setFilterState(prev => ({
+export default function AdvancedFilterDrawer({
+  isOpen,
+  onClose,
+  filterState,
+  setFilterState,
+  onApply
+}) {
+  const toggle = (key, group) => {
+    setFilterState((prev) => ({
       ...prev,
-      relations: {
-        ...prev.relations,
-        [key]: !prev.relations[key]
-      }
+      [group]: {
+        ...prev[group],
+        [key]: !prev[group][key],
+      },
     }));
   };
-
-  const toggleSource = (key) => {
-    console.log(`🛰️ Toggling source: ${key}`);
-    setFilterState(prev => ({
-      ...prev,
-      sources: {
-        ...prev.sources,
-        [key]: !prev.sources[key]
-      }
-    }));
-  };
-
-  const toggleEventType = (key) => {
-    console.log(`📍 Toggling eventType: ${key}`);
-    setFilterState(prev => ({
-      ...prev,
-      eventTypes: {
-        ...prev.eventTypes,
-        [key]: !prev.eventTypes[key]
-      }
-    }));
-  };
-
-  const resetFilters = () => {
-    console.log("🔄 Resetting filters to default");
-    setFilterState(prev => ({
-      ...prev,
-      eventTypes: { birth: true, death: true, residence: true },
-      relations: { direct: true, siblings: false, cousins: false, inlaws: false },
-      sources: { gedcom: true, census: true, manual: false, ai: false }
-    }));
-  };
-
-  const safe = (key, defaultVal = false) =>
-    filterState?.[key] || defaultVal;
 
   return (
-    <div className="fixed top-12 right-0 w-80 h-full bg-neutral-900 text-white shadow-lg z-40 p-4 overflow-y-auto border-l border-neutral-800">
-      <h2 className="text-lg font-semibold mb-3">Advanced Filters</h2>
+    <Drawer open={isOpen} onClose={onClose}>
+      <div className="p-6 space-y-8 w-full max-w-md sm:w-80 h-full sm:h-auto bg-black/80 text-white backdrop-blur-md border-l border-white/10 overflow-auto">
+        <h2 className="text-lg font-display font-semibold">Advanced Filters</h2>
 
-      {/* Event Types */}
-      <div className="mb-4">
-        <p className="font-medium mb-1">Event Types</p>
-        {['birth', 'death', 'residence'].map(type => (
-          <label key={type} className="block text-sm mb-1">
-            <input
-              type="checkbox"
-              checked={filterState?.eventTypes?.[type] || false}
-              onChange={() => toggleEventType(type)}
-              className="mr-2"
-            />
-            {type.charAt(0).toUpperCase() + type.slice(1)}
-          </label>
-        ))}
-      </div>
+        <PanelSection title="Event Types">
+          {Object.keys(filterState.eventTypes).map((key) => (
+            <label key={key} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={filterState.eventTypes[key]}
+                onChange={() => toggle(key, "eventTypes")}
+              />
+              {key}
+            </label>
+          ))}
+        </PanelSection>
 
-      {/* Relation Types */}
-      <div className="mb-4">
-        <p className="font-medium mb-1">Relation Types</p>
-        {Object.entries(filterState?.relations || {}).map(([key, value]) => (
-          <label key={key} className="block text-sm mb-1">
-            <input
-              type="checkbox"
-              checked={value}
-              onChange={() => toggleRelation(key)}
-              className="mr-2"
-            />
-            {key.charAt(0).toUpperCase() + key.slice(1)}
-          </label>
-        ))}
-      </div>
+        <PanelSection title="Relations">
+          {Object.keys(filterState.relations).map((key) => (
+            <label key={key} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={filterState.relations[key]}
+                onChange={() => toggle(key, "relations")}
+              />
+              {key}
+            </label>
+          ))}
+        </PanelSection>
 
-      {/* Event Sources */}
-      <div className="mb-4">
-        <p className="font-medium mb-1">Event Sources</p>
-        {Object.entries(filterState?.sources || {}).map(([key, value]) => (
-          <label key={key} className="block text-sm mb-1">
-            <input
-              type="checkbox"
-              checked={value}
-              onChange={() => toggleSource(key)}
-              className="mr-2"
-            />
-            {key.toUpperCase()}
-          </label>
-        ))}
-      </div>
+        <PanelSection title="Sources">
+          {Object.keys(filterState.sources).map((key) => (
+            <label key={key} className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={filterState.sources[key]}
+                onChange={() => toggle(key, "sources")}
+              />
+              {key}
+            </label>
+          ))}
+        </PanelSection>
 
-      <div className="flex gap-2 justify-end mt-6">
-        <button
-          className="bg-neutral-700 hover:bg-neutral-600 px-3 py-1 rounded text-sm"
-          onClick={onClose}
-        >
-          Cancel
-        </button>
-        <button
-          className="bg-emerald-600 hover:bg-emerald-700 px-3 py-1 rounded text-sm"
-          onClick={() => {
-            console.log("✅ Apply filters clicked");
-            onApply();
-          }}
-        >
-          Apply
-        </button>
-        <button
-          className="bg-neutral-700 hover:bg-neutral-600 px-3 py-1 rounded text-sm"
-          onClick={resetFilters}
-        >
-          Reset
-        </button>
+        <div className="flex justify-end mt-6">
+          <button
+            onClick={onApply}
+            className="bg-white text-black px-4 py-2 rounded-md hover:bg-neutral-200 transition-all"
+          >
+            Apply
+          </button>
+        </div>
       </div>
-    </div>
+    </Drawer>
   );
-};
-
-export default AdvancedFilterDrawer;
+}

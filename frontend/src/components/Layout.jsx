@@ -1,17 +1,14 @@
-// frontend/src/components/Layout.jsx
-import React, { useEffect } from "react";
+import React from "react";
 import Header from "./Header";
 
 export default function Layout({ children }) {
-  useEffect(() => {
-    console.log("🏗️ [Layout.jsx] Layout mounted");
-    console.log("📦 [Layout.jsx] Children received:", children?.type?.name || typeof children);
-  }, []);
-
   return (
-    <div className="min-h-screen bg-zinc-900 text-white flex flex-col">
+    <div className="bg-background text-text min-h-screen flex flex-col">
+      {/* Sticky Header */}
       <Header />
-      <main className="flex-1 pt-6 px-6">
+
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-hidden">
         {children}
       </main>
     </div>
