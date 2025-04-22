@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "jsx": "react-jsx",
+    "strict": true,
+    "esModuleInterop": true,
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "@features/*": ["src/features/*"],
+      "@shared/*"  : ["src/shared/*"],
+      "@lib/*"     : ["src/lib/*"],
+      "@app/*"     : ["src/app/*"]
+    }
+  },
+  "include": ["src"]
+}

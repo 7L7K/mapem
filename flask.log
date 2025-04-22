@@ -17,252 +17,182 @@ INFO:mapem:🗺️ Warming up heatmap shapes on first request...
 DEBUG:backend.main:Looking for shapes in /Users/kingal/mapem/backend/routes/../historical_places
 DEBUG:backend.main:No historical_places directory found, skipping shapes
 DEBUG:backend.main:Total shapes indexed: 0
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:25:31] "GET /api/ping HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 10:55:38] "GET /api/ping HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/ping
 DEBUG:mapem:🔍 Headers: {'Host': '127.0.0.1:5050', 'User-Agent': 'curl/8.7.1', 'Accept': '*/*'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:25:31] "GET /api/ping HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 10:55:38] "GET /api/ping HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/ping
 DEBUG:mapem:🔍 Headers: {'Host': '127.0.0.1:5050', 'User-Agent': 'curl/8.7.1', 'Accept': '*/*'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:25:33] "GET /api/ping HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 10:55:41] "GET /api/ping HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:25:35] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 10:55:58] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:25:38] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:22:58] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:25:40] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:23:30] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:25:46] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:24:36] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:36:15] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:29:31] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:36:57] "GET /api/movements/34 HTTP/1.1" 200 -
-DEBUG:mapem:➡️ GET /api/movements/34
-DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
-DEBUG:mapem:🧠 Body: b''
-INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [20/Apr/2025 17:38:30] "GET /api/movements/34 HTTP/1.1" 200 -
-DEBUG:mapem:➡️ GET /api/movements/34
-DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
-DEBUG:mapem:🧠 Body: b''
-INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [21/Apr/2025 15:27:50] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:33:41] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/people
-DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Connection': 'keep-alive', 'Sec-Ch-Ua-Platform': '"macOS"', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'Accept': 'application/json, text/plain, */*', 'Sec-Ch-Ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"', 'Dnt': '1', 'Sec-Ch-Ua-Mobile': '?0', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Site': 'same-site', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Referer': 'http://localhost:5173/', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9'}
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [21/Apr/2025 20:16:40] "GET /api/people HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:33:51] "GET /api/people?tree_id=34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/timeline/34
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:33:53] "GET /api/timeline/34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/movements/34
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:33:54] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/people
-DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Connection': 'keep-alive', 'Sec-Ch-Ua-Platform': '"macOS"', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'Accept': 'application/json, text/plain, */*', 'Sec-Ch-Ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"', 'Dnt': '1', 'Sec-Ch-Ua-Mobile': '?0', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Site': 'same-site', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Referer': 'http://localhost:5173/', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9'}
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [21/Apr/2025 20:16:40] "GET /api/people HTTP/1.1" 200 -
-DEBUG:mapem:➡️ GET /api/timeline/null
-DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Connection': 'keep-alive', 'Sec-Ch-Ua-Platform': '"macOS"', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'Accept': 'application/json, text/plain, */*', 'Sec-Ch-Ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"', 'Dnt': '1', 'Sec-Ch-Ua-Mobile': '?0', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Site': 'same-site', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Referer': 'http://localhost:5173/', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9'}
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:33:59] "GET /api/people?tree_id=34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/timeline/34
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [21/Apr/2025 20:16:41] "[35m[1mGET /api/timeline/null HTTP/1.1[0m" 500 -
-DEBUG:mapem:➡️ GET /api/timeline/null
-DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Connection': 'keep-alive', 'Sec-Ch-Ua-Platform': '"macOS"', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'Accept': 'application/json, text/plain, */*', 'Sec-Ch-Ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"', 'Dnt': '1', 'Sec-Ch-Ua-Mobile': '?0', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Site': 'same-site', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Referer': 'http://localhost:5173/', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9'}
-DEBUG:mapem:🧠 Body: b''
-INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [21/Apr/2025 20:16:41] "[35m[1mGET /api/timeline/null HTTP/1.1[0m" 500 -
-DEBUG:mapem:➡️ GET /api/timeline/null
-DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Connection': 'keep-alive', 'Sec-Ch-Ua-Platform': '"macOS"', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36', 'Accept': 'application/json, text/plain, */*', 'Sec-Ch-Ua': '"Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"', 'Dnt': '1', 'Sec-Ch-Ua-Mobile': '?0', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Site': 'same-site', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Referer': 'http://localhost:5173/', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9'}
-DEBUG:mapem:🧠 Body: b''
-INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [21/Apr/2025 20:16:41] "[35m[1mGET /api/timeline/null HTTP/1.1[0m" 500 -
-ERROR:werkzeug:Error on request:
-Traceback (most recent call last):
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/serving.py", line 370, in run_wsgi
-    execute(self.server.app)
-    ~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/serving.py", line 331, in execute
-    application_iter = app(environ, start_response)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1536, in __call__
-    return self.wsgi_app(environ, start_response)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1514, in wsgi_app
-    response = self.handle_exception(e)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1511, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 919, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 917, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 891, in dispatch_request
-    self.raise_routing_exception(req)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 500, in raise_routing_exception
-    raise request.routing_exception  # type: ignore[misc]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/ctx.py", line 362, in match_request
-    result = self.url_adapter.match(return_rule=True)  # type: ignore
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/routing/map.py", line 629, in match
-    raise NotFound() from None
-werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
-ERROR:werkzeug:Error on request:
-Traceback (most recent call last):
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/serving.py", line 370, in run_wsgi
-    execute(self.server.app)
-    ~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/serving.py", line 331, in execute
-    application_iter = app(environ, start_response)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1536, in __call__
-    return self.wsgi_app(environ, start_response)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1514, in wsgi_app
-    response = self.handle_exception(e)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1511, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 919, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 917, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 891, in dispatch_request
-    self.raise_routing_exception(req)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 500, in raise_routing_exception
-    raise request.routing_exception  # type: ignore[misc]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/ctx.py", line 362, in match_request
-    result = self.url_adapter.match(return_rule=True)  # type: ignore
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/routing/map.py", line 629, in match
-    raise NotFound() from None
-werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
-ERROR:werkzeug:Error on request:
-Traceback (most recent call last):
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/serving.py", line 370, in run_wsgi
-    execute(self.server.app)
-    ~~~~~~~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/serving.py", line 331, in execute
-    application_iter = app(environ, start_response)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1536, in __call__
-    return self.wsgi_app(environ, start_response)
-           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1514, in wsgi_app
-    response = self.handle_exception(e)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 1511, in wsgi_app
-    response = self.full_dispatch_request()
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 919, in full_dispatch_request
-    rv = self.handle_user_exception(e)
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask_cors/extension.py", line 176, in wrapped_function
-    return cors_after_request(app.make_response(f(*args, **kwargs)))
-                                                ~^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 917, in full_dispatch_request
-    rv = self.dispatch_request()
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 891, in dispatch_request
-    self.raise_routing_exception(req)
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/app.py", line 500, in raise_routing_exception
-    raise request.routing_exception  # type: ignore[misc]
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/flask/ctx.py", line 362, in match_request
-    result = self.url_adapter.match(return_rule=True)  # type: ignore
-  File "/Users/kingal/mapem/.venv/lib/python3.13/site-packages/werkzeug/routing/map.py", line 629, in match
-    raise NotFound() from None
-werkzeug.exceptions.NotFound: 404 Not Found: The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:34:07] "GET /api/timeline/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 01:55:20] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:34:08] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 01:55:22] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:46:47] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 01:56:21] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:56:31] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:15:47] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:56:39] "GET /api/movements/34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/people
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:56:44] "GET /api/people?tree_id=34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/timeline/34
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:56:45] "GET /api/timeline/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:17:01] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:56:46] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:18:36] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:56:50] "GET /api/movements/34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/people
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:56:52] "GET /api/people?tree_id=34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:23:11] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:56:54] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:23:14] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 11:57:09] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:25:17] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:16] "GET /api/movements/34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/timeline/34
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:20] "GET /api/timeline/34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/people
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:20] "GET /api/people?tree_id=34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/timeline/34
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:25:35] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:21] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:21] "GET /api/timeline/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:30:58] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:26] "GET /api/movements/34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/timeline/34
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:27] "GET /api/timeline/34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/people
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:28] "GET /api/people?tree_id=34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:31:22] "GET /api/movements/34 HTTP/1.1" 200 -
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:33] "GET /api/movements/34 HTTP/1.1" 200 -
 DEBUG:mapem:➡️ GET /api/movements/34
 DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
 DEBUG:mapem:🧠 Body: b''
 INFO:mapem:🗺️ Warming up heatmap shapes on first request...
-INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 02:31:30] "GET /api/movements/34 HTTP/1.1" 200 -
-deflate', 'Connection': 'keep-alive'}
-2025-04-22 02:31:30,090 — DEBUG — 🧠 Body: b''
-2025-04-22 02:31:30,090 — INFO — 🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:02:45] "GET /api/movements/34 HTTP/1.1" 200 -
+DEBUG:mapem:➡️ GET /api/movements/34
+DEBUG:mapem:🔍 Headers: {'Host': 'localhost:5050', 'Sec-Fetch-Site': 'same-site', 'Accept': 'application/json, text/plain, */*', 'Origin': 'http://localhost:5173', 'Sec-Fetch-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+DEBUG:mapem:🧠 Body: b''
+INFO:mapem:🗺️ Warming up heatmap shapes on first request...
+INFO:werkzeug:127.0.0.1 - - [22/Apr/2025 12:03:44] "GET /api/movements/34 HTTP/1.1" 200 -
+-Mode': 'cors', 'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Safari/605.1.15', 'Referer': 'http://localhost:5173/', 'Sec-Fetch-Dest': 'empty', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=3, i', 'Accept-Encoding': 'gzip, deflate', 'Connection': 'keep-alive'}
+2025-04-22 12:03:44,389 — DEBUG — 🧠 Body: b''
+2025-04-22 12:03:44,389 — INFO — 🗺️ Warming up heatmap shapes on first request...

@@ -1,8 +1,6 @@
-node_modules
-.envrc
-notes.txt
-*.zip
-__pycache__/
-*.pyc
-/releases/
-/releases/
+/node_modules
+/dist
+*.env
+.DS_Store
+__MACOSX
+/refactored_src

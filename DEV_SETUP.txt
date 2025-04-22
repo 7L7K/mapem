@@ -1,0 +1,10 @@
+Run these once to install dev tooling:
+
+npm i -D prettier eslint eslint-plugin-react eslint-config-prettier eslint-plugin-import husky lint-staged \
+       typescript @types/react @types/react-dom \
+       @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio
+
+# then:
+npx husky install
+npm pkg set scripts.prepare="husky install"
+npm pkg set lint-staged."*.{js,jsx,ts,tsx}"="eslint --fix && prettier --write"
