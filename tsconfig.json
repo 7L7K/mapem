@@ -9,9 +9,9 @@
     "baseUrl": ".",
     "paths": {
       "@features/*": ["src/features/*"],
-      "@shared/*"  : ["src/shared/*"],
-      "@lib/*"     : ["src/lib/*"],
-      "@app/*"     : ["src/app/*"]
+      "@shared/*": ["src/shared/*"],
+      "@lib/*": ["src/lib/*"],
+      "@app/*": ["src/app/*"]
     }
   },
   "include": ["src"]

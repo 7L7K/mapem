@@ -1,82 +1,95 @@
-OLD_SRC="frontend/"
-NEW_SRC="frontend/src"
-BACKUP_ZIP="src_version_before_blow_up.zip"
-OUTPUT_ZIP="mapem-refactored.zip"
+#!/usr/bin/env bash
+###############################################################################
+#  blow_up_safe.sh – King‑proof frontend refactor with confirmation & logging #
+###############################################################################
+set -euo pipefail
 
-# ─── 0. Sanity Checks ────────────────────────────────────────────────
-[[ -d $OLD_SRC ]] || { echo "❌ No $OLD_SRC folder found."; exit 1; }
+# ──────────────── 1. CONFIG ────────────────────────────────────────────────
+SRC_ROOT="frontend"          
+OLD_SRC="$SRC_ROOT"          
+NEW_SRC="$SRC_ROOT/src"      
+STAMP=$(date +"%Y%m%d_%H%M%S")
+BACKUP_ZIP="frontend_backup_${STAMP}.zip"
+LOG="refactor_${STAMP}.log"
+REQ_FILES=(
+  "$OLD_SRC/src/index.jsx"
+  "$OLD_SRC/src/pages/MapPage.jsx"
+  "$OLD_SRC/src/pages/People.jsx"
+  "$OLD_SRC/src/views/Analytics.jsx"
+)
 
-# ─── 1. Backup current src/ ─────────────────────────────────────────
-echo "📦 Zipping existing $OLD_SRC → $BACKUP_ZIP"
-zip -r "$BACKUP_ZIP" "$OLD_SRC" >/dev/null
+FEATURES=(map people analytics dashboard)
 
-# ─── 2. Clean any previous refactor run ─────────────────────────────
-rm -rf "$NEW_SRC" "$OUTPUT_ZIP"
+# ──────────────── 2. PRE-FLIGHT CHECKS ─────────────────────────────────────
+echo "🔍 Verifying source files..."
+for f in "${REQ_FILES[@]}"; do
+  [[ -f $f ]] || {
+    echo "❌  Required file missing: $f" | tee -a "$LOG"
+    echo "💡 Try restoring a backup: unzip frontend_backup_*.zip -d frontend/"
+    exit 1
+  }
+done
+echo "✅  Required files found." | tee -a "$LOG"
 
-# ─── 3. Scaffold new folder tree (feature‑based) ────────────────────
-echo "📁 Creating new folder structure…"
-mkdir -p \
-  "$NEW_SRC/app" \
-  "$NEW_SRC/features/map/pages" \
-  "$NEW_SRC/features/map/components" \
-  "$NEW_SRC/features/people/pages" \
-  "$NEW_SRC/features/people/components" \
-  "$NEW_SRC/features/analytics/pages" \
-  "$NEW_SRC/features/dashboard/pages" \
-  "$NEW_SRC/shared/components/Header" \
-  "$NEW_SRC/shared/components/ui" \
-  "$NEW_SRC/shared/context" \
-  "$NEW_SRC/shared/hooks" \
-  "$NEW_SRC/shared/styles" \
-  "$NEW_SRC/lib/api"
+# ──────────────── 3. BACKUP BEFORE NUKE ────────────────────────────────────
+echo "📦 Creating snapshot → $BACKUP_ZIP" | tee -a "$LOG"
+zip -rq "$BACKUP_ZIP" "$SRC_ROOT" -x '**/node_modules/**'
+echo "   Snapshot stored." | tee -a "$LOG"
 
-# ─── 4. Move / Rename key files  (old → new) ────────────────────────
-echo "🚚 Moving files…"
-mv "$OLD_SRC/index.jsx"               "$NEW_SRC/index.jsx"
-mv "$OLD_SRC/Providers.jsx"           "$NEW_SRC/app/Providers.jsx"
-rm -f "$OLD_SRC/App.jsx"                               # replaced by router
+# ──────────────── 4. DRY-RUN PREVIEW ───────────────────────────────────────
+echo -e "\n🚧  Dry-run preview:" | tee -a "$LOG"
+cat <<PREVIEW | tee -a "$LOG"
+  Will delete: $NEW_SRC
+  Will move files into: $NEW_SRC with feature‑based structure
+  Will commit with: 💥 Safe refactor
+PREVIEW
 
-mv "$OLD_SRC/pages/MapPage.jsx"       "$NEW_SRC/features/map/pages/MapPage.jsx"
-mv "$OLD_SRC/components/Map/"*        "$NEW_SRC/features/map/components/"
-mv "$OLD_SRC/pages/People.jsx"        "$NEW_SRC/features/people/pages/PeoplePage.jsx" || true
-mv "$OLD_SRC/views/Analytics.jsx"     "$NEW_SRC/features/analytics/pages/AnalyticsPage.jsx"
-mv "$OLD_SRC/styles/Dashboard.css"    "$NEW_SRC/features/dashboard/pages/DashboardPage.css" || true
+read -rp $'\n⚠️  Type YES to execute the refactor (anything else aborts): ' CONFIRM
+[[ $CONFIRM == "YES" ]] || { echo "Aborted. No changes made."; exit 1; }
+
+# ──────────────── 5. NUKE OLD STRUCTURE ────────────────────────────────────
+echo "💣 Deleting old $NEW_SRC (safe – we backed up)..." | tee -a "$LOG"
+rm -rf "$NEW_SRC"
+
+echo "📁 Creating new folder tree…" | tee -a "$LOG"
+mkdir -p "$NEW_SRC/app" "$NEW_SRC/lib/api" "$NEW_SRC/shared/hooks"
+for feat in "${FEATURES[@]}"; do
+  mkdir -p "$NEW_SRC/features/$feat/components" "$NEW_SRC/features/$feat/pages"
+done
+mkdir -p "$NEW_SRC/shared/components/Header" "$NEW_SRC/shared/components/ui" \
+         "$NEW_SRC/shared/context" "$NEW_SRC/shared/styles"
+
+# ──────────────── 6. MOVE FILES ────────────────────────────────────────────
+echo "🚚 Moving files…" | tee -a "$LOG"
+mv "$OLD_SRC/index.jsx" "$NEW_SRC/index.jsx" || true
+mv "$OLD_SRC/Providers.jsx" "$NEW_SRC/app/Providers.jsx" || true
+mv "$OLD_SRC/pages/MapPage.jsx" "$NEW_SRC/features/map/pages/MapPage.jsx" || true
+mv "$OLD_SRC/pages/People.jsx" "$NEW_SRC/features/people/pages/PeoplePage.jsx" || true
+mv "$OLD_SRC/views/Analytics.jsx" "$NEW_SRC/features/analytics/pages/AnalyticsPage.jsx" || true
 mv "$OLD_SRC/components/Dashboard.jsx" "$NEW_SRC/features/dashboard/pages/DashboardPage.jsx" || true
+mv "$OLD_SRC/styles/Dashboard.css" "$NEW_SRC/features/dashboard/pages/DashboardPage.css" || true
+mv "$OLD_SRC/components/Map/"* "$NEW_SRC/features/map/components/" || true
+mv "$OLD_SRC/components/Header.jsx" "$NEW_SRC/shared/components/Header/Header.jsx" || true
+mv "$OLD_SRC/components/Header/"* "$NEW_SRC/shared/components/Header/" || true
+mv "$OLD_SRC/components/ui/"* "$NEW_SRC/shared/components/ui/" || true
+mv "$OLD_SRC/components/SegmentedNav.jsx" "$NEW_SRC/shared/components/Header/SegmentedNav.jsx" || true
+mv "$OLD_SRC/context/"* "$NEW_SRC/shared/context/" || true
+mv "$OLD_SRC/utils/colors.js" "$NEW_SRC/shared/styles/tokens.css" || true
+mv "$OLD_SRC/services/api.js" "$NEW_SRC/lib/api/client.js" || true
+mv "$OLD_SRC/styles/"*.css "$NEW_SRC/shared/styles/" 2>/dev/null || true
+mv "$OLD_SRC/styles/"*.postcss "$NEW_SRC/shared/styles/" 2>/dev/null || true
 
-mv "$OLD_SRC/components/Header.jsx"       "$NEW_SRC/shared/components/Header/Header.jsx"
-mv "$OLD_SRC/components/SegmentedNav.jsx" "$NEW_SRC/shared/components/Header/SegmentedNav.jsx"
-
-mv "$OLD_SRC/context/SearchContext.jsx" "$NEW_SRC/shared/context/SearchContext.jsx"
-mv "$OLD_SRC/context/TreeContext.jsx"   "$NEW_SRC/shared/context/TreeContext.jsx"
-
-mv "$OLD_SRC/utils/colors.js"          "$NEW_SRC/shared/styles/tokens.css" || true
-mv "$OLD_SRC/services/api.js"          "$NEW_SRC/lib/api/client.js"
-
-# global & other css
-mv "$OLD_SRC/styles/"*.css             "$NEW_SRC/shared/styles/" 2>/dev/null || true
-mv "$OLD_SRC/styles/"*.postcss         "$NEW_SRC/shared/styles/" 2>/dev/null || true
-
-# ─── 5. Generate stub files & helpers ───────────────────────────────
-cat > "$NEW_SRC/shared/hooks/useDebounce.js" <<'EOF'
-export default function useDebounce(value, delay = 300) {
-  const [debounced, setDebounced] = React.useState(value)
-  React.useEffect(() => {
-    const id = setTimeout(() => setDebounced(value), delay)
-    return () => clearTimeout(id)
-  }, [value, delay])
-  return debounced
-}
-EOF
-
+# ──────────────── 7. CORE FILES ────────────────────────────────────────────
+echo "📝 Writing boilerplate files…" | tee -a "$LOG"
 cat > "$NEW_SRC/app/router.jsx" <<'EOF'
-import { BrowserRouter, Routes, Route } from "react-router-dom"
-import Header from "@shared/components/Header/Header"
-import { lazy, Suspense } from "react"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Header from "@shared/components/Header/Header";
+import { lazy, Suspense } from "react";
 
-const Dashboard  = lazy(() => import("@features/dashboard/pages/DashboardPage"))
-const MapPage    = lazy(() => import("@features/map/pages/MapPage"))
-const PeoplePage = lazy(() => import("@features/people/pages/PeoplePage"))
-const Analytics  = lazy(() => import("@features/analytics/pages/AnalyticsPage"))
+const Dashboard = lazy(() => import("@features/dashboard/pages/DashboardPage"));
+const MapPage   = lazy(() => import("@features/map/pages/MapPage"));
+const People    = lazy(() => import("@features/people/pages/PeoplePage"));
+const Analytics = lazy(() => import("@features/analytics/pages/AnalyticsPage"));
 
 export default function Router() {
   return (
@@ -85,25 +98,37 @@ export default function Router() {
       <Suspense fallback={<div>Loading…</div>}>
         <Routes>
           <Route path="/"         element={<Dashboard />} />
-          <Route path="/map"      element={<MapPage   />} />
-          <Route path="/people"   element={<PeoplePage/>} />
-          <Route path="/analytics"element={<Analytics />}/>
+          <Route path="/map"      element={<MapPage />} />
+          <Route path="/people"   element={<People />} />
+          <Route path="/analytics"element={<Analytics />} />
         </Routes>
       </Suspense>
     </BrowserRouter>
-  )
+  );
 }
 EOF
 
 cat > "$NEW_SRC/app/main.jsx" <<'EOF'
-import { createRoot } from "react-dom/client"
-import Router     from "./router"
-import Providers  from "./Providers"
-import "@shared/styles/globals.css"
+import { createRoot } from "react-dom/client";
+import Router from "./router";
+import Providers from "./Providers";
+import "@shared/styles/globals.css";
 
 createRoot(document.getElementById("root")).render(
   <Providers><Router /></Providers>
-)
+);
+EOF
+
+cat > "$NEW_SRC/shared/hooks/useDebounce.js" <<'EOF'
+import { useEffect, useState } from "react";
+export default function useDebounce(value, delay = 300) {
+  const [debounced, setDebounced] = useState(value);
+  useEffect(() => {
+    const id = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(id);
+  }, [value, delay]);
+  return debounced;
+}
 EOF
 
 cat > "$NEW_SRC/shared/styles/globals.css" <<'EOF'
@@ -113,27 +138,21 @@ cat > "$NEW_SRC/shared/styles/globals.css" <<'EOF'
 @import "./tokens.css";
 EOF
 
-# ─── 6. Clean old folders & macOS junk ──────────────────────────────
-rm -rf "$OLD_SRC" __MACOSX
-
-# ─── 7. Tooling / Config Files ──────────────────────────────────────
-echo "🛠 Writing config files…"
-
+# ──────────────── 8. TOOLING FILES ─────────────────────────────────────────
 cat > vite.config.js <<'EOF'
-import { defineConfig } from "vite"
-import react from "@vitejs/plugin-react"
-
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
       "@features": "/src/features",
-      "@shared"  : "/src/shared",
-      "@lib"     : "/src/lib",
-      "@app"     : "/src/app",
+      "@shared": "/src/shared",
+      "@lib": "/src/lib",
+      "@app": "/src/app"
     },
   },
-})
+});
 EOF
 
 cat > tailwind.config.js <<'EOF'
@@ -146,7 +165,7 @@ export default {
     require('@tailwindcss/typography'),
     require('@tailwindcss/aspect-ratio'),
   ],
-}
+};
 EOF
 
 cat > tsconfig.json <<'EOF'
@@ -161,35 +180,12 @@ cat > tsconfig.json <<'EOF'
     "baseUrl": ".",
     "paths": {
       "@features/*": ["src/features/*"],
-      "@shared/*"  : ["src/shared/*"],
-      "@lib/*"     : ["src/lib/*"],
-      "@app/*"     : ["src/app/*"]
+      "@shared/*": ["src/shared/*"],
+      "@lib/*": ["src/lib/*"],
+      "@app/*": ["src/app/*"]
     }
   },
   "include": ["src"]
-}
-EOF
-
-cat > .prettierrc <<'EOF'
-{
-  "singleQuote": true,
-  "semi": false,
-  "trailingComma": "all"
-}
-EOF
-
-cat > .eslintrc.js <<'EOF'
-module.exports = {
-  extends: [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:import/errors",
-    "plugin:import/warnings",
-    "prettier",
-  ],
-  plugins: ["react", "import"],
-  env: { browser: true, es2021: true },
-  settings: { react: { version: "detect" } },
 }
 EOF
 
@@ -199,43 +195,22 @@ cat > .gitignore <<'EOF'
 *.env
 .DS_Store
 __MACOSX
-/refactored_src
 EOF
 
-cat > README.md <<'EOF'
-# MapEm (Refactored)
-
-Genealogy migration mapper built with React + Vite, Tailwind, and a feature‑based folder structure.
-
-## 🚀 Quick Start
-```bash
-npm install            # installs deps (incl. dev tooling)
-npm run dev            # start Vite dev server
-```
-
-## 📂 Folder Map (high‑level)
-- **src/app/** – providers + router
-- **src/features/** – feature slices (map, people, analytics…)
-- **src/shared/** – design‑system, contexts, hooks, styles
-- **src/lib/** – API clients & helper libs
+cat > .prettierrc <<'EOF'
+{ "singleQuote": true, "semi": false, "trailingComma": "all" }
 EOF
 
-# ESLint + Prettier + Husky install block (commented guidance)
-cat > DEV_SETUP.txt <<'EOF'
-Run these once to install dev tooling:
-
-npm i -D prettier eslint eslint-plugin-react eslint-config-prettier eslint-plugin-import husky lint-staged \
-       typescript @types/react @types/react-dom \
-       @tailwindcss/forms @tailwindcss/typography @tailwindcss/aspect-ratio
-
-# then:
-npx husky install
-npm pkg set scripts.prepare="husky install"
-npm pkg set lint-staged."*.{js,jsx,ts,tsx}"="eslint --fix && prettier --write"
+cat > .eslintrc.js <<'EOF'
+module.exports = {
+  extends: ["eslint:recommended", "plugin:react/recommended", "plugin:import/errors", "plugin:import/warnings", "prettier"],
+  plugins: ["react", "import"],
+  env: { browser: true, es2021: true },
+  settings: { react: { version: "detect" } },
+};
 EOF
 
-# ─── 8. Clean up & commit ───────────────────────────────────────────
-echo "🧹 Cleaning up & committing…"
-rm -rf "$OLD_SRC"
-git add .
-git commit -m "📦 Refactored src to feature-based structure with Tailwind, ESLint, Prettier, TS prep"
+# ──────────────── 9. COMMIT + DONE ─────────────────────────────────────────
+echo "🧹 Final git commit…" | tee -a "$LOG"
+git add . && git commit -m "💥 Safe refactor: feature-based layout with config setup" | tee -a "$LOG"
+echo "✅ Refactor complete! Snapshot: $BACKUP_ZIP | Log: $LOG"
