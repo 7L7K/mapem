@@ -1,4 +1,4 @@
-OLD_SRC="frontend/src"
+OLD_SRC="frontend/"
 NEW_SRC="frontend/src"
 BACKUP_ZIP="src_version_before_blow_up.zip"
 OUTPUT_ZIP="mapem-refactored.zip"
