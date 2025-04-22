@@ -23,6 +23,8 @@ import UploadStatusOverlay from "./components/UploadStatusOverlay.jsx";
 import { UploadStatusProvider } from "./components/UploadStatusContext";
 import { TreeProvider } from "./context/TreeContext";
 import MapPage from "./pages/MapPage";
+import { SearchProvider } from "/context/SearchContext"; // ⬅️ Add this
+
 
 import "./styles/Layout.css";
 
@@ -65,10 +67,12 @@ const App = () => {
   return (
   <UploadStatusProvider>
     <TreeProvider>
-      <UploadStatusOverlay />
-      <Layout>
-        <AppRoutes />
-      </Layout>
+      <SearchProvider>
+        <UploadStatusOverlay />
+        <Layout>
+          <AppRoutes />
+        </Layout>
+      </SearchProvider>
     </TreeProvider>
   </UploadStatusProvider>
 );

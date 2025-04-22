@@ -1,86 +1,62 @@
 // src/components/MapView.jsx
-import React, { useState, useMemo } from 'react';
-import MigrationMap from './Map/MigrationMap';
-import PersonDrawer from './Map/PersonDrawer';
-import Legend from './Map/Legend';
-import FloatingHUD from './FloatingHUD';
-import GeneaGlassPanel from './GeneaGlassPanel';
-import AdvancedFilterDrawer from './Map/AdvancedFilterDrawer';
+import React, { useMemo } from 'react';
+import MigrationMap  from './Map/MigrationMap';
+import PersonDrawer  from './Map/PersonDrawer';
+import Legend        from './Map/Legend';
+import FloatingHUD   from './FloatingHUD';
+import { useSearch } from '/context/SearchContext';
+import FilterHeader  from './Header/FilterHeader';
 
-export default function MapView({ movements: allMovements = [], mapCenter = [37.8, -96], loading, error }) {
-  const [drawerPerson, setDrawerPerson] = useState(null);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
+export default function MapView({ movements = [], mapCenter = [37.8, -96] }) {
+  const {
+    selectedPerson, setSelectedPerson,
+    filters, query, mode, decade, wholeTree,
+  } = useSearch();
 
-  const [filterState, setFilterState] = useState({
-    person: '',
-    eventTypes: { birth: true, death: true, residence: true },
-    relations: { direct: true, siblings: false, cousins: false, inlaws: false },
-    sources: { gedcom: true, census: true, manual: true, ai: true },
-    year: [1900, 2000],
-    vague: false,
-  });
-
-  const filteredMovements = useMemo(() => {
-    return allMovements.filter((mv) => {
-      const { person, year, eventTypes, vague, relations, sources } = filterState;
-      const nameMatch = person.trim() === '' || mv.person_name?.toLowerCase().includes(person.toLowerCase());
-      const typeMatch = eventTypes[mv.event_type?.toLowerCase()] ?? false;
-      const yr = parseInt(mv.year, 10);
-      const yearMatch = isNaN(yr) ? true : yr >= year[0] && yr <= year[1];
-      const vagueMatch = vague || (!!mv.latitude && !!mv.longitude);
-      const sourceMatch = mv.source ? sources[mv.source] ?? false : true;
-      const relationMatch = true;
-      return nameMatch && typeMatch && yearMatch && vagueMatch && sourceMatch && relationMatch;
+  const filtered = useMemo(() => {
+    return movements.filter(mv => {
+      const year = +mv.year;
+      if (!wholeTree && mode === 'person' && selectedPerson && mv.person_id !== selectedPerson.id) return false;
+      if (query && !mv.person_name.toLowerCase().includes(query.toLowerCase())) return false;
+      if (!filters.eventTypes[mv.event_type.toLowerCase()]) return false;
+      if (!filters.vague && (!mv.latitude || !mv.longitude)) return false;
+      if (!isNaN(year) && (year < decade[0] || year > decade[1])) return false;
+      return true;
     });
-  }, [allMovements, filterState]);
-
-  const handleSelectPerson = (personId) => {
-    const m = allMovements.find((x) => x.person_id === personId);
-    if (m) setDrawerPerson({ person_id: personId, person_name: m.person_name });
-  };
+  }, [movements, filters, query, mode, selectedPerson, decade, wholeTree]);
 
   return (
-    <div className="relative w-full" style={{ height: 'calc(100vh - 80px)' }}>
-      {/* 🌫 GeneaGlass HUD Filter Panel */}
-      <GeneaGlassPanel
-        filterState={filterState}
-        setFilterState={setFilterState}
-        onOpenAdvanced={() => setIsFilterOpen(true)}
-      />
+    <div className="flex flex-col w-full h-[calc(100vh-64px)] bg-black text-white">
 
-      {/* 🧠 Advanced Filter Drawer */}
-      <AdvancedFilterDrawer
-        isOpen={isFilterOpen}
-        onClose={() => setIsFilterOpen(false)}
-        filterState={filterState}
-        setFilterState={setFilterState}
-        onApply={() => setIsFilterOpen(false)}
-      />
+      {/* 🧠 Docked Glass Filter Header */}
+      <div className="px-4 pt-4 pb-2">
+        <FilterHeader />
+      </div>
 
-      {/* 🗺️ Map */}
-      <MigrationMap
-        movements={filteredMovements}
-        center={mapCenter}
-        onMarkerClick={handleSelectPerson}
-        activePersonIds={drawerPerson ? new Set([drawerPerson.person_id]) : new Set()}
-      />
+      {/* 🗺️ Main Map */}
+      <div className="relative flex-grow">
+        <MigrationMap
+          movements={filtered}
+          center={mapCenter}
+          onMarkerClick={(id) => {
+            const p = movements.find((x) => x.person_id === id);
+            if (p) setSelectedPerson(p);
+          }}
+          activePersonIds={selectedPerson ? new Set([selectedPerson.id]) : new Set()}
+        />
 
-      {/* 📍 Legend */}
-      <Legend movements={filteredMovements} className="absolute bottom-6 left-6 z-10" />
+        {/* 🧾 Legend & HUD */}
+        <Legend movements={filtered} className="absolute bottom-6 left-6 z-30" />
+        <FloatingHUD selectedPersonName={selectedPerson?.name} onReset={() => setSelectedPerson(null)} />
+      </div>
 
-      {/* ♻️ Reset */}
-      <FloatingHUD
-        selectedPersonName={drawerPerson?.person_name}
-        onReset={() => setDrawerPerson(null)}
-      />
-
-      {/* 📄 Person Info */}
-      {drawerPerson && (
+      {/* 🙋 Person Drawer */}
+      {selectedPerson && (
         <PersonDrawer
-          personId={drawerPerson.person_id}
-          personName={drawerPerson.person_name}
-          movements={filteredMovements.filter((m) => m.person_id === drawerPerson.person_id)}
-          onClose={() => setDrawerPerson(null)}
+          personId={selectedPerson.id}
+          personName={selectedPerson.name}
+          movements={filtered.filter(m => m.person_id === selectedPerson.id)}
+          onClose={() => setSelectedPerson(null)}
         />
       )}
     </div>
