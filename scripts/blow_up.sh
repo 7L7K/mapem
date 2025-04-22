@@ -6,16 +6,16 @@ set -euo pipefail
 
 # ──────────────── 1. CONFIG ────────────────────────────────────────────────
 SRC_ROOT="frontend"          
-OLD_SRC="$SRC_ROOT"          
+OLD_SRC="$SRC_ROOT/src"          
 NEW_SRC="$SRC_ROOT/src"      
 STAMP=$(date +"%Y%m%d_%H%M%S")
 BACKUP_ZIP="frontend_backup_${STAMP}.zip"
 LOG="refactor_${STAMP}.log"
 REQ_FILES=(
-  "$OLD_SRC/src/index.jsx"
-  "$OLD_SRC/src/pages/MapPage.jsx"
-  "$OLD_SRC/src/pages/People.jsx"
-  "$OLD_SRC/src/views/Analytics.jsx"
+  "$OLD_SRC/index.jsx"
+  "$OLD_SRC/pages/MapPage.jsx"
+  "$OLD_SRC/pages/People.jsx"
+  "$OLD_SRC/views/Analytics.jsx"
 )
 
 FEATURES=(map people analytics dashboard)

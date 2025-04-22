@@ -1,0 +1,13 @@
+✅  Required files found.
+📦 Creating snapshot → frontend_backup_20250422_170011.zip
+   Snapshot stored.
+
+🚧  Dry-run preview:
+  Will delete: frontend/src
+  Will move files into: frontend/src with feature‑based structure
+  Will commit with: 💥 Safe refactor
+💣 Deleting old frontend/src (safe – we backed up)...
+📁 Creating new folder tree…
+🚚 Moving files…
+📝 Writing boilerplate files…
+🧹 Final git commit…
