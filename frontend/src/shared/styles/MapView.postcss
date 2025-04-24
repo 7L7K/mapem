@@ -1,0 +1,71 @@
+/* frontend/src/styles/MapView.postcss */
+
+.map-view-container {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background-color: #0a0a0a;
+  color: #f1f1f1;
+  height: 100%;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.filter-section {
+  margin-bottom: 1rem;
+}
+.filter-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+}
+.filter-section input[type="text"],
+.filter-section input[type="number"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #555;
+  border-radius: 4px;
+  background-color: #121212;
+  color: #eaeaea;
+}
+
+/* Legend styles */
+.legend ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.legend li {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.3rem;
+  font-size: 13px;
+}
+.legend-icon {
+  width: 12px;
+  height: 12px;
+  margin-right: 0.5rem;
+  border-radius: 50%;
+}
+.legend-icon.birth {
+  background-color: #00d9ff;
+}
+.legend-icon.death {
+  background-color: #ff4d4d;
+}
+.legend-icon.residence {
+  background-color: #ffc857;
+}
+.legend-icon.movement { 
+  width: 14px;
+  height: 2px;
+  border-radius: 0;
+  background-color: #00d9ff;
+  margin-right: 0.5rem;
+}
+
+/* Map container area */
+.map-container {
+  flex: 1;
+  position: relative;
+  height: 80vh; /* or 100vh if you want full-screen */
+}

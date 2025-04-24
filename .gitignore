@@ -1,5 +1,19 @@
+# node & build
 /node_modules
 /dist
+
+# env & OS
 *.env
 .DS_Store
 __MACOSX
+
+# caches & logs
+.cache/pkg_hash.txt
+frontend/frontend.log
+frontend/frontend_patch_20250413_172723.log
+
+# ignore the entire frontend archive folder
+/frontend/archive/
+
+# if you have a separate frontend_archive dir
+/frontend_archive/

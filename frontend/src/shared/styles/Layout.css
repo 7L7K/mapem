@@ -1,0 +1,51 @@
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #000;
+  }
+  
+  .app-root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: #f1f1f1;
+    background-color: #000;
+    font-family: 'Segoe UI', sans-serif;
+  }
+  
+  .app-header {
+    flex-shrink: 0;
+    padding: 1rem;
+    background-color: #111;
+    border-bottom: 1px solid #333;
+  }
+  
+  
+  .app-main {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .app-status {
+    color: limegreen;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid #222;
+  }
+  .app-main {
+    padding-top: 4rem; /* adjust to match header height */
+  }
+  
+  .map-container {
+    margin-top: 3.5rem; /* push the map below the QuickFilterBar */
+  }
+  
+  /* global dark background if not already present */
+  body {
+    background-color: #000;
+    color: #fff;
+  }
+
