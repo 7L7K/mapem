@@ -1,25 +1,27 @@
 # os.path.expanduser("~")/mapem/backend/routes/upload.py
+
 from flask import Blueprint, request, jsonify
 import traceback, os
+
 from backend.services.parser import GEDCOMParser
 from backend.services.location_service import LocationService
-from backend.utils.helpers import get_db_connection
+from backend.utils.helpers import generate_temp_path  # if you got one
 from backend.models import TreeVersion, UploadedTree
+from backend.db import get_db
+import logging
 
 upload_routes = Blueprint("upload", __name__, url_prefix="/api/upload")
+logger = logging.getLogger("mapem")
 
 @upload_routes.route("/", methods=["POST", "GET"], strict_slashes=False)
 def upload_tree():
-    session = get_db_connection()
-    file = None
-    tree_id = None
+    db = next(get_db())  # 🔁 use new session pattern
     temp_path = None
 
     try:
         # 1) Validate incoming request
         file = request.files.get('gedcom_file')
-        filename = file.filename or ""
-        if not file or filename.strip() == "":
+        if not file or not file.filename.strip():
             return jsonify({"error": "Missing file"}), 400
 
         tree_name = request.form.get("tree_name")
@@ -31,55 +33,34 @@ def upload_tree():
         temp_path = f"/tmp/{file.filename}"
         file.save(temp_path)
 
-        # 3) Instantiate LocationService + pass to GEDCOMParser
-        from backend.services.location_service import LocationService
+        # 3) Set up location service
         api_key = os.getenv("GOOGLE_MAPS_API_KEY", "YOUR_FALLBACK_KEY")
         location_service = LocationService(api_key=api_key)
-        
         parser = GEDCOMParser(temp_path, location_service)
-        parser.parse_file()  # parse individuals/families/events
+        parser.parse_file()
 
-        # 4) Insert UploadedTree row
-        try:
-            uploaded_tree = UploadedTree(
-                original_filename=file.filename,
-                uploader_name=uploader
-            )
-            session.add(uploaded_tree)
-            session.flush()
-            tree_id = uploaded_tree.id
-        except Exception as ex:
-            session.rollback()
-            return jsonify({"error": "Failed to save UploadedTree", "details": str(ex)}), 500
+        # 4) Save UploadedTree + TreeVersion
+        uploaded_tree = UploadedTree(
+            original_filename=file.filename,
+            uploader_name=uploader
+        )
+        db.add(uploaded_tree)
+        db.flush()  # get ID
+        tree_id = uploaded_tree.id
 
-        # 5) Insert TreeVersion row
-        try:
-            version = TreeVersion(
-                tree_name=tree_name,
-                version_number=1,
-                uploaded_tree_id=tree_id
-            )
-            session.add(version)
-            session.flush()
-        except Exception as ex:
-            session.rollback()
-            return jsonify({"error": "Failed to save TreeVersion", "details": str(ex)}), 500
+        version = TreeVersion(
+            tree_name=tree_name,
+            version_number=1,
+            uploaded_tree_id=tree_id
+        )
+        db.add(version)
+        db.flush()
 
-        # 6) Save GEDCOM data to DB
-        try:
-            # No geocode_client needed; parser uses location_service
-            result = parser.save_to_db(session, tree_id=tree_id, dry_run=False)
-            print("✅ Upload Summary:", result)
-        except Exception as ex:
-            session.rollback()
-            return jsonify({
-                "error": "Failed during GEDCOM DB insert",
-                "details": str(ex),
-                "trace": traceback.format_exc()
-            }), 500
+        # 5) Save parsed GEDCOM to DB
+        result = parser.save_to_db(db, tree_id=tree_id, dry_run=False)
 
-        # 7) Commit everything
-        session.commit()
+        # 6) Commit transaction
+        db.commit()
 
         return jsonify({
             "status": "success",
@@ -89,19 +70,15 @@ def upload_tree():
         }), 200
 
     except Exception as e:
-        session.rollback()
-        print("🚨 Top-level upload failure:", e)
-        print("🚨 FULL TRACEBACK START 🚨")
-        print(traceback.format_exc())
-        print("🚨 FULL TRACEBACK END 🚨")
+        db.rollback()
+        logger.exception("❌ Upload failed")
         return jsonify({
-            "error": "Top-level upload failure",
+            "error": "Upload failed",
             "details": str(e),
             "trace": traceback.format_exc()
         }), 500
 
     finally:
-        if session:
-            session.close()
+        db.close()
         if temp_path and os.path.exists(temp_path):
             os.remove(temp_path)

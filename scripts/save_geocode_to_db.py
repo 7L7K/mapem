@@ -13,8 +13,8 @@ if not place:
     print("❌ Provide a location string to geocode.")
     sys.exit(1)
 
-Session = sessionmaker(bind=engine)
-session = Session()
+db = sessionmaker(bind=engine)
+session = db()
 
 geocoder = Geocode(api_key=api_key)
 result = geocoder.get_or_create_location(session, place)

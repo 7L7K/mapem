@@ -5,11 +5,11 @@ import logging
 from datetime import datetime
 from typing import Optional
 
-from backend.services.location_processor import process_location, log_unresolved_location
+from backend.services.location_processor import process_location
 from backend.services.geocode import Geocode
-from backend.utils.location_utils import normalize_place
+from backend.utils.log_utils import normalize_place
 from backend.models.location_models import LocationOut
-from backend.utils.helpers import normalize_confidence_score
+from backend.utils.helpers import normalize_confidence_score, log_unresolved_location
 
 logger = logging.getLogger(__name__)
 

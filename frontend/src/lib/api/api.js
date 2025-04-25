@@ -44,3 +44,24 @@ export const getSchema = () =>
 
 export const getTrees = () =>
   axios.get(`${API_BASE_URL}/api/trees`).then(res => res.data);
+
+export const getTreeCounts = (treeId) =>
+  axios.get(`${API_BASE_URL}/api/trees/${treeId}/counts`).then(res => res.data);
+
+export const getVisibleCounts = (treeId, filters) =>
+  axios.get(`${API_BASE_URL}/api/trees/${treeId}/visible-counts`, {
+    params: { filters: JSON.stringify(filters) }
+  }).then(res => res.data);
+
+export const getHousehold = (personId, year) =>
+  axios.get(`${API_BASE_URL}/api/people/${personId}/household`, {
+    params: { year }
+  }).then(res => res.data);
+
+export const getRelatives = (personId, types) =>
+  axios.get(`${API_BASE_URL}/api/people/${personId}/relatives`, {
+    params: { types: types.join(',') }
+  }).then(res => res.data);
+
+export const searchPeople = (q) =>
+  axios.get(`${API_BASE_URL}/api/people/search`, { params: { q } }).then(res => res.data);

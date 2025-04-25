@@ -2,14 +2,14 @@
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from backend.db import get_db_connection
+from backend.db import get_db
 from backend.models import (
     Individual, Family, TreeRelationship, Event,
     Location, UploadedTree, TreeVersion
 )
 
 def nuke_everything():
-    session = get_db_connection()
+    db = next(get_db())
     print("🔥 Deleting all data...")
 
     deletion_order = [
@@ -23,11 +23,11 @@ def nuke_everything():
     ]
 
     for model in deletion_order:
-        count = session.query(model).delete()
+        count = db.query(model).delete()
         print(f"🧨 Deleted {count} from {model.__tablename__}")
 
-    session.commit()
-    session.close()
+    db.commit()
+    db.close()
     print("✅ Database wiped clean.")
 
 if __name__ == "__main__":

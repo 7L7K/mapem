@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from backend.models import Event
-from backend.db import get_db_connection
+from backend.db import get_db
 from datetime import datetime
 
 event_routes = Blueprint("events", __name__, url_prefix="/api/events")
@@ -13,9 +13,10 @@ def get_events():
     start_year = request.args.get("start_year")
     end_year = request.args.get("end_year")
 
-    session = get_db_connection()
+    db = next(get_db())
+    
     try:
-        query = session.query(Event)
+        query = db.query(Event)
         if tree_id:
             query = query.filter(Event.tree_id == int(tree_id))
         if category:
@@ -55,4 +56,4 @@ def get_events():
         import traceback
         return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
     finally:
-        session.close()
+        db.close()

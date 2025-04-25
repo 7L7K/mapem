@@ -1,5 +1,7 @@
 import pytest
 from backend.main import create_app
+import sys, os
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__) + "/../"))
 
 @pytest.fixture
 def client():

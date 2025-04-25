@@ -9,7 +9,20 @@ from sqlalchemy.orm import sessionmaker
 from backend.db import get_engine
 from backend.config import settings
 import json
+import json
+from datetime import datetime
+import os
+import tempfile
 
+
+
+def normalize_location_name(name):
+    if not name or not isinstance(name, str):
+        return ""
+    name = name.strip().lower()
+    name = re.sub(r"[^a-z0-9\s,]", "", name)
+    name = re.sub(r"\s+", " ", name)
+    return name.title()
 
 def normalize_name(name):
     """Lowercase and strip whitespace."""
@@ -39,8 +52,8 @@ def get_db_connection():
     Session = sessionmaker(bind=engine)
     return Session()
 
-def normalize_location_name(name):
-    return re.sub(r'\W+', '_', name.strip().lower())
+def normalize_location(raw_name):
+    return re.sub(r'\W+', '_', raw_name.strip().lower())
 
 def print_json(obj):
     print(json.dumps(obj, indent=2, ensure_ascii=False))
@@ -61,3 +74,29 @@ def normalize_confidence_score(value):
     if isinstance(value, str):
         return mapping.get(value.strip().lower(), 0.0)
     return 0.0
+
+
+
+UNRESOLVED_PATH = "/Users/kingal/mapem/backend/data/unresolved_locations.json"
+
+def log_unresolved_location(entry):
+    try:
+        with open(UNRESOLVED_PATH) as f:
+            data = json.load(f)
+    except Exception:
+        data = []
+
+    entry["timestamp"] = datetime.utcnow().isoformat()
+    data.append(entry)
+
+    with open(UNRESOLVED_PATH, "w") as f:
+        json.dump(data, f, indent=2)
+
+
+def generate_temp_path(suffix=".ged"):
+    """
+    Generate a unique temp file path in /tmp or your system temp dir.
+    """
+    fd, path = tempfile.mkstemp(suffix=suffix, prefix="gedcom_", text=True)
+    os.close(fd)
+    return path

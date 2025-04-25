@@ -1,60 +1,96 @@
 # backend/routes/movements.py
 
-from flask import Blueprint, jsonify, current_app
-from flask_cors import cross_origin
+from flask import Blueprint, jsonify, current_app, request
 from sqlalchemy.orm import Session
+import logging
+
+from backend.db import get_db
 from backend.models import Event, Individual, Location
-from backend.db import SessionLocal
 
 movements_bp = Blueprint("movements", __name__, url_prefix="/api/movements")
+logger = logging.getLogger("mapem")
 
-@movements_bp.route("/<int:tree_id>", methods=["GET", "OPTIONS"])
-@cross_origin(origins="*")
-def get_movements(tree_id):
-    session: Session = SessionLocal()
+# ────────────────────────────────────────────────────────────────
+# 🗺️  Return grouped migration events for a tree
+# ────────────────────────────────────────────────────────────────
+@movements_bp.route("/<int:tree_id>", methods=["GET"], strict_slashes=False)
+def get_movements(tree_id: int):
+    """
+    Returns a list like:
+    [
+        {
+            "person_id": 12,
+            "person_name": "John Doe",
+            "movements": [
+                {
+                    "event_type": "Residence",
+                    "year": 1910,
+                    "latitude": 33.512,
+                    "longitude": -90.252,
+                    "location": "Sunflower County, MS",
+                    "notes": "Census 1910"
+                },
+                ...
+            ]
+        },
+        ...
+    ]
+    """
+    db: Session = next(get_db())
+
     try:
-        # Query events directly by tree_id now that it's indexed
+        # Optional filter support (?event_type=Residence) for future use
+        event_type = request.args.get("event_type")
+
         query = (
-            session.query(Event, Individual, Location)
+            db.query(Event, Individual, Location)
             .join(Individual, Event.individual_id == Individual.id)
             .join(Location, Event.location_id == Location.id)
             .filter(Event.tree_id == tree_id)
-            # .filter(Event.category == "migration")  # optional: re-enable later
             .filter(Location.latitude.isnot(None), Location.longitude.isnot(None))
-            .order_by(Individual.id, Event.date)
         )
 
-        results = query.all()
+        if event_type:
+            query = query.filter(Event.event_type == event_type)
+
+        results = query.order_by(Individual.id, Event.date).all()
+
         if not results:
-            current_app.logger.info("No movement data found for tree %s", tree_id)
+            logger.info("No movement data found for tree %s", tree_id)
             return jsonify([]), 200
 
+        # Group events by person
         grouped = {}
         for event, person, loc in results:
             pid = person.id
-            if pid not in grouped:
-                grouped[pid] = {
+            grouped.setdefault(
+                pid,
+                {
                     "person_id": pid,
                     "person_name": person.name,
-                    "movements": []
+                    "movements": [],
+                },
+            )
+            grouped[pid]["movements"].append(
+                {
+                    "event_type": event.event_type,
+                    "year": event.date.year if event.date else None,
+                    "latitude": loc.latitude,
+                    "longitude": loc.longitude,
+                    "location": loc.name,
+                    "notes": event.notes,
                 }
-            grouped[pid]["movements"].append({
-                "event_type": event.event_type,
-                "year": event.date.year if event.date else None,
-                "latitude": loc.latitude,
-                "longitude": loc.longitude,
-                "location": loc.name,
-                "notes": event.notes
-            })
+            )
 
+        # Ensure chronological order
         for data in grouped.values():
             data["movements"].sort(key=lambda m: m["year"] or 0)
 
         return jsonify(list(grouped.values())), 200
 
     except Exception as e:
-        current_app.logger.exception("❌ Failed to fetch movements for tree %s", tree_id)
-        return jsonify(error=str(e)), 500
+        logger.exception("❌ Failed to fetch movements for tree %s", tree_id)
+        return jsonify({"error": str(e)}), 500
 
     finally:
-        session.close()
+        db.close()
