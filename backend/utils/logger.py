@@ -21,13 +21,21 @@ class ColorFormatter(logging.Formatter):
         record.levelname = _add_color(levelname, levelname)
         return super().format(record)
 
-def get_logger(name: str = "mapem", level: int = logging.DEBUG) -> logging.Logger:
-    logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger  # already configured
 
-    logger.setLevel(level)
+def configure_logging(level: int = logging.DEBUG) -> None:
+    """Configure the root logger once."""
+    root = logging.getLogger()
+    if root.handlers:
+        return
+    root.setLevel(level)
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(ColorFormatter(_LOG_FORMAT))
-    logger.addHandler(handler)
+    root.addHandler(handler)
+
+
+def get_logger(name: str = "mapem", level: int = logging.DEBUG) -> logging.Logger:
+    """Return a logger that uses the central configuration."""
+    configure_logging(level)
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
     return logger

@@ -8,7 +8,10 @@ import os
 import json
 import tempfile
 import logging
+from backend.utils.logger import get_logger
+
 from pathlib import Path
+
 from datetime import datetime
 from fuzzywuzzy import fuzz
 from sqlalchemy.orm import sessionmaker
@@ -19,8 +22,7 @@ from backend.db import get_engine
 from backend.config import settings
 
 
-logger = logging.getLogger("helpers")
-logging.basicConfig(level=logging.DEBUG)
+logger = get_logger(__name__)
 from typing import Optional
 
 
