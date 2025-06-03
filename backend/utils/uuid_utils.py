@@ -19,8 +19,8 @@ def parse_uuid_arg_or_400(name: str, raw: str):
         return jsonify({"error": f"{name} must be a valid UUID", "code": "invalid_uuid"}), 400
 
 if __name__ == "__main__":
-    print("▶️ parse_uuid_arg:", parse_uuid_arg("tree_id", "6fa459ea-ee8a-3ca4-894e-db77e160355e"))
+    log.info("▶️ parse_uuid_arg: %s", parse_uuid_arg("tree_id", "6fa459ea-ee8a-3ca4-894e-db77e160355e"))
     try:
         parse_uuid_arg("tree_id", "not-a-uuid")
     except ValueError as e:
-        print("❌ parse_uuid_arg failed as expected:", e)
+        log.info("❌ parse_uuid_arg failed as expected: %s", e)

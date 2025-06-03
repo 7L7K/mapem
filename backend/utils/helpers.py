@@ -85,7 +85,7 @@ def print_json(obj):
             return o.isoformat()
         return str(o)
     logger.info("📝 Printing JSON object")
-    print(json.dumps(obj, indent=2, ensure_ascii=False, default=convert))
+    logger.info("%s", json.dumps(obj, indent=2, ensure_ascii=False, default=convert))
 
 
 def normalize_confidence_score(value):

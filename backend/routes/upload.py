@@ -71,7 +71,7 @@ def upload_tree():
     logger.debug("📬 Headers: %s", dict(request.headers))
     logger.debug("📝 Form keys: %s", list(request.form.keys()))
     logger.debug("📎 File keys: %s", list(request.files.keys()))
-    print("📥 Upload route hit")
+    logger.info("📥 Upload route hit")
 
     try:
         # 1️⃣ Locate and validate the file
@@ -114,20 +114,24 @@ def upload_tree():
         temp_path = str(Path("/tmp") / tmp_fname)
         file.save(temp_path)
         logger.debug("💾 Temp GEDCOM saved to %s", temp_path)
-        print(f"📂 GEDCOM saved to {temp_path}")
+        logger.info("📂 GEDCOM saved to %s", temp_path)
 
         # 4️⃣ Parse GEDCOM
         location_service = _build_location_service()
         parser = GEDCOMParser(temp_path, location_service)
-        print(f"🧬 Parsing GEDCOM for tree: {tree_name}")
+        logger.info("🧬 Parsing GEDCOM for tree: %s", tree_name)
         parsed = parser.parse_file()
-        print(f"✅ Parsed {len(parsed['individuals'])} individuals, {len(parsed['events'])} events")
+        logger.info(
+            "✅ Parsed %d individuals, %d events",
+            len(parsed['individuals']),
+            len(parsed['events']),
+        )
 
         # 5️⃣ Insert UploadedTree + TreeVersion
         uploaded_tree = UploadedTree(tree_name=tree_name)
         db.add(uploaded_tree)
         db.flush()
-        print(f"🌳 UploadedTree ID: {uploaded_tree.id}")
+        logger.debug("🌳 UploadedTree ID: %s", uploaded_tree.id)
 
         version = TreeVersion(
             uploaded_tree_id=uploaded_tree.id,
@@ -135,12 +139,12 @@ def upload_tree():
         )
         db.add(version)
         db.flush()
-        print(f"📚 TreeVersion ID: {version.id}")
+        logger.debug("📚 TreeVersion ID: %s", version.id)
 
         # 6️⃣ Save parsed data to DB
-        print("💾 Saving to database ...")
+        logger.debug("💾 Saving to database ...")
         summary = parser.save_to_db(db, tree_id=version.id, dry_run=False)
-        print(f"✅ save_to_db() complete — summary: {summary}")
+        logger.debug("✅ save_to_db() complete — summary: %s", summary)
 
         # 7️⃣ Commit
         db.commit()
@@ -150,7 +154,7 @@ def upload_tree():
             uploaded_tree.id,
             version.id,
         )
-        print("🎉 Upload and parse complete!")
+        logger.info("🎉 Upload and parse complete!")
 
         return (
             jsonify(

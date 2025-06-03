@@ -1,7 +1,10 @@
 # backend/clear_db.py
+import logging
 from sqlalchemy.sql import text
 from backend.db import get_engine, SessionLocal
 from backend.models import Base
+
+logger = logging.getLogger(__name__)
 
 def clear_database():
     engine = get_engine()
@@ -11,4 +14,4 @@ def clear_database():
 
 if __name__ == "__main__":
     clear_database()
-    print("✅ Database cleared and re‑initialized")
+    logger.info("✅ Database cleared and re‑initialized")

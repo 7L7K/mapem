@@ -10,6 +10,9 @@ from backend.routes.movements import movements_routes
 from backend.routes.health import health_routes
 from backend.routes.heatmap import heatmap_routes
 from backend.utils.debug_routes import debug_route
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -33,6 +36,6 @@ def register_routes(app):
 
     for bp in routes:
         if bp.name in app.blueprints:
-            print(f"⚠️ Skipping blueprint '{bp.name}' — already registered.")
+            logger.warning("⚠️ Skipping blueprint '%s' — already registered.", bp.name)
             continue
         app.register_blueprint(bp)

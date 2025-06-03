@@ -1,5 +1,8 @@
 # os.path.expanduser("~")/mapem/backend/services/gedcom_normalizer.py
 from datetime import datetime
+import logging
+
+logger = logging.getLogger(__name__)
 
 # 1) Flexible date parser (unchanged)
 def parse_date_flexible(date_str):
@@ -258,6 +261,10 @@ def normalize_individual(raw_ind):
                     person["notes"] += nval + " "
 
     if not got_job:
-        print(f"🕵️ No occupation found for {person['name']} ({person['gedcom_id']})")
+        logger.info(
+            "🕵️ No occupation found for %s (%s)",
+            person['name'],
+            person['gedcom_id'],
+        )
 
     return person
