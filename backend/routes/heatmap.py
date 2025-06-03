@@ -3,6 +3,7 @@
 import os
 import json
 import traceback
+from pathlib import Path
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from sqlalchemy import func
@@ -23,7 +24,8 @@ def load_shapes():
     global SHAPES_LOADED, SHAPES_INDEX
     if SHAPES_LOADED:
         return
-    base = os.path.join(os.getcwd(), "backend", "data", "historical_places")
+    base = Path(__file__).resolve().parent / ".." / "data" / "historical_places"
+    base = str(base)
     for root, _, files in os.walk(base):
         for fn in files:
             if fn.lower().endswith(".geojson"):
