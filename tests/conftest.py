@@ -7,6 +7,7 @@ from backend.main import create_app
 from backend.models import Base
 import backend.db  # so we can patch SessionLocal + engine
 import os
+from pathlib import Path
 
 
 @pytest.fixture(scope="session")
@@ -44,7 +45,7 @@ def db_session():
 @pytest.fixture
 def gedcom_path():
     # adjust if your test file lives somewhere else
-    return os.path.abspath("/Users/kingal/mapem/tests/data/test_family_events.ged")
+    return Path(__file__).parent / "data/test_family_events.ged"
 
 
 @pytest.fixture
