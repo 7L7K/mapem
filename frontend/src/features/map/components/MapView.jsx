@@ -14,7 +14,8 @@ const DEFAULT_CENTER = [39.8283, -98.5795];
 
 export default function MapView({ movements = [], loading, error }) {
   useEffect(() => {
-    console.log("🗺️ Movements loaded:", movements.length);
+    if (import.meta.env.DEV)
+      console.log("🗺️ Movements loaded:", movements.length);
   }, [movements]);
 
   if (loading) return <div className="p-6 text-dim">Loading map...</div>;

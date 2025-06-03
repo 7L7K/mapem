@@ -3,6 +3,7 @@ export default async function uploadTree(file, onProgress = null) {
     formData.append("gedcom_file", file);
     formData.append("tree_name", file.name);
   
+  if (import.meta.env.DEV)
     console.log("📤 Uploading GEDCOM:", file.name, `${(file.size / 1024).toFixed(1)} KB`);
   
     try {
@@ -26,8 +27,8 @@ export default async function uploadTree(file, onProgress = null) {
         throw new Error(`Upload failed: ${res.status}\n${trace}`);
       }
   
-      const data = await res.json();
-      console.log("✅ Upload successful:", data);
+    const data = await res.json();
+    if (import.meta.env.DEV) console.log("✅ Upload successful:", data);
       return data;
     } catch (err) {
       console.error("🔥 GEDCOM Upload Error:", err);

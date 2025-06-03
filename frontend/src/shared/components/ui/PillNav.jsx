@@ -13,7 +13,8 @@ export default function PillNav() {
   const loc = useLocation();
 
   useEffect(() => {
-    console.log("🧭 [PillNav] Mounted. Current path:", loc.pathname);
+    if (import.meta.env.DEV)
+      console.log("🧭 [PillNav] Mounted. Current path:", loc.pathname);
   }, []);
 
   return (
