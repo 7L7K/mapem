@@ -7,9 +7,8 @@ from .base import Base, ReprMixin
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
-logger = logging.getLogger("mapem.models.Event")
-logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger().propagate = True
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 # ─── Association Table: Event ↔ Individual ─────────────
 event_participants = Table(
