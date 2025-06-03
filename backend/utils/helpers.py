@@ -8,6 +8,7 @@ import os
 import json
 import tempfile
 import logging
+from pathlib import Path
 from datetime import datetime
 from fuzzywuzzy import fuzz
 from sqlalchemy.orm import sessionmaker
@@ -105,7 +106,11 @@ def normalize_confidence_score(value):
     return 0.0
 
 
-UNRESOLVED_PATH = "/Users/kingal/mapem/backend/data/unresolved_locations.json"
+BASE_DIR = Path(__file__).resolve().parents[1]
+UNRESOLVED_PATH = os.getenv(
+    "UNRESOLVED_PATH",
+    str(BASE_DIR / "data" / "unresolved_locations.json"),
+)
 
 def generate_temp_path(suffix=".ged"):
     fd, path = tempfile.mkstemp(suffix=suffix, prefix="gedcom_", text=True)
