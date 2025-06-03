@@ -1,19 +1,61 @@
-# node & build
+# ─── Node & Build ───────────────────────────────
 /node_modules
 /dist
+/.vite
+frontend/node_modules/
+frontend/.vite/
+frontend/frontend.log
+frontend/frontend_patch_*.log
 
-# env & OS
+# ─── Env & OS ───────────────────────────────────
 *.env
+.envrc
 .DS_Store
 __MACOSX
+.vscode/
 
-# caches & logs
-.cache/pkg_hash.txt
-frontend/frontend.log
-frontend/frontend_patch_20250413_172723.log
+# ─── Python & Flask ─────────────────────────────
+__pycache__/
+/*.pyc
+*.pyc
+*.pyo
+*.db
+*.sqlite3
+*.sqlite
+*.bak.*
+*.jsonl.bak
+*.log
+*.zip
+*.tmp
+*.swp
 
-# ignore the entire frontend archive folder
+# ─── Project Structure ──────────────────────────
 /frontend/archive/
-
-# if you have a separate frontend_archive dir
 /frontend_archive/
+/geocode_cache.json
+/flask.log
+/backend/mapem.db
+/backend/Archive*.zip
+/backend/*.bak
+/backend/data/*.bak.*
+/backend/data/*.jsonl
+/backend/data/*_log.jsonl
+/backend/data/unresolved_*.json
+/backend/data/test_*.json
+/backend/schema_dump.sql
+
+# ─── Tests ──────────────────────────────────────
+tests/__pycache__/
+/test/__pycache__/
+/test_import.py
+
+# ─── Scripts & Trash ────────────────────────────
+scripts/*.log
+scripts/*.bak
+scripts/cache/
+scripts/flask.log
+scripts/*.pyc
+scripts/geocode_cache.json
+scripts/*.zip
+scripts/tmp/
+scripts/zip_gpt/

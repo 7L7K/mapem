@@ -1,7 +1,7 @@
 import re
 import json
 from pathlib import Path
-from backend.utils.helpers import normalize_location_name
+from backend.utils.helpers import normalize_location
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -70,7 +70,7 @@ def main():
 
     seen = set()
     for entry in data:
-        raw = entry.get("raw_name")
+        raw = entry.get("raw_name") or entry.get("place")
         if not raw:
             continue
         key = raw.lower()

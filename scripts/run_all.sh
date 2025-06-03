@@ -40,6 +40,7 @@ trap 'echo -e "\n🚫 ${bold}Shutting down...${reset}"; kill $FLASK_PID $VITE_PI
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+export PYTHONPATH="$PROJECT_ROOT"   # ← add this line
 
 # ─── Kill Old Processes ──────────────────────────────────────────────────
 echo -e "\n🫼 Killing old processes…"
@@ -170,6 +171,9 @@ launch_flask() {
   fi
   end_timer "Flask boot"
 }
+echo "📣 Launching Celery worker"
+celery -A backend.celery_app.celery_app worker --loglevel=info > celery.log 2>&1 & CELERY_PID=$!
+sleep 2
 
 launch_vite() {
   start_timer "Vite boot"

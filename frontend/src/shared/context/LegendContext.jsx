@@ -1,9 +1,9 @@
-// src/shared/context/LegendContext.jsx
-import React, { createContext, useContext, useState, useEffect, useMemo } from 'react';
-import { useSearch } from '@shared/context/SearchContext';
-import { useTree } from '@shared/context/TreeContext';
-import * as api from '@lib/api/api';
-import { devLog } from '@shared/utils/devLogger';
+// frontend/src/shared/context/LegendContext.jsx
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+import { useSearch } from "@shared/context/SearchContext";
+import { useTree } from "@shared/context/TreeContext";
+import * as api from "@lib/api/api";
+import { devLog } from "@shared/utils/devLogger";
 
 const LegendContext = createContext(null);
 export const useLegend = () => useContext(LegendContext);
@@ -35,19 +35,21 @@ export function LegendProvider({ children }) {
       });
   }, [treeId]);
 
-  // 2) Visible counts (post-filters)
+  // 2) Visible counts
   useEffect(() => {
     if (!treeId) return;
-    devLog("LegendContext", "🔍 Fetching visible counts for filters", filters);
+    devLog("LegendContext", "🔍 Fetching visible counts for", filters);
     api.getVisibleCounts(treeId, filters)
-      .then(({ people, families }) => {
-        devLog("LegendContext", "✅ Got visible counts", { people, families });
-        setCounts((c) => ({ ...c, people, families }));
-      })
-      .catch((err) => devLog("LegendContext", "❌ getVisibleCounts failed", err));
+    .then((res) => {
+      devLog("LegendContext", "✅ Got visible counts", res);
+      const people = res.people ?? 0;
+      const families = res.families ?? 0;
+      setCounts((c) => ({ ...c, people, families }));
+    })
+        .catch((err) => devLog("LegendContext", "❌ getVisibleCounts failed", err));
   }, [treeId, filters]);
 
-  // 3) Household size for selected person
+  // 3) Household size
   useEffect(() => {
     const pid = filters.selectedPersonId;
     if (!pid) return;
@@ -56,10 +58,11 @@ export function LegendProvider({ children }) {
       .then((list) => {
         devLog("LegendContext", "✅ Got household list", list);
         setCounts((c) => ({ ...c, household: list.length }));
-      });
+      })
+      .catch((err) => devLog("LegendContext", "❌ getHousehold failed", err));
   }, [filters.selectedPersonId, filters.yearRange]);
 
-  // 4) Relatives counts
+  // 4) Relatives
   useEffect(() => {
     const pid = filters.selectedPersonId;
     if (!pid) return;
@@ -69,7 +72,8 @@ export function LegendProvider({ children }) {
       .then((rel) => {
         devLog("LegendContext", "✅ Got relatives", rel);
         setCounts((c) => ({ ...c, relatives: rel }));
-      });
+      })
+      .catch((err) => devLog("LegendContext", "❌ getRelatives failed", err));
   }, [filters.selectedPersonId, filters.relations]);
 
   const value = useMemo(() => ({ counts }), [counts]);

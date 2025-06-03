@@ -1,80 +1,135 @@
-# backend/services/location_service.py
-import os
+"""
+LocationService  – central “place resolver” for MaPeM.
+"""
+
+from __future__ import annotations
+
 import json
 import logging
-from datetime import datetime
+import os
+from datetime import datetime, timezone
 from typing import Optional
 
-from backend.services.location_processor import process_location
-from backend.services.geocode import Geocode
-from backend.utils.log_utils import normalize_place
 from backend.models.location_models import LocationOut
-from backend.utils.helpers import normalize_confidence_score, log_unresolved_location
+from backend.services.geocode import Geocode
+from backend.services.location_processor import process_location
+from backend.utils.log_utils import normalize_place
 
 logger = logging.getLogger(__name__)
 
-# NEW: central unresolved dump
-UNRESOLVED_PATH = os.path.join(
-    os.path.dirname(__file__), "..", "data", "unresolved_locations.json"
-)
+# ─────────────────────────────────────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────────────────────────────────────
+def _load_json(path: str) -> dict[str, dict]:
+    with open(path, "r", encoding="utf-8") as fh:
+        return json.load(fh)
 
+
+def _safe_lat(hit: dict) -> Optional[float]:
+    return hit.get("lat") or hit.get("latitude")
+
+
+def _safe_lng(hit: dict) -> Optional[float]:
+    return hit.get("lng") or hit.get("longitude")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LocationService
+# ─────────────────────────────────────────────────────────────────────────────
 class LocationService:
-    def __init__(self, api_key=None, cache_file="geocode_cache.json", use_cache=True):
-        self.geocoder = Geocode(api_key=api_key, cache_file=cache_file, use_cache=use_cache)
-
-        # ---------------- Manual fixes ----------------
-        manual_fixes_path = os.path.join(
-            os.path.dirname(__file__), "..", "data", "manual_place_fixes.json"
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        cache_file: str = "geocode_cache.json",
+        use_cache: bool = True,
+        data_dir: Optional[str] = None,
+    ):
+        self.data_dir = (
+            data_dir
+            or os.getenv("MAPEM_DATA_DIR")
+            or os.path.join(os.path.dirname(__file__), "..", "data")
         )
-        if os.path.exists(manual_fixes_path):
-            with open(manual_fixes_path) as f:
-                try:
-                    fixes = json.load(f)
-                except Exception:
-                    fixes = {}
-        else:
-            fixes = {}
-        self.manual_fixes = {normalize_place(k).lower(): v for k, v in fixes.items()}
+        logger.debug("🔍 LocationService using data_dir=%s", self.data_dir)
 
-        # ---------------- Historical lookup ----------------
-        self.historical_lookup = {}
-        historical_dir = os.path.join(
-            os.path.dirname(__file__), "..", "data", "historical_places"
+        self.geocoder = Geocode(
+            api_key=api_key, cache_file=cache_file, use_cache=use_cache
         )
-        if os.path.exists(historical_dir):
-            for fname in os.listdir(historical_dir):
+
+        # ── Manual overrides ──────────────────────────────────────────────
+        self.manual_fixes: dict[str, dict] = {}
+        manual_path = os.path.join(self.data_dir, "manual_place_fixes.json")
+        if os.path.exists(manual_path):
+            try:
+                for key, val in _load_json(manual_path).items():
+                    nk = normalize_place(key) or key
+                    self.manual_fixes[nk.lower()] = val
+                logger.debug("📌 Loaded %d manual fixes", len(self.manual_fixes))
+            except Exception as e:
+                logger.warning("⚠️ Failed to load manual fixes: %s", e)
+
+        # ── Historical lookup ─────────────────────────────────────────────
+        self.historical_lookup: dict[str, dict] = {}
+        hist_dir = os.path.join(self.data_dir, "historical_places")
+        if os.path.isdir(hist_dir):
+            for fname in os.listdir(hist_dir):
                 if fname.endswith(".json"):
                     try:
-                        with open(os.path.join(historical_dir, fname)) as f:
-                            data = json.load(f)
-                            for k, v in data.items():
-                                self.historical_lookup[normalize_place(k).lower()] = v
+                        for key, val in _load_json(os.path.join(hist_dir, fname)).items():
+                            nk = normalize_place(key) or key
+                            self.historical_lookup[nk.lower()] = val
                     except Exception as e:
-                        logger.warning(f"Could not load historical mapping {fname}: {e}")
-        logger.info(f"Loaded {len(self.historical_lookup)} historical records.")
+                        logger.warning("⚠️ Failed to load history %s: %s", fname, e)
+        logger.info("✅ Loaded %d historical records.", len(self.historical_lookup))
 
-    # ---------- NEW helper ----------
-    def _dump_unresolved(self, payload: dict):
-        """Append to unresolved_locations.json so we can fix later."""
+        # Unresolved output path
+        self.unresolved_path = os.path.join(self.data_dir, "unresolved_locations.json")
+
+    # ─────────────────────────────────────────────────────────────────────────
+    # Main entry point
+    # ─────────────────────────────────────────────────────────────────────────
+
+    def _append_unresolved(
+        self,
+        raw_name: str,
+        normalized_name: str,
+        status: str,
+        event_year: Optional[int],
+        source_tag: str,
+        tree_id: Optional[str] = None,       # 👈 add tree_id parameter
+    ) -> None:
+        """
+        Write one JSON entry into unresolved_locations.json,
+        now including tree_id so retry can pick it up.
+        """
+        payload = {
+            "raw_name": raw_name,
+            "normalized_name": normalized_name,
+            "status": status,
+            "event_year": event_year,
+            "source_tag": source_tag,
+            "tree_id": tree_id,               # 👈 include here
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+        }
         try:
-            if os.path.exists(UNRESOLVED_PATH):
-                with open(UNRESOLVED_PATH) as f:
-                    data = json.load(f)
-            else:
-                data = []
+            data = _load_json(self.unresolved_path) if os.path.exists(self.unresolved_path) else []
             data.append(payload)
-            with open(UNRESOLVED_PATH, "w") as f:
-                json.dump(data, f, indent=2)
-        except Exception as e:
-            logger.error(f"Failed to write unresolved_locations.json: {e}")
-
+            with open(self.unresolved_path, "w", encoding="utf-8") as fh:
+                json.dump(data, fh, indent=2)
+        except Exception as ex:
+            logger.error(f"❌ Could not write unresolved dump: {ex}")
+            
+            
+            
+            
+            
     def resolve_location(
-        self, raw_place: Optional[str], event_year=None, source_tag=""
+        self,
+        raw_place: Optional[str],
+        *,
+        event_year: Optional[int] = None,
+        source_tag: str = "",
+        tree_id: Optional[str] = None,
     ) -> LocationOut:
-        """
-        Return a LocationOut object even when we can't get lat/lng,
-        and always log/debug when something fails.
-        """
         if not raw_place:
             return LocationOut(
                 raw_name="",
@@ -84,91 +139,80 @@ class LocationService:
                 confidence_score=0.0,
                 status="empty",
                 source="none",
-                timestamp=datetime.utcnow().isoformat(),
+                timestamp=datetime.now(timezone.utc).isoformat(),
             )
 
-        # --- 1. preprocess / classify -----------------
-        processed = process_location(
-            raw_place, source_tag=source_tag, event_year=event_year
-        ) or {
-            "normalized": "",
-            "status": "unknown",
-            "confidence": 0.0,
-            "fallback": None,
-        }
-        norm = processed.get("normalized") or ""
-        fallback = processed.get("fallback")
-        status = processed.get("status", "unknown")
-
-        # Manual / historical overrides BEFORE geocode calls
-        norm_key = normalize_place(norm).lower()
-        manual_hit = self.manual_fixes.get(norm_key) or self.historical_lookup.get(
-            norm_key
+        processed: LocationOut = process_location(
+            raw_place=raw_place,
+            event_year=event_year,
+            source_tag=source_tag,
         )
-        if manual_hit:
-            logger.debug(f"📌 Manual/Hist hit → '{norm}' → {manual_hit}")
+
+        if processed.status == "vague" and event_year and event_year < 1890:
+            logger.debug(f"🟡 Vague state pre-1890 override for '{raw_place}'")
+            processed.status = "vague_state_pre1890"
+
+        norm = processed.normalized_name or normalize_place(raw_place) or raw_place.lower().replace(" ", "_")
+        key = norm.lower()
+
+        hit = self.manual_fixes.get(key) or self.historical_lookup.get(key)
+        if hit:
             return LocationOut(
                 raw_name=raw_place,
-                normalized_name=manual_hit.get("normalized_name", norm),
-                latitude=manual_hit.get("lat"),
-                longitude=manual_hit.get("lng"),
+                normalized_name=hit.get("normalized_name", norm),
+                latitude=_safe_lat(hit),
+                longitude=_safe_lng(hit),
                 confidence_score=1.0,
-                status="manual_override",
-                source="manual_or_historical",
-                timestamp=datetime.utcnow().isoformat(),
+                status=hit.get("status", "manual_override"),
+                source=hit.get("source", "manual_or_historical"),
+                timestamp=datetime.now(timezone.utc).isoformat(),
             )
 
-        # --- 2. Fallback coordinates from classifier ----
-        if fallback and fallback.get("lat") and fallback.get("lng"):
-            logger.debug(f"🗺️ Fallback coords for '{raw_place}': {fallback}")
+        geo: Optional[LocationOut] = None
+        try:
+            geo = self.geocoder.get_or_create_location(None, norm)
+        except Exception as ex:
+            logger.warning(f"⚠️ Geocode error for '{raw_place}': {ex}")
+
+        if geo and geo.latitude is not None and geo.longitude is not None and (geo.latitude, geo.longitude) != (0.0, 0.0):
+            return LocationOut(
+                raw_name=raw_place,
+                normalized_name=geo.normalized_name or norm,
+                latitude=geo.latitude,
+                longitude=geo.longitude,
+                confidence_score=geo.confidence_score or 0.5,
+                status="ok",
+                source=geo.source or "external",
+                timestamp=datetime.now(timezone.utc).isoformat(),
+            )
+
+        if (
+            geo
+            and (geo.latitude, geo.longitude) == (0.0, 0.0)
+            and event_year and event_year < 1890
+            and "mississippi" in norm.lower()
+        ):
+            logger.debug("🟠 Overriding to vague_state_pre1890 based on 0,0 coords + year<1890")
             return LocationOut(
                 raw_name=raw_place,
                 normalized_name=norm,
-                latitude=fallback["lat"],
-                longitude=fallback["lng"],
-                confidence_score=normalize_confidence_score(processed.get("confidence")),
-                status=status,
-                source="fallback",
-                timestamp=datetime.utcnow().isoformat(),
+                latitude=0.0,
+                longitude=0.0,
+                confidence_score=0.5,
+                status="vague_state_pre1890",
+                source=geo.source or "external",
+                timestamp=datetime.now(timezone.utc).isoformat(),
             )
 
-        # --- 3. External geocode ------------------------
-        geo = self.geocoder.get_or_create_location(None, norm)
-        if geo and geo.get("latitude") and geo.get("longitude"):
-            logger.debug(f"✅ Geocode OK for '{raw_place}' → {geo}")
-            return LocationOut(
-                raw_name=raw_place,
-                normalized_name=geo.get("normalized_name", norm),
-                latitude=geo["latitude"],
-                longitude=geo["longitude"],
-                confidence_score=float(geo.get("confidence_score", 0.0)),
-                status=geo.get("status", "ok"),
-                source=geo.get("source", "unknown"),
-                timestamp=datetime.utcnow().isoformat(),
-            )
-
-        # --- 4. Couldn’t resolve → log and dump ----------
-        logger.warning(f"⚠️ UNRESOLVED place '{raw_place}' | Status: {status}")
-        self._dump_unresolved(
-            {
-                "raw_name": raw_place,
-                "normalized_name": norm,
-                "source_tag": source_tag,
-                "event_year": event_year,
-                "status": status,
-                "timestamp": datetime.utcnow().isoformat(),
-            }
+        logger.warning(f"🚫 UNRESOLVED '{raw_place}' (status={processed.status})")
+        self._append_unresolved(
+            raw_name=raw_place,
+            normalized_name=norm,
+            status=processed.status,
+            event_year=event_year,
+            source_tag=source_tag,
+            tree_id=tree_id,
         )
-        if geo:
-            log_unresolved_location(
-                {
-                    "raw_name": raw_place,
-                    "normalized_name": norm,
-                    "status": geo.get("status", "unknown"),
-                    "source_tag": source_tag,
-                    "timestamp": datetime.utcnow().isoformat(),
-                }
-            )
 
         return LocationOut(
             raw_name=raw_place,
@@ -178,5 +222,6 @@ class LocationService:
             confidence_score=0.0,
             status="unresolved",
             source="none",
-            timestamp=datetime.utcnow().isoformat(),
+            timestamp=datetime.now(timezone.utc).isoformat(),
         )
+    print("✅ LocationService loaded with resolve_location =", hasattr(LocationService, "resolve_location"))

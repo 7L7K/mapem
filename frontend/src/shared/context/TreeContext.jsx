@@ -1,31 +1,72 @@
-// src/context/TreeContext.jsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import * as api from "@lib/api/api";
 
-const TreeContext = createContext();
+// ───────────────────────────────────────────────────────────────
+// Tree Context
+// ───────────────────────────────────────────────────────────────
 
-export const TreeProvider = ({ children }) => {
-  const [treeId, setTreeId] = useState(() => {
-    const saved = localStorage.getItem("selectedTreeId");
-    const parsed = Number(saved);
-    return !isNaN(parsed) && parsed > 0 ? parsed : null;
-  });
+export const TreeContext = createContext({
+  treeId: null,
+  setTreeId: () => {},
+  allTrees: [],
+  loading: true,
+  treeName: "Unknown Tree",
+});
+
+export const useTree = () => useContext(TreeContext);
+
+export function TreeProvider({ children }) {
+  const [treeId, setTreeIdRaw] = useState(null);
+  const [allTrees, setAllTrees] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const setTreeId = (id) => {
+    console.debug("[TreeContext] 🔁 setTreeId called with:", id);
+    setTreeIdRaw(id);
+    if (id) {
+      window.localStorage.setItem("lastTreeId", String(id));
+      console.debug("[TreeContext] 💾 saved treeId to localStorage:", id);
+    } else {
+      localStorage.removeItem("lastTreeId");
+      console.debug("[TreeContext] 🧹 removed stale treeId from localStorage");
+    }
+  };
 
   useEffect(() => {
-    console.log("🌲 TreeContext: Selected treeId updated to:", treeId);
-    localStorage.setItem("selectedTreeId", treeId);
-  }, [treeId]);
+    const saved = window.localStorage.getItem("lastTreeId");
+    console.debug("[TreeContext] 🔍 Checking saved treeId:", saved);
+
+    api.getTrees()
+      .then((trees) => {
+        console.debug("[TreeContext] 🌳 fetched trees:", trees);
+        setAllTrees(trees);
+        setLoading(false);
+
+        const validIds = new Set(trees.map(t => String(t.id)));
+
+        if (saved && validIds.has(saved)) {
+          console.debug("[TreeContext] ✅ saved treeId is valid:", saved);
+          setTreeIdRaw(saved);
+        } else if (trees.length > 0) {
+          const fallback = String(trees[0].id);
+          console.warn("[TreeContext] ❗ invalid or missing treeId — falling back to:", fallback);
+          setTreeId(fallback);
+        } else {
+          console.warn("[TreeContext] ⚠️ no trees available");
+          setTreeId(null);
+        }
+      })
+      .catch((err) => {
+        console.error("[TreeContext] ❌ failed to fetch trees:", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const treeName = allTrees.find((t) => String(t.id) === String(treeId))?.tree_name || "Unknown Tree";
 
   return (
-    <TreeContext.Provider value={{ treeId, setTreeId }}>
+    <TreeContext.Provider value={{ treeId, setTreeId, allTrees, loading, treeName }}>
       {children}
     </TreeContext.Provider>
   );
-};
-
-export const useTree = () => {
-  const context = useContext(TreeContext);
-  if (context === undefined) {
-    throw new Error("`useTree` must be called within a `<TreeProvider>`");
-  }
-  return context;
-};
+}

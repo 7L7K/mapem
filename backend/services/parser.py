@@ -13,6 +13,8 @@ from .gedcom_normalizer import (
 from ..models import Individual, Family, TreeRelationship, Event, Location
 from backend.services.location_service import LocationService
 from backend.models.location_models import LocationOut
+from backend.utils.helpers import split_full_name
+
 
 
 logger = logging.getLogger(__name__)
@@ -69,11 +71,27 @@ class GEDCOMParser:
             fam_norm = normalize_family(raw_fam)
             families.append(fam_norm)
 
+# Existing: add event with only family_id
             fam_evts = extract_events_from_family(raw_fam, fam_norm)
+            fanout_tags = {"MARR", "DIV"}           # tags that should exist only as individual events
+            fam_evts_keep = []                      # ← events we will actually retain
+
             for evt in fam_evts:
                 tag = evt.get("source_tag", "").upper()
                 evt["category"] = TAG_CATEGORY_MAP.get(tag, "unspecified")
-            events.extend(fam_evts)
+                # --- PATCH START ---
+                # For marriage/divorce/etc., attach to BOTH spouses as individual events!
+                if tag in fanout_tags:
+                    for spouse in (fam_norm.get("husband_id"), fam_norm.get("wife_id")):
+                        if spouse:
+                            indiv_evt = evt.copy()
+                            indiv_evt["individual_gedcom_id"] = spouse
+                            events.append(indiv_evt)
+                    continue
+                else: 
+                    fam_evts_keep.append(evt)
+                # --- PATCH END ---
+            events.extend(fam_evts_keep)
 
         # Store the processed data internally
         self.data = {
@@ -82,16 +100,9 @@ class GEDCOMParser:
             "events": events,
         }
         return self.data
-
     def save_to_db(self, session: Session, tree_id: int, dry_run=False):
         """
         Inserts Individuals, Families, Relationships, and Events into the DB.
-        All location resolution is handled by self.location_service.
-
-        :param session: SQLAlchemy session
-        :param tree_id: Which tree we're inserting into
-        :param dry_run: If True, will rollback at the end instead of committing
-        :return: summary dict with counts & warnings
         """
         data = self.data
         summary = {"people_count": 0, "event_count": 0, "warnings": [], "errors": []}
@@ -104,18 +115,25 @@ class GEDCOMParser:
                 summary["warnings"].append(f"Missing name for individual {gedcom_id}")
                 continue
 
-            existing = session.query(Individual).filter_by(gedcom_id=gedcom_id, tree_id=tree_id).first()
+            first_name, last_name = split_full_name(ind.get("name", "Unknown"))
+            occupation = ind.get("occupation") or None
+
+            existing = session.query(Individual).filter_by(
+                gedcom_id=gedcom_id,
+                tree_id=tree_id
+            ).first()
+
             if existing:
-                existing.name = ind.get("name")
-                existing.occupation = ind.get("occupation")
-                existing.notes = ind.get("notes")
+                existing.first_name  = first_name
+                existing.last_name   = last_name
+                existing.occupation  = occupation
             else:
                 person = Individual(
                     gedcom_id=gedcom_id,
-                    name=ind.get("name", "Unknown"),
-                    occupation=ind.get("occupation"),
-                    notes=ind.get("notes"),
-                    tree_id=tree_id
+                    first_name=first_name,
+                    last_name=last_name,
+                    occupation=occupation,
+                    tree_id=tree_id,
                 )
                 session.add(person)
                 summary["people_count"] += 1
@@ -128,11 +146,7 @@ class GEDCOMParser:
             if not dry_run:
                 raise
 
-        # Build a map of gedcom_id -> db_id for Individuals
-        ged2db = {
-            p.gedcom_id: p.id
-            for p in session.query(Individual).filter_by(tree_id=tree_id)
-        }
+        ged2db = {p.gedcom_id: p.id for p in session.query(Individual).filter_by(tree_id=tree_id)}
 
         # --- 2) Insert/Update Families & Relationships ---
         for fam in data.get("families", []):
@@ -141,7 +155,11 @@ class GEDCOMParser:
             h_id = ged2db.get(raw_h)
             w_id = ged2db.get(raw_w)
 
-            existing_fam = session.query(Family).filter_by(gedcom_id=fam_id, tree_id=tree_id).first()
+            existing_fam = session.query(Family).filter_by(
+                gedcom_id=fam_id,
+                tree_id=tree_id
+            ).first()
+
             if existing_fam:
                 existing_fam.husband_id = h_id
                 existing_fam.wife_id = w_id
@@ -154,7 +172,6 @@ class GEDCOMParser:
                 )
                 session.add(f)
 
-            # Parent-child relationships
             for child_ged in fam.get("children", []):
                 child_db_id = ged2db.get(child_ged)
                 if h_id and child_db_id:
@@ -180,60 +197,46 @@ class GEDCOMParser:
             if not dry_run:
                 raise
 
-        # --- 3) Insert Events + Resolve Locations ---
+        # --- 3) Insert Events + Resolve Locations (with M2M) ---
         for evt in data.get("events", []):
+            if not evt.get("event_type"):
+                logger.warning(f"Skipping event missing event_type: {evt}")
+                summary["warnings"].append("Missing event_type in an event")
+                continue
+
             place = evt.get("location") or evt.get("place")
             location_id = None
-
             if place:
-                # Print debugging info
-                print(f"\n🌍 [LOCATION RAW] Tag: {evt.get('source_tag', '')} | '{place}'")
-
-                # Attempt to parse an event year from the date
                 event_year = None
                 if evt.get("date"):
                     try:
                         dt = parse_date_flexible(evt["date"])
-                        event_year = dt.year if dt else None
+                        if dt:
+                            event_year = dt.year
                     except Exception:
-                        event_year = None
+                        pass
 
-                # Use our location_service to resolve the location
-                loc_out: LocationOut = self.location_service.resolve_location(
+                loc_out = self.location_service.resolve_location(
                     raw_place=place,
                     event_year=event_year,
-                    source_tag=evt.get("source_tag", "")
+                    source_tag=evt.get("source_tag", ""),
+                    tree_id=tree_id,
                 )
 
-                print("   ➡ [RESOLVED]\n", loc_out.model_dump_json(indent=2))
-                if loc_out.latitude is None or not loc_out.normalized_name:
-                    print("⚠️ [UNRESOLVED] No lat/lng or normalized_name:")
-                    print(loc_out.model_dump_json(indent=2))
-
-
-
-                # Check if we already have this normalized_name in DB
                 loc = session.query(Location).filter_by(normalized_name=loc_out.normalized_name).first()
                 if not loc:
                     loc = Location(
                         raw_name=loc_out.raw_name,
-                        name=loc_out.normalized_name,
                         normalized_name=loc_out.normalized_name,
                         latitude=loc_out.latitude,
                         longitude=loc_out.longitude,
                         confidence_score=loc_out.confidence_score,
                         status=loc_out.status,
-                        source=loc_out.source
+                        source=loc_out.source,
                     )
                     session.add(loc)
                     session.flush()
                 location_id = loc.id
-
-            # Validate event_type
-            if not evt.get("event_type"):
-                logger.warning(f"Skipping event missing event_type: {evt}")
-                summary["warnings"].append("Missing event_type in an event")
-                continue
 
             dt = parse_date_flexible(evt.get("date")) if evt.get("date") else None
             e = Event(
@@ -243,43 +246,35 @@ class GEDCOMParser:
                 notes=evt.get("notes"),
                 source_tag=evt.get("source_tag"),
                 category=evt.get("category", "unspecified"),
-                tree_id=tree_id
+                tree_id=tree_id,
+                location_id=location_id
             )
 
-            # Link to an individual if present
-            if evt.get("individual_gedcom_id"):
-                e.individual_id = ged2db.get(evt["individual_gedcom_id"])
-
-            # (Optional) Link to a family if you want
-            if evt.get("family_gedcom_id"):
-                # You could set e.family_id = some reference if you store family events
-                pass
-
-            # Attach the location if found/resolved
-            if location_id:
-                e.location_id = location_id
+            # --- 🔥 Attach participants (M2M) ---
+            individual_gedcom_id = evt.get("individual_gedcom_id")
+            if individual_gedcom_id:
+                indiv_db_id = ged2db.get(individual_gedcom_id)
+                if indiv_db_id:
+                    individual = session.get(Individual, indiv_db_id)
+                    if individual:
+                        e.participants.append(individual)
+                    else:
+                        logger.warning(f"Individual {individual_gedcom_id} not found in DB.")
+                else:
+                    logger.warning(f"No DB ID found for GEDCOM ID {individual_gedcom_id}.")
 
             session.add(e)
             summary["event_count"] += 1
 
-        # Attempt final flush
-        try:
-            session.flush()
-        except Exception as e:
-            logger.error(f"Flush failed after inserting Events: {e}")
-            summary["errors"].append("Flush error after events")
-            if not dry_run:
+        if not dry_run:
+            try:
+                session.commit()
+            except Exception as e:
+                logger.error(f"Commit failed: {e}")
+                summary["errors"].append(f"Commit failed: {str(e)}")
                 raise
-
-        # Print summary
-        print("\n📊 Insert Summary:")
-        print("   Individuals added:", summary["people_count"])
-        print("   Events added:", summary["event_count"])
-        print("   Warnings:", len(summary["warnings"]))
-
-        # If dry_run, rollback changes so DB doesn't retain them
-        if dry_run:
+        else:
             session.rollback()
-            logger.info("Dry run mode: transaction rolled back.")
 
+        # Proactive: Always return summary, even if zero events
         return summary

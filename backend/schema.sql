@@ -60,7 +60,7 @@ CREATE TABLE residence_history (
     notes VARCHAR
 );
 
-CREATE TABLE tree_versions (
+CREATE TABLE tree (
     id SERIAL PRIMARY KEY,
     tree_name VARCHAR NOT NULL,
     version_number INTEGER NOT NULL,

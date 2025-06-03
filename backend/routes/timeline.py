@@ -5,11 +5,13 @@ from sqlalchemy.orm import Session
 from backend.db import get_db
 from backend.models import Event
 from backend.utils.logger import get_logger
+from backend.utils.debug_routes import debug_route
 
 timeline_routes = Blueprint("timeline", __name__, url_prefix="/api/timeline")
 logger = get_logger(__name__)
 
 @timeline_routes.route("/<int:tree_id>", methods=["GET"], strict_slashes=False)
+@debug_route
 def get_timeline(tree_id: int):
     """
     Returns an ordered list of year → label pairs for a given tree.

@@ -1,26 +1,16 @@
-##/Users/kingal/mapem/backend/services/query_builders.py
-"""
-Build SQLAlchemy queries for the geo-timeline view.
-
-Short-term goal  : be correct and reasonably fast.  
-Long-term goal   : each filter lives in its own helper so we can unit-test
-                   them in isolation.
-"""
-
-from __future__ import annotations
-
 import logging
-from typing import Dict, Any, Iterable, Set
+from typing import Any, Dict, Iterable, Set, List
 
-from sqlalchemy import extract, func, or_
+from sqlalchemy import extract, func, or_, select
 from sqlalchemy.orm import Query, Session
 
 from backend.models import Event, Location, Individual, Family
-from backend.utils.debug import trace
+from backend.models.event import event_participants      # ⬅️ NEW
+from backend.db import SessionLocal
 
-logger = logging.getLogger("mapem")
+logger = logging.getLogger("mapem.query_builders")
 
-# ── UI-label  → GEDCOM tag ──────────────────────────────────────────────
+# ─── UI tag → DB tag map ───────────────────────────────────────
 UI_TO_TAG = {
     "birth":     "birth",
     "death":     "death",
@@ -29,174 +19,145 @@ UI_TO_TAG = {
     "burial":    "burial",
 }
 
-# ----------------------------------------------------------------------
-# small helpers
-# ----------------------------------------------------------------------
-def safe_in(col, values: Iterable) -> Any:
-    """Return a `.in_()` clause that is always valid (even on empty sets)."""
+# ─── Helpers ──────────────────────────────────────────────────
+def _normalize_event_type_input(raw: Any) -> List[str]:
+    if raw is None:
+        return []
+    if isinstance(raw, list):
+        return [UI_TO_TAG.get(t.lower(), t.lower()) for t in raw]
+    if isinstance(raw, dict):
+        return [UI_TO_TAG.get(k.lower(), k.lower()) for k, v in raw.items() if v]
+    logger.warning("⚠️ Unsupported eventTypes payload: %r", raw)
+    return []
+
+def safe_in(col, values: Iterable):
     vals = list(values)
-    return col.in_(vals) if vals else col == func.null()   # always FALSE
+    logger.debug("safe_in values=%s", vals)
+    return col.in_(vals) if vals else col == func.null()
 
-
+# ─── Filter applicators ───────────────────────────────────────
 def _apply_event_type_filter(q: Query, filters: Dict[str, Any]) -> Query:
-    raw_types = filters.get("eventTypes") or {}
-    if not raw_types:
-        logger.debug("🎛  No event type filters provided — skipping")
+    tags = _normalize_event_type_input(filters.get("eventTypes"))
+    logger.debug("_apply_event_type_filter tags=%s", tags)
+    if not tags:
+        logger.debug("⚠️ Empty eventTypes — skipping filter.")
         return q
-
-    active_ui_labels = [name.lower() for name, enabled in raw_types.items() if enabled]
-    active_tags = [UI_TO_TAG.get(label, label.upper()) for label in active_ui_labels]
-
-    logger.debug(f"🎛  UI event labels → {active_ui_labels}")
-    logger.debug(f"📤 Translated GEDCOM tags → {active_tags}")
-
-    if not active_tags:
-        logger.warning("⚠️  Event type filter resulted in empty tag list — skipping")
-        return q
-
-    return q.filter(Event.event_type.in_(active_tags))
-
+    return q.filter(Event.event_type.in_(tags))
 
 def _apply_year_filter(q: Query, filters: Dict[str, Any]) -> Query:
-    yr0, yr1 = (filters.get("yearRange") or [None, None])[:2]
-    logger.debug(f"📅 Year filter applied: from {yr0 or 'ANY'} to {yr1 or 'ANY'}")
+    yr = filters.get("year", {})
+    yr0, yr1 = yr.get("min"), yr.get("max")
+    logger.debug("_apply_year_filter %s-%s", yr0, yr1)
     if yr0 is not None:
         q = q.filter(extract("year", Event.date) >= yr0)
     if yr1 is not None:
         q = q.filter(extract("year", Event.date) <= yr1)
     return q
 
-
 def _apply_confidence_filter(q: Query, filters: Dict[str, Any]) -> Query:
-    if filters.get("vague") in (True, "true", "1"):   # skip filter if vague
+    if filters.get("vague"):
+        logger.debug("vague=True → skipping confidence filter")
         return q
-    logger.debug("🔍 Applying confidence filter: ≥ 0.6 only")
+
+    try:
+        thresh = float(filters.get("confidenceThreshold", 0.6))
+    except (TypeError, ValueError):
+        thresh = 0.6
+    logger.debug("_apply_confidence_filter thresh=%s", thresh)
+
+    if thresh <= 0:
+        return q
+
     return q.filter(
-        Location.confidence_score.isnot(None),
-        Location.confidence_score >= 0.6,
+        or_(Location.confidence_score.is_(None),
+            Location.confidence_score >= thresh)
     )
 
-
-def _expand_related_ids(
-    session: Session,
-    person_id: int,
-    rel_filters: Dict[str, bool],
-) -> Set[int]:
-    """Return {person_id, …relatives…} depending on active relation toggles."""
-    ids: Set[int] = {person_id}
-    if not any(rel_filters.values()):
-        return ids
-
-    if rel_filters.get("siblings"):
-        sib_q = (
-            session.query(Individual.id)
-            .join(
-                Family,
-                or_(
-                    Family.husband_id == Individual.id,
-                    Family.wife_id   == Individual.id,
-                ),
-            )
-            .filter(
-                or_(Family.husband_id == person_id, Family.wife_id == person_id)
-            )
-        )
-        sibling_ids = {row.id for row in sib_q}
-        logger.debug(f"🧑‍🤝‍🧑 Found {len(sibling_ids)} sibling IDs")
-        ids |= sibling_ids
-
-    # TODO: parents / cousins / spouses …
+def _expand_related_ids(session: Session, pid: int, rels: Dict[str, bool]) -> Set[int]:
+    ids = {pid}
+    if rels.get("siblings"):
+        sibs = {
+            r.id
+            for r in session.query(Individual.id)
+                            .join(Family)
+                            .filter(or_(Family.husband_id == pid,
+                                        Family.wife_id == pid))
+        }
+        logger.debug("siblings=%s", sibs)
+        ids |= sibs
+    # add more relations later
     return ids
 
-
-def _apply_person_filter(
-    session: Session, q: Query, filters: Dict[str, Any]
-) -> Query:
-    person_id = filters.get("selectedPersonId") or filters.get("person") or None
-    if person_id is None:
-        return q
-
-    rel_filters = filters.get("relations") or {}
-    logger.debug(f"👤 Person filter: selected={person_id}, relation filters={rel_filters}")
-    person_ids = _expand_related_ids(session, person_id, rel_filters)
-    logger.debug(f"👥 Resolved individual IDs: {sorted(person_ids)}")
-    return q.filter(safe_in(Event.individual_id, person_ids))
-
+# ─── Source tag filter ────────────────────────────────────────
+GEDCOM_TAGS = {"BIRT", "DEAT", "RESI", "MARR", "BURI"}
 
 def _apply_source_filter(q: Query, filters: Dict[str, Any]) -> Query:
-    SOURCE_MAP = {
-        "gedcom":  ["BIRT","DEAT","MARR","BURI","DIV"],
-        "census":  ["census"],    # if you have an actual tag for census
-        "manual":  ["manual"],    # likewise
-        "ai":      ["ai"],
-}
-    chosen = [k for k, v in (filters.get("sources") or {}).items() if v]
-    srcs = []
-    for key in chosen:
-        srcs.extend(SOURCE_MAP.get(key, []))
-    if srcs:
-        logger.debug(f"🔗 source tags filter → {srcs}")
-        q = q.filter(Event.source_tag.in_(srcs))
-    return q
-
-
-# ----------------------------------------------------------------------
-# public builder
-# ----------------------------------------------------------------------
-@trace("build_event_query")
-def build_event_query(
-    session: Session, tree_version_id: int, filters: Dict[str, Any]
-) -> Query:
-    """
-    Build the filtered Event query.  **DO NOT** call .all() / .count() here;
-    the caller decides what to do with the query object.
-    """
-    # 🚀 Top-level entry
-    logger.debug("⚙️  build_event_query() start")
-    logger.debug(f"  • tree_version_id = {tree_version_id}")
-    logger.debug(f"  • raw filters = {filters!r}")
-
-    q = (
-        session.query(Event)
-        .join(Location, Event.location_id == Location.id)
-        .filter(Event.tree_version_id == tree_version_id)
+    raw = filters.get("sources") or []
+    srcs = (
+        [s.lower() for s in raw] if isinstance(raw, list)
+        else [k.lower() for k, v in raw.items() if v] if isinstance(raw, dict)
+        else []
     )
 
-    # —— apply filters in cheap-to-expensive order ——
-    q = _apply_event_type_filter(q, filters)
-    logger.debug("  → after event_type_filter: SQL so far:\n%s",
-                 q.statement.compile(compile_kwargs={"literal_binds": True}))
+    expanded = {"gedcom" if tag == "gedcom" else tag for tag in srcs}
 
-    q = _apply_year_filter(q, filters)
-    logger.debug("  → after year_filter: SQL so far:\n%s",
-                 q.statement.compile(compile_kwargs={"literal_binds": True}))
+    if not expanded:
+        logger.debug("_apply_source_filter → none supplied")
+        return q
 
-    q = _apply_confidence_filter(q, filters)
-    logger.debug("  → after confidence_filter: SQL so far:\n%s",
-                 q.statement.compile(compile_kwargs={"literal_binds": True}))
+    logger.debug("_apply_source_filter srcs=%s", expanded)
+    return q.filter(Event.source_tag.in_(expanded))
 
-    q = _apply_source_filter(q, filters)
-    logger.debug("  → after source_filter: SQL so far:\n%s",
-                 q.statement.compile(compile_kwargs={"literal_binds": True}))
+def _apply_person_filter(session: Session, q: Query, filters: Dict[str, Any]) -> Query:
+    pid_raw = filters.get("person")
+    if not pid_raw:
+        return q
+    try:
+        pid = int(pid_raw)
+    except (ValueError, TypeError):
+        logger.warning("⚠️ Invalid person id %r — skipping", pid_raw)
+        return q
 
-    q = _apply_person_filter(session, q, filters)
-    logger.debug("  → after person_filter: SQL so far:\n%s",
-                 q.statement.compile(compile_kwargs={"literal_binds": True}))
+    ids = _expand_related_ids(session, pid, filters.get("relations", {}))
+    if not ids:
+        return q
 
-    # —— last: emit SQL for dev eyes only ——
-    if logger.isEnabledFor(logging.DEBUG):
-        try:
-            compiled = q.statement.compile(compile_kwargs={"literal_binds": True})
-            sql_text = str(compiled)
-            logger.debug("🧾 final SQL ↓")
-            logger.debug(sql_text)
-
-            # Save last query for deep dive
-
-            # Save last query for deep dive
-            with open("/tmp/mapem_last_query.sql", "w") as f:
-                f.write(sql_text)
-        except Exception as exc:
-            logger.warning("⚠️ could not compile SQL: %s", exc)
-    logger.debug("⚙️  build_event_query() end")
+    q = q.join(Event.participants)
+    q = q.filter(Individual.id.in_(ids))
     return q
+
+# ─── Main query builder & visible counts ──────────────────────
+def build_event_query(session: Session, tree_id: int, filters: Dict[str, Any]) -> Query:
+    logger.debug("⚙️ build_event_query tree_id=%s filters=%s", tree_id, filters)
+    q = (session.query(Event)
+         .outerjoin(Location)
+         .filter(Event.tree_id == tree_id))
+
+    q = _apply_event_type_filter(q, filters)
+    q = _apply_year_filter(q,          filters)
+    q = _apply_confidence_filter(q,    filters)
+    q = _apply_source_filter(q,        filters)
+    q = _apply_person_filter(session,  q, filters)
+
+    try:
+        logger.debug("🧾 final SQL:\n%s",
+                     q.statement.compile(compile_kwargs={"literal_binds": True}))
+    except Exception as e:
+        logger.warning("⚠️ SQL compile failed: %s", e)
+
+    return q
+
+def compute_visible_counts(tree_id: int, filters: Dict[str, Any]) -> Dict[str, int]:
+    logger.debug("🧮 compute_visible_counts tree=%s", tree_id)
+    session = SessionLocal()
+    try:
+        q = build_event_query(session, tree_id, filters)
+        rows = (q.with_entities(Event.event_type, func.count().label("cnt"))
+                  .group_by(Event.event_type)
+                  .all())
+        return {row.event_type: row.cnt for row in rows}
+    except Exception:
+        logger.exception("💥 compute_visible_counts crashed")
+        return {}
+    finally:
+        session.close()

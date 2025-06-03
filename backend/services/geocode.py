@@ -1,4 +1,3 @@
-#os.path.expanduser("~")/mapem/backend/services/geocode.py
 import os
 import json
 import time
@@ -6,35 +5,26 @@ import requests
 import logging
 from datetime import datetime
 from urllib.parse import urlencode
-from backend import models
-from backend.utils.helpers import normalize_location_name, calculate_name_similarity, normalize_confidence_score
+from typing import Optional, Dict, Any
+from pydantic import BaseModel
 
-logger = logging.getLogger(__name__)
+from backend import models
+from backend.utils.helpers import normalize_location, calculate_name_similarity
+
+logger = logging.getLogger("backend.services.geocode")
 logger.setLevel(logging.DEBUG)
 
-# Load manual overrides from JSON (if available)
-MANUAL_FIXES_FILE = os.path.join(os.path.dirname(__file__), "..", "data", "manual_place_fixes.json")
-if os.path.exists(MANUAL_FIXES_FILE):
-    with open(MANUAL_FIXES_FILE, "r") as f:
-        try:
-            manual_fixes = json.load(f)
-        except Exception:
-            manual_fixes = {}
-else:
-    manual_fixes = {}
+# ─── Return model (Pydantic, exportable) ───────────
+class LocationOut(BaseModel):
+    raw_name: str
+    normalized_name: str
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    confidence_score: float = 0.0
+    confidence_label: str = ""
+    status: str = ""
+    source: str = ""
 
-# Placeholder for historical lookup: load from your historical_places JSON files if needed.
-historical_lookup = {}
-# Example: historical_lookup["sunflower:beat 2, sunflower county, mississippi"] = {
-#   "modern_equivalent": "Ruleville, Sunflower County, Mississippi, USA",
-#   "lat": 33.7879,
-#   "lng": -90.5764,
-#   "year_range": "1900-1930"
-# }
-
-print(f"🛠️ Loaded geocode.py from: {__file__}")
-
-# Helper function to classify unresolved locations
 def classify_location_failure(raw_name):
     generic = {"mississippi", "usa", "tennessee", "louisiana", "unknown"}
     normalized = raw_name.lower().strip()
@@ -46,15 +36,23 @@ def classify_location_failure(raw_name):
         return "typo_or_misspelling", "Bolivar County, Mississippi, USA"
     if "moorehead" in normalized:
         return "typo_or_misspelling", "Moorhead, Sunflower, Mississippi, USA"
-    # Add additional patterns if needed...
     return "geocode_failed", None
 
 class Geocode:
-    def __init__(self, api_key=None, cache_file='geocode_cache.json', use_cache=True):
+    def __init__(
+        self,
+        api_key=None,
+        cache_file='geocode_cache.json',
+        use_cache=True,
+        manual_fixes=None,
+        historical_lookup=None
+    ):
         self.api_key = api_key
         self.cache_file = cache_file
         self.cache_enabled = use_cache
         self.cache = self._load_cache() if use_cache else {}
+        self.manual_fixes = manual_fixes or {}
+        self.historical_lookup = historical_lookup or {}
 
     def _load_cache(self):
         if os.path.exists(self.cache_file):
@@ -72,8 +70,11 @@ class Geocode:
                 json.dump(self.cache, f, indent=2)
 
     def _normalize_key(self, place):
-        return normalize_location_name(place.strip()).lower()
-
+        norm = normalize_location(place.strip())
+        if not norm:
+            logger.warning(f"⚠️ normalize_location failed for '{place}' — using fallback")
+            return place.strip().lower()
+        return norm.lower()
     def _retry_request(self, func, *args, retries=2, backoff=1, **kwargs):
         for attempt in range(1, retries + 1):
             try:
@@ -94,12 +95,12 @@ class Geocode:
             logger.error(f"❌ Google geocode error: status {resp.status_code if resp else 'no response'}")
             return None, None, None, None
         data = resp.json()
-        if not data.get('results'):
+        if data.get("status") != "OK" or not data.get("results"):
+            logger.error(f"❌ Google geocode status={data.get('status')} for '{location}'")
             return None, None, None, None
         result = data['results'][0]
         loc = result['geometry']['location']
         location_type = result['geometry'].get('location_type', '')
-        # Map to numeric confidence: if rooftop, 1.0; otherwise 0.75.
         confidence = 1.0 if location_type.upper() == "ROOFTOP" else 0.75
         normalized_name = result.get('formatted_address', location)
         return loc['lat'], loc['lng'], normalized_name, confidence
@@ -118,7 +119,6 @@ class Geocode:
                 lon = float(data[0]['lon'])
                 name = data[0]['display_name']
                 return lat, lon, name, 0.8
-        # Fallback: try only the city part
         city = location.split(",")[0].strip()
         logger.info(f"🪃 Falling back to city-only geocode: '{city}'")
         params["q"] = city
@@ -132,217 +132,143 @@ class Geocode:
                 return lat, lon, name, 0.7
         return None, None, None, None
 
-    def preload_cache(self, place_list):
-        """Bulk-geocode a list of places to warm the cache."""
-        for place in set(place_list):
-            key = self._normalize_key(place)
-            if key in self.cache:
-                continue
-            logger.info(f"🔄 Preloading geocode for '{place}'")
-            if self.api_key:
-                lat, lng, norm, conf = self._google_geocode(place)
-            else:
-                lat, lng, norm, conf = self._nominatim_geocode(place)
-            if lat is not None:
-                self.cache[key] = (lat, lng, norm, conf)
-        self._save_cache()
-
-    def get_or_create_location(self, session, location_name):
+    def get_or_create_location(self, session, location_name) -> Optional[LocationOut]:
         logger.debug(f"Geocode called with place='{location_name}'")
+
         if not location_name:
             logger.warning("⚠️ Empty location_name provided.")
             return None
 
         raw_name = location_name.strip().replace(",,", ",").replace("  ", " ")
+        low = raw_name.lower()
+
+        # ─── Vague blocklist FIRST ────────────────────
+        if low in {"mississippi", "usa", "unknown"}:
+            logger.info(f"🟫 Too vague to geocode: '{raw_name}'")
+            return None
+
+        # ─── Normalize key ────────────────────────────
         key = self._normalize_key(raw_name)
+        if key is None:
+            return None
 
-        # 🔁 Manual override
-        if raw_name in manual_fixes:
-            override = manual_fixes[raw_name]
-            # For manual overrides, we force a valid numeric score:
-            conf = 1.0  # or any appropriate numeric value
-            conf_label = "manual"
-            return {
-                "raw_name": raw_name,
-                "name": override.get("modern_equivalent", raw_name),
-                "normalized_name": override.get("modern_equivalent", raw_name),
-                "latitude": override.get("lat"),
-                "longitude": override.get("lng"),
-                "confidence_score": float(conf),
-                "confidence_label": conf_label,
-                "timestamp": datetime.utcnow().isoformat(),
-                "status": "manual",
-                "source": "manual",
-                "historical_data": {}
-            }
+        # ─── Manual override ──────────────────────────
+        if key in self.manual_fixes:
+            override = self.manual_fixes[key]
+            logger.info(f"🟢 Manual override hit for '{raw_name}' → {override}")
+            if override.get("lat") and override.get("lng"):
+                return LocationOut(
+                    raw_name=raw_name,
+                    normalized_name=override.get("modern_equivalent", raw_name),
+                    latitude=override["lat"],
+                    longitude=override["lng"],
+                    confidence_score=1.0,
+                    confidence_label="manual",
+                    status="manual",
+                    source="manual"
+                )
+            return None
 
-        # 🔁 Historical match
-        hist_key = f"sunflower:{raw_name.lower()}"
-        if hist_key in historical_lookup:
-            hp = historical_lookup[hist_key]
-            conf = 1.0
-            conf_label = "historical"
-            return {
-                "raw_name": raw_name,
-                "name": hp.get("modern_equivalent", raw_name),
-                "normalized_name": hp.get("modern_equivalent", raw_name),
-                "latitude": hp.get("lat"),
-                "longitude": hp.get("lng"),
-                "confidence_score": float(conf),
-                "confidence_label": conf_label,
-                "timestamp": datetime.utcnow().isoformat(),
-                "status": "historical",
-                "source": "historical",
-                "historical_data": {"year_range": hp.get("year_range")}
-            }
+        # ─── Historical lookup ────────────────────────
+        hist_key = f"sunflower:{low}"
+        if hist_key in self.historical_lookup:
+            hp = self.historical_lookup[hist_key]
+            logger.info(f"🟡 Historical lookup hit for '{raw_name}' → {hp}")
+            if hp.get("lat") and hp.get("lng"):
+                return LocationOut(
+                    raw_name=raw_name,
+                    normalized_name=hp.get("modern_equivalent", raw_name),
+                    latitude=hp["lat"],
+                    longitude=hp["lng"],
+                    confidence_score=1.0,
+                    confidence_label="historical",
+                    status="historical",
+                    source="historical"
+                )
+            return None
 
-        # 🔁 Vague place
+        # Vague blocklist
         if raw_name.lower() in {"mississippi", "usa", "unknown"}:
-            conf = 0.0  # Force a numeric 0.0 for vague locations
-            conf_label = "unknown"
-            return {
-                "raw_name": raw_name,
-                "name": raw_name,
-                "normalized_name": raw_name,
-                "latitude": None,
-                "longitude": None,
-                "confidence_score": float(conf),
-                "confidence_label": conf_label,
-                "timestamp": datetime.utcnow().isoformat(),
-                "status": "vague",
-                "source": "none",
-                "historical_data": {}
-            }
+            logger.info(f"🟫 Too vague to geocode: '{raw_name}'")
+            return None
 
-        # 🔁 Cache hit
+        # Cache hit
         if self.cache_enabled and key in self.cache:
             lat, lng, norm, conf = self.cache[key]
-            conf_label = "cache"  # explicitly set label for cached entries
-            # Ensure conf is a float
-            conf = float(conf or 0.0)
-            return {
-                "raw_name": raw_name,
-                "name": norm,
-                "normalized_name": norm,
-                "latitude": lat,
-                "longitude": lng,
-                "confidence_score": conf,
-                "confidence_label": conf_label,
-                "timestamp": datetime.utcnow().isoformat(),
-                "status": "ok",
-                "source": "cache",
-                "historical_data": {}
-            }
+            if lat is not None and lng is not None:
+                logger.info(f"🟦 Cache hit for '{raw_name}'")
+                return LocationOut(
+                    raw_name=raw_name,
+                    normalized_name=norm,
+                    latitude=lat,
+                    longitude=lng,
+                    confidence_score=float(conf or 0.0),
+                    confidence_label="cache",
+                    status="ok",
+                    source="cache"
+                )
+            logger.warning(f"⚠️ Cache miss or incomplete for '{raw_name}'")
+            return None
 
-        # 🔁 Fuzzy DB match
+        # Fuzzy DB match
         if session:
             for loc in session.query(models.Location).all():
-                sim = calculate_name_similarity(loc.name, raw_name)
-                if sim >= 90:
-                    return {
-                        "raw_name": raw_name,
-                        "name": loc.name,
-                        "normalized_name": loc.normalized_name,
-                        "latitude": loc.latitude,
-                        "longitude": loc.longitude,
-                        "confidence_score": float(loc.confidence_score or 0.0),
-                        "confidence_label": loc.confidence_label,
-                        "timestamp": datetime.utcnow().isoformat(),
-                        "status": "ok",
-                        "source": "db",
-                        "historical_data": loc.historical_data or {}
-                    }
+                compare_to = loc.normalized_name or loc.raw_name
+                sim = calculate_name_similarity(compare_to, raw_name)
+                if sim >= 90 and loc.latitude and loc.longitude:
+                    logger.info(f"🟪 Fuzzy DB match for '{raw_name}' → {compare_to}")
+                    return LocationOut(
+                        raw_name=raw_name,
+                        normalized_name=compare_to,
+                        latitude=loc.latitude,
+                        longitude=loc.longitude,
+                        confidence_score=float(loc.confidence_score or 0.0),
+                        confidence_label="db",
+                        status="ok",
+                        source="db"
+                    )
 
-        # 🔁 External geocode fallback
+        # External geocode (Google first, then Nominatim fallback)
+        lat, lng, norm, conf = None, None, None, None
+        source = "nominatim"
         if self.api_key:
             lat, lng, norm, conf = self._google_geocode(raw_name)
             source = "google"
+            if lat is None or lng is None:
+                logger.warning(f"[Geocode] Google miss on '{raw_name}', switching to Nominatim")
+                lat, lng, norm, conf = self._nominatim_geocode(raw_name)
+                source = "nominatim"
         else:
             lat, lng, norm, conf = self._nominatim_geocode(raw_name)
-            source = "nominatim"
+
+        # Safe-check the returned normalized name
+        norm = norm or raw_name  # if external returns None, default to raw_name
+        norm = norm.strip()
+        if not norm:
+            logger.warning("⚠️ Geocode returned empty normalized name for '%s'", raw_name)
+            norm = raw_name  # final fallback
 
         if lat is None or lng is None:
-            category, suggested_fix = classify_location_failure(raw_name)
-            unresolved_file = os.path.join(os.path.dirname(__file__), "..", "data", "unresolved_locations.json")
-            unresolved = []
-            if os.path.exists(unresolved_file):
-                try:
-                    with open(unresolved_file, "r") as uf:
-                        unresolved = json.load(uf)
-                except Exception:
-                    unresolved = []
-            unresolved.append({
-                "raw_name": raw_name,
-                "source_tag": "unknown",
-                "timestamp": datetime.utcnow().isoformat(),
-                "reason": category,
-                "status": "manual_fix_pending",
-                "suggested_fix": suggested_fix
-            })
-            with open(unresolved_file, "w") as uf:
-                json.dump(unresolved, uf, indent=2)
+            cat, suggestion = classify_location_failure(raw_name)
+            logger.warning(f"❌ FINAL FAIL: '{raw_name}' could not be geocoded (cat={cat}, suggestion={suggestion})")
+            return None
 
-            conf = 0.0
-            conf_label = "unknown"
-
-            return {
-                "raw_name": raw_name,
-                "name": raw_name,
-                "normalized_name": raw_name,
-                "latitude": None,
-                "longitude": None,
-                "confidence_score": float(conf),
-                "confidence_label": conf_label,
-                "timestamp": datetime.utcnow().isoformat(),
-                "status": category,
-                "source": "none",
-                "historical_data": {}
-            }
-
-        # 🔁 Final success return
-        # Ensure that conf is a float; if it's a string by any chance, force it to 0.0
-        conf_label = None  # define a default at the star
-        if isinstance(conf, str):
-            conf_label = conf
-            conf = 0.0
-        else:
-            conf = float(conf or 0.0)
-            # If no specific label, we can mark it as numeric or leave it blank
-            if conf > 0:
-                conf_label = "numeric"
-            else:
-                conf_label = "unknown"
-        conf_label = conf_label if conf_label is not None else "unknown"
+        # Save cache on success
         if self.cache_enabled:
             self.cache[key] = (lat, lng, norm, conf)
             self._save_cache()
-        return {
-            "raw_name": raw_name,
-            "name": norm,
-            "normalized_name": norm,
-            "latitude": lat,
-            "longitude": lng,
-            "confidence_score": conf,
-            "confidence_label": conf_label,
-            "timestamp": datetime.utcnow().isoformat(),
-            "status": "ok",
-            "source": source,
-            "historical_data": {}
-        }
 
+        logger.info(f"✅ Geocode SUCCESS: '{raw_name}' → ({lat}, {lng}) | {norm}")
+        return LocationOut(
+            raw_name=raw_name,
+            normalized_name=norm,
+            latitude=lat,
+            longitude=lng,
+            confidence_score=float(conf or 0.0),
+            confidence_label="api",
+            status="ok",
+            source=source
+        )
 
-if __name__ == "__main__":
-    import sys
-    place = " ".join(sys.argv[1:])
-    print(f"\n📍 Geocoding test mode: {place}\n")
-
-    from backend.services.geocode import Geocode
-    from backend.utils.helpers import print_json
-
-    api_key = os.getenv("GOOGLE_MAPS_API_KEY")
-    geocoder = Geocode(api_key=api_key)
-
-    # Pass None for the DB session if not using DB inserts
-    result = geocoder.get_or_create_location(None, place)
-
-    print_json(result)
+# Export the return model for your tests and routes
+__all__ = ["Geocode", "LocationOut"]

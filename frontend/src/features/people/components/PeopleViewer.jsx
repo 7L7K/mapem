@@ -1,53 +1,55 @@
 import React, { useEffect, useState } from "react";
+import { FixedSizeList as List } from "react-window";
+import * as api from "@lib/api/api";
 import { useTree } from "@shared/context/TreeContext";
-import { getPeople } from "@lib/api/api";
-import Loader from "@shared/components/ui/Loader";
-import ErrorBox from "@shared/components/ui/ErrorBox";
 
+/**
+ * Virtualised list of Individuals for the active tree.
+ * Currently grabs the first 500 rows—pagination coming later.
+ */
 export default function PeopleViewer() {
   const { treeId } = useTree();
   const [people, setPeople] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     if (!treeId) return;
-    getPeople(treeId)
-      .then((data) => {
-        console.log("👥 Loaded people for tree", treeId, data);
-        setPeople(Array.isArray(data) ? data : []);
+
+    api
+      .getPeople(treeId, 500, 0)
+      .then(({ people, total }) => {
+        setPeople(people);
+        setTotal(total);
+        console.debug("[PeopleViewer] loaded", people.length, "of", total);
       })
-      .catch((err) => {
-        console.error("❌ Error loading people:", err);
-        setError("Failed to load people.");
-      })
-      .finally(() => setLoading(false));
+      .catch((err) => console.error("[PeopleViewer] fetch failed", err));
   }, [treeId]);
 
-  if (loading) return <Loader />;
-  if (error) return <ErrorBox message={error} />;
+  const Row = ({ index, style }) => {
+    const p = people[index];
+    if (!p) return <div style={style}>…</div>;
+
+    return (
+      <div style={style} className="px-2 py-1 border-b border-[var(--border)]">
+        <div className="font-medium">{p.name}</div>
+        <div className="text-xs opacity-70">{p.occupation}</div>
+      </div>
+    );
+  };
 
   return (
-    <div className="p-6 space-y-4 text-white">
-      <h2 className="text-2xl font-bold font-display text-white">👤 People in Tree</h2>
-
-      {people.length === 0 ? (
-        <p className="text-dim italic">No people found for this tree.</p>
-      ) : (
-        <ul className="space-y-2">
-          {people.map((p) => (
-            <li
-              key={p.id}
-              className="bg-surface border border-border p-4 rounded-xl shadow-sm hover:shadow-md transition-all"
-            >
-              <div className="font-semibold">{p.name || "Unnamed"}</div>
-              <div className="text-dim text-sm">
-                {p.occupation || "No occupation listed"}
-              </div>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    <section className="h-full flex flex-col">
+      <h2 className="text-lg mb-2">
+        👥 People ({people.length}/{total})
+      </h2>
+      <List
+        height={window.innerHeight - 180}
+        itemCount={people.length}
+        itemSize={48}
+        width={"100%"}
+      >
+        {Row}
+      </List>
+    </section>
   );
 }

@@ -13,4 +13,4 @@ class LocationOut(BaseModel):
     timestamp: str = Field(..., description="ISO timestamp")
     
     class Config:
-        orm_mode = True
+        from_attributes = True

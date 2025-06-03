@@ -1,11 +1,12 @@
 export default async function uploadTree(file, onProgress = null) {
     const formData = new FormData();
-    formData.append("file", file);
+    formData.append("gedcom_file", file);
+    formData.append("tree_name", file.name);
   
     console.log("📤 Uploading GEDCOM:", file.name, `${(file.size / 1024).toFixed(1)} KB`);
   
     try {
-      const res = await fetch("/api/upload/", {
+      const res = await fetch("http://localhost:5050/api/upload/", {
         method: "POST",
         body: formData,
       });

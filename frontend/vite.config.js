@@ -21,4 +21,13 @@ export default defineConfig({
     },
     dedupe: ['react', 'react-dom', 'react-leaflet'],
   },
+  server: {
+    proxy: {
+      "/api": {
+        target: "http://localhost:5050",
+        changeOrigin: true,
+        secure: false,
+      }
+},
+},
 });

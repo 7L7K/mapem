@@ -6,13 +6,15 @@ from .people import people_routes
 from .timeline import timeline_routes
 from .schema import schema_routes
 from .debug import debug_routes
-from backend.routes.movements import movements_bp
+from backend.routes.movements import movements_routes
 from backend.routes.health import health_routes
 from backend.routes.heatmap import heatmap_routes
+from backend.utils.debug_routes import debug_route
 
 
 
 
+@debug_route
 def register_routes(app):
     routes = [
         upload_routes,
@@ -22,9 +24,10 @@ def register_routes(app):
         timeline_routes,
         schema_routes,
         debug_routes,
-        movements_bp,
+        movements_routes,
         health_routes,
-        heatmap_routes
+        heatmap_routes,
+        
 
     ]
 

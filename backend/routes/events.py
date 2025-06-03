@@ -1,59 +1,60 @@
-from flask import Blueprint, request, jsonify
-from backend.models import Event
+from flask import Blueprint, jsonify, request
+import logging
+from uuid import UUID
+
+from flask_cors import cross_origin
 from backend.db import get_db
-from datetime import datetime
+from backend.models import Event, TreeVersion
+from backend.utils.debug_routes import debug_route
 
 event_routes = Blueprint("events", __name__, url_prefix="/api/events")
+logger = logging.getLogger("mapem")
+logging.getLogger().setLevel(logging.DEBUG)
+logging.getLogger().propagate = True
 
 @event_routes.route("/", methods=["GET"], strict_slashes=False)
+@cross_origin()
+@debug_route
 def get_events():
-    tree_id = request.args.get("tree_id")
-    category = request.args.get("category")
-    person_id = request.args.get("person_id")
-    start_year = request.args.get("start_year")
-    end_year = request.args.get("end_year")
-
     db = next(get_db())
-    
+    logger.debug(f"➡️ GET /api/events | args={dict(request.args)}")
     try:
-        query = db.query(Event)
-        if tree_id:
-            query = query.filter(Event.tree_id == int(tree_id))
-        if category:
-            query = query.filter(Event.category == category)
-        if person_id:
-            query = query.filter(Event.individual_id == int(person_id))
-        if start_year:
-            query = query.filter(Event.date >= datetime(int(start_year), 1, 1))
-        if end_year:
-            query = query.filter(Event.date <= datetime(int(end_year), 12, 31))
+        version_id = request.args.get("version_id", type=int)
 
-        events = query.all()
-        results = []
-        for evt in events:
-            event_dict = {
-                "id": evt.id,
-                "event_type": evt.event_type,
-                "date": evt.date.isoformat() if evt.date else None,
-                "date_precision": evt.date_precision,
-                "notes": evt.notes,
-                "source_tag": evt.source_tag,
-                "category": evt.category,
-            }
-            if evt.individual:
-                event_dict["individual"] = {"id": evt.individual.id, "name": evt.individual.name}
-            if evt.location:
-                event_dict["location"] = {
-                    "name": evt.location.name,
-                    "normalized_name": evt.location.normalized_name,
-                    "latitude": evt.location.latitude,
-                    "longitude": evt.location.longitude,
-                    "confidence": evt.location.confidence_score
-                }
-            results.append(event_dict)
-        return jsonify(results)
-    except Exception as e:
-        import traceback
-        return jsonify({"error": str(e), "trace": traceback.format_exc()}), 500
+        uploaded_id_raw = request.args.get("uploaded_tree_id")
+        uploaded_id = None
+        if uploaded_id_raw:
+            try:
+                uploaded_id = UUID(uploaded_id_raw)
+            except ValueError:
+                logger.warning(f"⚠️ Invalid uploaded_tree_id: {uploaded_id_raw}")
+                return jsonify({"error": "Invalid uploaded_tree_id"}), 400
+
+        if uploaded_id and not version_id:
+            version = (
+                db.query(TreeVersion)
+                  .filter(TreeVersion.uploaded_tree_id == uploaded_id)
+                  .order_by(TreeVersion.version_number.desc())
+                  .first()
+            )
+            version_id = version.id if version else None
+            logger.debug(f"🔍 Resolved version_id={version_id} from uploaded_tree_id={uploaded_id}")
+
+        q = db.query(Event)
+        if version_id:
+            q = q.filter(Event.tree_id == version_id)
+            logger.debug(f"🔍 Filtering on tree_id={version_id}")
+            logger.debug(f"▶️ Filtering {q.count()} events total for version_id={version_id}")
+
+        results = q.order_by(Event.date).all()
+        logger.debug(f"✅ Fetched {len(results)} events")
+
+        out = [e.serialize() for e in results]
+        return jsonify(out), 200
+
+    except Exception:
+        logger.exception("💥 get_events crashed")
+        return jsonify({"error": "Internal server error"}), 500
+
     finally:
         db.close()

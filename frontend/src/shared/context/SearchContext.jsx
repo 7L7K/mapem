@@ -1,21 +1,58 @@
 // src/shared/context/SearchContext.jsx
-import React, { createContext, useContext, useState, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useMemo,
+  useEffect,
+} from "react";
+import { useTree } from "@shared/context/TreeContext";
+import { getVisibleCounts } from "@lib/api/api";
 
 const SearchContext = createContext(null);
 export const useSearch = () => useContext(SearchContext);
 
 const defaultFilters = {
   person: "",
-  yearRange: [1800, 1950],
-  eventTypes: { birth: true, death: true, residence: true },
-  relations: { self: true, parents: true, siblings: true, cousins: false },
-  sources: { gedcom: true, census: true, manual: true, ai: false },
-  vague: false,
+  yearRange: [null, null],
+  vague: true,
+  eventTypes: {
+    birth: true,
+    death: true,
+    marriage: true,
+    divorce: true,
+    residence: true,
+  },
+  relations: {},
+  sources: {},
 };
 
 export function SearchProvider({ children }) {
+  const { treeId: activeTreeId } = useTree();
   const [filters, setFilters] = useState(defaultFilters);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const [visibleCounts, setVisibleCounts] = useState({
+    people: 0,
+    families: 0,
+    wholeTree: 0,
+  });
+
+  useEffect(() => {
+    if (!activeTreeId) return;
+
+    getVisibleCounts(activeTreeId, filters)
+      .then((d) =>
+        setVisibleCounts({
+          people: d?.individuals ?? 0,
+          families: d?.families ?? 0,
+          wholeTree: d?.events?.total ?? 0,
+        })
+      )
+      .catch((err) =>
+        console.error("❌ failed to fetch visible-counts →", err.message)
+      );
+  }, [activeTreeId, filters]);
 
   const clearAll = () => setFilters(defaultFilters);
 
@@ -26,8 +63,9 @@ export function SearchProvider({ children }) {
       isDrawerOpen,
       setIsDrawerOpen,
       clearAll,
+      visibleCounts,
     }),
-    [filters, isDrawerOpen]
+    [filters, isDrawerOpen, visibleCounts]
   );
 
   return (

@@ -9,12 +9,14 @@ from sqlalchemy import func
 
 from backend.db import get_db
 from backend.models import Event, Location, Individual
+from backend.utils.debug_routes import debug_route
 
 heatmap_routes = Blueprint("heatmap", __name__, url_prefix="/api/heatmap")
 
 # Caches for GeoJSON shapes
 SHAPES_INDEX = {}
 SHAPES_LOADED = False
+@debug_route
 
 def load_shapes():
     """Load all .geojson files under historical_places/ into SHAPES_INDEX."""
@@ -35,6 +37,7 @@ def load_shapes():
     SHAPES_LOADED = True
 
 @heatmap_routes.route("/", methods=["GET"], strict_slashes=False)
+@debug_route
 def get_heatmap():
     """
     Return both pin clusters and optional GeoJSON shapes for a given year + tree(s).
@@ -104,6 +107,7 @@ def get_heatmap():
             pass
 
 @heatmap_routes.route("/events", methods=["GET"], strict_slashes=False)
+@debug_route
 def get_heatmap_events():
     """
     Drilldown: list distinct individuals for a given location, year & tree.
@@ -124,7 +128,7 @@ def get_heatmap_events():
         if year:
             q = q.filter(func.extract("year", Event.date) == int(year))
         if tree_id:
-            q = q.filter(Event.tree_id == int(tree_id))
+            q = q.filter(Event.tree_id == tree_id)
 
         rows = q.all()
         persons = []
@@ -156,6 +160,8 @@ def get_heatmap_events():
             db.close()
         except:
             pass
+
+@debug_route
 
 def warmup_heatmap():
     load_shapes()

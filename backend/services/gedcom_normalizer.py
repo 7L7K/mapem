@@ -51,68 +51,6 @@ EVENT_TAGS = {
     # add more as needed...
 }
 
-def normalize_individual(raw_ind):
-    # —— 1) Name parsing —— 
-    name = ""
-    if hasattr(raw_ind, "name") and raw_ind.name:
-        given   = getattr(raw_ind.name, "given", "")
-        surname = getattr(raw_ind.name, "surname", "")
-        name = " ".join([p for p in (given, surname) if p]).strip()
-    else:
-        raw_name = raw_ind.sub_tag_value("NAME") or getattr(raw_ind, "_name_list", None)
-        if isinstance(raw_name, (list, tuple)):
-            name = " ".join([p for p in raw_name if p]).strip()
-        else:
-            name = (raw_name or "").strip()
-
-    person = {
-        "gedcom_id": raw_ind.xref_id,
-        "name":      name,
-        "occupation": "",
-        "notes":     ""
-    }
-    got_job = False
-
-    # —— 2) Occupation & notes scanning —— 
-    for sub in raw_ind.sub_records:
-        tag = sub.tag
-        val = safe_strip(sub.value) if sub.value else ""
-
-        if tag == "OCCU" and val:
-            person["occupation"] = val
-            got_job = True
-
-        elif tag == "EVEN":
-            ev_type = raw_ind.sub_tag_value("EVEN/TYPE") or ""
-            if "occupation" in ev_type.lower() and val and not got_job:
-                person["occupation"] = val
-                got_job = True
-            if val:
-                person["notes"] += val + " "
-
-        elif tag == "NOTE":
-            if val:
-                low = val.lower()
-                if any(k in low for k in ["farmer","laborer","teacher","clerk","servant","pastor","minister","engineer","cook","driver"]):
-                    if not got_job:
-                        person["occupation"] = val
-                        got_job = True
-                person["notes"] += val + " "
-            for note_sub in getattr(sub, "sub_records", []):
-                nval = safe_strip(note_sub.value) if note_sub.value else ""
-                low = nval.lower()
-                if any(k in low for k in ["farmer","laborer","teacher","clerk","servant","pastor","minister","engineer","cook","driver"]):
-                    if not got_job:
-                        person["occupation"] = nval
-                        got_job = True
-                if nval:
-                    person["notes"] += nval + " "
-
-    if not got_job:
-        print(f"🕵️ No occupation found for {person['name']} ({person['gedcom_id']})")
-
-    return person
-
 def normalize_family(family_record):
     fam_id = family_record.xref_id
     husb_id = wife_id = None
@@ -257,3 +195,69 @@ def extract_events_from_family(family_record, normalized_family, counters=None):
         })
 
     return events
+
+
+def normalize_individual(raw_ind):
+    # —— 1) Name parsing —— 
+    name = ""
+    if hasattr(raw_ind, "name") and raw_ind.name:
+        given   = getattr(raw_ind.name, "given", "") or ""
+        surname = getattr(raw_ind.name, "surname", "") or ""
+        try:
+            name = " ".join([str(p) for p in (given, surname) if p]).strip()
+        except Exception:
+            name = ""
+    else:
+        raw_name = raw_ind.sub_tag_value("NAME") or getattr(raw_ind, "_name_list", None)
+        if isinstance(raw_name, (list, tuple)):
+            name = " ".join([str(p) for p in raw_name if p]).strip()
+        else:
+            name = (str(raw_name) or "").strip()
+
+    person = {
+        "gedcom_id": raw_ind.xref_id,
+        "name":      name,
+        "occupation": "",
+        "notes":     ""
+    }
+    got_job = False
+
+    # —— 2) Occupation & notes scanning —— 
+    for sub in getattr(raw_ind, "sub_records", []):
+        tag = sub.tag
+        val = safe_strip(sub.value) if sub.value else ""
+
+        if tag == "OCCU" and val:
+            person["occupation"] = val
+            got_job = True
+
+        elif tag == "EVEN":
+            ev_type = raw_ind.sub_tag_value("EVEN/TYPE") or ""
+            if "occupation" in ev_type.lower() and val and not got_job:
+                person["occupation"] = val
+                got_job = True
+            if val:
+                person["notes"] += val + " "
+
+        elif tag == "NOTE":
+            if val:
+                low = val.lower()
+                if any(k in low for k in ["farmer", "laborer", "teacher", "clerk", "servant", "pastor", "minister", "engineer", "cook", "driver"]):
+                    if not got_job:
+                        person["occupation"] = val
+                        got_job = True
+                person["notes"] += val + " "
+            for note_sub in getattr(sub, "sub_records", []):
+                nval = safe_strip(note_sub.value) if note_sub.value else ""
+                low = nval.lower()
+                if any(k in low for k in ["farmer", "laborer", "teacher", "clerk", "servant", "pastor", "minister", "engineer", "cook", "driver"]):
+                    if not got_job:
+                        person["occupation"] = nval
+                        got_job = True
+                if nval:
+                    person["notes"] += nval + " "
+
+    if not got_job:
+        print(f"🕵️ No occupation found for {person['name']} ({person['gedcom_id']})")
+
+    return person

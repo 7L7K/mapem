@@ -7,7 +7,7 @@ from backend.services.geocode import Geocode
 from backend.utils.helpers import print_json
 
 api_key = os.getenv("GOOGLE_MAPS_API_KEY")
-place = " ".join(sys.argv[1:])
+place = " ".join(sys.argv[1:]).strip().strip('"')
 
 if not place:
     print("❌ Provide a location string to geocode.")

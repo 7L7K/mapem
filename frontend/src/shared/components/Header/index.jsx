@@ -1,6 +1,7 @@
 // src/components/Header.jsx
 import React, { useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import TreeSelector from "./TreeSelector";
 
 const tabs = [
   { label: "Dashboard", path: "/dashboard" },
@@ -64,6 +65,7 @@ export default function Header({ pageControls = null }) {
 
       {/* Right: Dynamic Controls */}
       <div className="flex items-center gap-3 shrink-0">
+      <TreeSelector />
         {pageControls}
       </div>
     </div>

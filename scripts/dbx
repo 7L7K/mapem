@@ -1,0 +1,35 @@
+#!/bin/bash
+
+echo "🧹 Fixing unclosed SessionLocal() usage across backend..."
+
+# Dependencies check
+if ! command -v rg &> /dev/null; then
+  echo "❌ ripgrep (rg) is not installed. Run: brew install ripgrep"
+  exit 1
+fi
+if ! command -v gsed &> /dev/null; then
+  echo "❌ gnu-sed (gsed) is not installed. Run: brew install gnu-sed"
+  exit 1
+fi
+
+# Find all files with raw SessionLocal() usage
+FILES=$(rg --files-with-matches 'SessionLocal\(\)' backend)
+
+if [ -z "$FILES" ]; then
+  echo "✅ No files need patching. You're clean."
+  exit 0
+fi
+
+# Backup originals
+echo "📦 Backing up original files..."
+for f in $FILES; do
+  cp "$f" "$f.bak.$(date +%s)"
+done
+
+# Inject context-managed usage
+echo "🔧 Patching session usage..."
+for f in $FILES; do
+  gsed -i '/SessionLocal()/!b;n;s/^/    with SessionLocal() as session:\n        /' "$f"
+done
+
+echo "✅ All session usages patched with context manager!"
