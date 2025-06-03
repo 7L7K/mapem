@@ -11,9 +11,8 @@ from backend.db import get_engine, SessionLocal
 from backend.routes.heatmap import warmup_heatmap
 
 # ─── Logger Setup ───────────────────────────────────────────────
-logger = logging.getLogger("mapem")
-logging.getLogger().setLevel(logging.DEBUG)
-logging.getLogger().propagate = True
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(asctime)s — %(levelname)s — %(message)s")
 
