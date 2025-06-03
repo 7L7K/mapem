@@ -9,7 +9,7 @@
 # logging.py
 from backend.models import UserAction
 from datetime import datetime
-from backend.services.location_processor import normalize_location
+from backend.utils.helpers import normalize_location
 
 
 def log_action(session, user_id, action_type, context, decision, tree_id=None):
