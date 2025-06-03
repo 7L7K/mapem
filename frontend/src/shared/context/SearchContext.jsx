@@ -32,9 +32,10 @@ export function SearchProvider({ children }) {
   const [filters, setFilters] = useState(defaultFilters);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [decade, setDecade] = useState([1900, 2020]);
-  const [mode, setMode] = useState('person');
+  const [mode, setMode] = useState("person");
   const [wholeTree, setWholeTree] = useState(false);
   const toggleWholeTree = () => setWholeTree((p) => !p);
+  const toggleFilters = () => setIsDrawerOpen((p) => !p);
 
   const [visibleCounts, setVisibleCounts] = useState({
     people: 0,
@@ -66,6 +67,7 @@ export function SearchProvider({ children }) {
       setFilters,
       isDrawerOpen,
       setIsDrawerOpen,
+      toggleFilters,
       decade,
       setDecade,
       mode,
