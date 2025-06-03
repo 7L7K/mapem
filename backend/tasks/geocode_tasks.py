@@ -40,19 +40,22 @@ def geocode_location_task(self, location_id: int):
                 return
 
             # 🔍 Attempt resolution
-            result = geocoder.resolve(loc.raw_name)
-            if not result:
-                raise ValueError(f"Geocoder returned no data for '{loc.raw_name}'")
+            result = geocoder.get_or_create_location(None, loc.raw_name)
+            if result is None:
+                logger.warning(
+                    f"[GeocodeTask] Geocoder returned no data for '{loc.raw_name}'"
+                )
+                return
 
             # ✅ Apply fields
-            loc.latitude         = result["latitude"]
-            loc.longitude        = result["longitude"]
-            loc.normalized_name  = result["normalized_name"]
-            loc.confidence_score = result["confidence_score"]
-            loc.status           = result["status"]
-            loc.source           = result["source"]
-            loc.geocoded_at      = result.get("geocoded_at")
-            loc.geocoded_by      = result.get("geocoded_by")
+            loc.latitude = result.latitude
+            loc.longitude = result.longitude
+            loc.normalized_name = result.normalized_name
+            loc.confidence_score = result.confidence_score
+            loc.status = result.status
+            loc.source = result.source
+            loc.geocoded_at = getattr(result, "geocoded_at", None)
+            loc.geocoded_by = getattr(result, "geocoded_by", None)
 
             session.commit()
             logger.info(f"[GeocodeTask] ✅ id={location_id} -> ({loc.latitude}, {loc.longitude})")
