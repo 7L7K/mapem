@@ -23,7 +23,7 @@ export default function Router() {
           <Route path="people" element={<PeoplePage />} />
           <Route path="analytics" element={<Analytics />} />
           <Route path="upload" element={<UploadPage />} />
-]          <Route path="*" element={<div className="p-10 text-white">404: Page Not Found</div>} />
+          <Route path="*" element={<div className="p-10 text-white">404: Page Not Found</div>} />
         </Route>
       </Routes>
     </Suspense>
