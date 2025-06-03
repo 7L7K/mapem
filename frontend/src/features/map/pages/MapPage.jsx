@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { getMovements, getTrees } from "@lib/api/api"
+import { getMovements } from "@lib/api/api"
 import { useTree }  from "@shared/context/TreeContext"
 import { useSearch } from "@shared/context/SearchContext"
 import { useMapControl } from "@shared/context/MapControlContext"
@@ -11,7 +11,7 @@ import PersonSelector  from "@/features/map/components/PersonSelector"
 import { log as devLog } from "@/lib/api/devLogger.js"
 
 export default function MapPage() {
-  const { treeId, setTreeId } = useTree()
+  const { treeId } = useTree()
   const { filters, visibleCounts } = useSearch()
   const { activeSection, toggleSection } = useMapControl()
 
@@ -19,17 +19,7 @@ export default function MapPage() {
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState(null)
 
-  // 🍃 pick default tree
-  useEffect(() => {
-    if (!treeId) {
-      getTrees().then(trees => {
-        if (trees.length) {
-          setTreeId(trees[0].id)
-          devLog("[🌲 Default tree selected]", trees[0])
-        }
-      })
-    }
-  }, [treeId, setTreeId])
+  // tree selection handled by TreeProvider
 
   // 📦 fetch movements when tree or filters change
   useEffect(() => {
