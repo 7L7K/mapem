@@ -224,10 +224,6 @@ class LocationService:
             source="none",
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
-
-
-# End of LocationService class
-
 logger.debug(
     "✅ LocationService loaded with resolve_location=%s",
     hasattr(LocationService, "resolve_location"),
