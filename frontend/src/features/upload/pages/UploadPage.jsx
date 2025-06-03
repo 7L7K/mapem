@@ -54,7 +54,7 @@ export default function UploadPage() {
       try {
         const parsed = JSON.parse(err.request?.responseText);
         trace = parsed?.trace || "";
-        console.log("🧠 Backend Trace:\n", trace);
+        if (import.meta.env.DEV) console.log("🧠 Backend Trace:\n", trace);
       } catch (parseErr) {
         console.warn("⚠️ Could not parse backend trace:", parseErr);
       }

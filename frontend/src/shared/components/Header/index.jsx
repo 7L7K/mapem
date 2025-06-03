@@ -15,7 +15,7 @@ export default function Header({ pageControls = null }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("🌍 [Header] Path:", pathname);
+    if (import.meta.env.DEV) console.log("🌍 [Header] Path:", pathname);
   }, [pathname]);
 
   return (

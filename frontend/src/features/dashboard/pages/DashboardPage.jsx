@@ -5,7 +5,8 @@ import GlowPulse from "@shared/components/ui/GlowPulse";
 
 export default function DashboardPage() {
   useEffect(() => {
-    console.log("📊 [Dashboard.jsx] Dashboard view rendered");
+    if (import.meta.env.DEV)
+      console.log("📊 [Dashboard.jsx] Dashboard view rendered");
   }, []);
 
   return (

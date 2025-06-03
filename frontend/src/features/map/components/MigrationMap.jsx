@@ -22,7 +22,8 @@ function RecenterMap({ center }) {
   useEffect(() => {
     if (center && Array.isArray(center)) {
       map.setView(center, map.getZoom());
-      console.log("🧭 [MigrationMap] Re-centering map to:", center);
+      if (import.meta.env.DEV)
+        console.log("🧭 [MigrationMap] Re-centering map to:", center);
     }
   }, [center, map]);
   return null;
@@ -40,7 +41,8 @@ export default function MigrationMap({
     if (mapRef.current) {
       setTimeout(() => {
         mapRef.current.invalidateSize();
-        console.log("🔁 [MigrationMap] Forcing map redraw (invalidateSize)");
+        if (import.meta.env.DEV)
+          console.log("🔁 [MigrationMap] Forcing map redraw (invalidateSize)");
       }, 200);
     }
   }, []);
