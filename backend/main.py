@@ -3,7 +3,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
-import sys
+from backend.utils.logger import get_logger
 from backend.routes import register_routes
 from backend.models import Base
 from backend.config import settings
@@ -11,18 +11,13 @@ from backend.db import get_engine, SessionLocal
 from backend.routes.heatmap import warmup_heatmap
 
 # ─── Logger Setup ───────────────────────────────────────────────
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+logger = get_logger(__name__)
 
 formatter = logging.Formatter("%(asctime)s — %(levelname)s — %(message)s")
 
 file_handler = logging.FileHandler("flask.log")
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
-
-console_handler = logging.StreamHandler(sys.stdout)
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
 
 # Optional: Capture SQLAlchemy engine warnings too
 logging.getLogger("sqlalchemy").setLevel(logging.WARNING)

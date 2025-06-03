@@ -7,16 +7,19 @@ Read geocode_cache.json and upsert into the DB:
   - LOG ALL DECISIONS (inserted / updated / skipped) with reason
 """
 
-import json, os
+import json
+import os
+from pathlib import Path
 from datetime import datetime
 from backend.db import SessionLocal
 from backend.models import Location
 
-CACHE_FILE = os.path.join(os.path.dirname(__file__), "..", "geocode_cache.json")
+BASE_DIR = Path(__file__).resolve().parent.parent
+CACHE_FILE = Path(os.getenv("GEOCODE_CACHE_FILE", BASE_DIR / "geocode_cache.json"))
 
 def main():
     print(f"📂 Reading cache from {CACHE_FILE}")
-    cache = json.load(open(CACHE_FILE, "r"))
+    cache = json.load(CACHE_FILE.open("r"))
     session = SessionLocal()
 
     inserted = 0

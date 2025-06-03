@@ -8,6 +8,9 @@ from urllib.parse import urlencode
 from typing import Optional, Dict, Any
 from backend.models.location_models import LocationOut
 
+from pathlib import Path
+from pydantic import BaseModel
+
 from backend import models
 from backend.utils.helpers import normalize_location, calculate_name_similarity
 
@@ -29,26 +32,34 @@ def classify_location_failure(raw_name):
         return "typo_or_misspelling", "Moorhead, Sunflower, Mississippi, USA"
     return "geocode_failed", None
 
+DEFAULT_CACHE_PATH = Path(
+    os.getenv(
+        "GEOCODE_CACHE_FILE",
+        Path(__file__).resolve().parent.parent / "geocode_cache.json",
+    )
+)
+
+
 class Geocode:
     def __init__(
         self,
         api_key=None,
-        cache_file='geocode_cache.json',
-        use_cache=True,
+        cache_file: Optional[str | Path] = None,
+        use_cache: bool = True,
         manual_fixes=None,
-        historical_lookup=None
+        historical_lookup=None,
     ):
         self.api_key = api_key
-        self.cache_file = cache_file
+        self.cache_file = Path(cache_file or DEFAULT_CACHE_PATH)
         self.cache_enabled = use_cache
         self.cache = self._load_cache() if use_cache else {}
         self.manual_fixes = manual_fixes or {}
         self.historical_lookup = historical_lookup or {}
 
     def _load_cache(self):
-        if os.path.exists(self.cache_file):
+        if self.cache_file.exists():
             try:
-                with open(self.cache_file, 'r') as f:
+                with self.cache_file.open('r') as f:
                     return json.load(f)
             except json.JSONDecodeError:
                 logger.warning("⚠️ Cache file corrupted, starting fresh.")
@@ -57,7 +68,7 @@ class Geocode:
 
     def _save_cache(self):
         if self.cache_enabled:
-            with open(self.cache_file, 'w') as f:
+            with self.cache_file.open('w') as f:
                 json.dump(self.cache, f, indent=2)
 
     def _normalize_key(self, place):

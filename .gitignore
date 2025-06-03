@@ -9,6 +9,7 @@ frontend/frontend_patch_*.log
 
 # ─── Env & OS ───────────────────────────────────
 *.env
+.env
 .envrc
 .DS_Store
 __MACOSX
