@@ -15,8 +15,11 @@ from .event_source      import EventSource
 from .user_action     import UserAction
 from .event import Event, event_participants
 
+import logging
 from backend.db import engine
+
+logger = logging.getLogger(__name__)
 
 # ── Sanity check: log all registered tables at import time
 if __name__ == "__main__":
-    print("📦 Models registered in Base.metadata →", list(Base.metadata.tables))
+    logger.info("📦 Models registered in Base.metadata → %s", list(Base.metadata.tables))

@@ -14,7 +14,9 @@ SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 # ⛓️ Load API Key
 API_KEY = os.getenv("GEOCODE_API_KEY")
 if not API_KEY:
-    print("⚠️ GEOCODE_API_KEY not found in env — geocoder will fallback only.")
+    logging.getLogger(__name__).warning(
+        "⚠️ GEOCODE_API_KEY not found in env — geocoder will fallback only."
+    )
 
 # 🔧 Geocoder instance
 geocoder = Geocode(api_key=API_KEY)
