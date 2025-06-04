@@ -1,5 +1,6 @@
 #os.path.expanduser("~")/mapem/backend/services/parser.py
 import logging
+from uuid import UUID
 from sqlalchemy.orm import Session
 
 from .gedcom_core import GedcomCoreParser
@@ -100,130 +101,151 @@ class GEDCOMParser:
             "events": events,
         }
         return self.data
-    def save_to_db(self, session: Session, tree_id: int, dry_run=False):
+    # ═════════════════════════════════════════════════════════════
+    # DB SAVE
+    # ═════════════════════════════════════════════════════════════
+    def save_to_db(
+        self,
+        session: Session,
+        uploaded_tree_id: UUID,
+        tree_version_id: UUID | None = None,
+        dry_run: bool = False,
+    ):
         """
-        Inserts Individuals, Families, Relationships, and Events into the DB.
+        Persist parsed data to the DB.
+
+        uploaded_tree_id → FK used by Individuals / Events
+        tree_version_id  → optional reference if you want to tag rows to a specific version
         """
         data = self.data
         summary = {"people_count": 0, "event_count": 0, "warnings": [], "errors": []}
 
-        # --- 1) Insert/Update Individuals ---
+        # 1️⃣ Individuals ---------------------------------------------------
         for ind in data.get("individuals", []):
             gedcom_id = ind.get("gedcom_id")
             if not ind.get("name"):
-                logger.warning(f"Skipping individual with missing name: {gedcom_id}")
+                logger.warning("Skipping individual with missing name: %s", gedcom_id)
                 summary["warnings"].append(f"Missing name for individual {gedcom_id}")
                 continue
 
-            first_name, last_name = split_full_name(ind.get("name", "Unknown"))
+            first_name, last_name = split_full_name(ind["name"])
             occupation = ind.get("occupation") or None
 
-            existing = session.query(Individual).filter_by(
-                gedcom_id=gedcom_id,
-                tree_id=tree_id
-            ).first()
+            existing = (
+                session.query(Individual)
+                .filter_by(gedcom_id=gedcom_id, tree_id=uploaded_tree_id)
+                .first()
+            )
 
             if existing:
-                existing.first_name  = first_name
-                existing.last_name   = last_name
-                existing.occupation  = occupation
+                existing.first_name = first_name
+                existing.last_name = last_name
+                existing.occupation = occupation
             else:
-                person = Individual(
-                    gedcom_id=gedcom_id,
-                    first_name=first_name,
-                    last_name=last_name,
-                    occupation=occupation,
-                    tree_id=tree_id,
+                session.add(
+                    Individual(
+                        gedcom_id=gedcom_id,
+                        first_name=first_name,
+                        last_name=last_name,
+                        occupation=occupation,
+                        tree_id=uploaded_tree_id,
+                    )
                 )
-                session.add(person)
                 summary["people_count"] += 1
 
         try:
             session.flush()
         except Exception as e:
-            logger.error(f"Flush failed after inserting Individuals: {e}")
+            logger.error("Flush failed after Individuals: %s", e)
             summary["errors"].append("Flush error after individuals")
             if not dry_run:
                 raise
 
-        ged2db = {p.gedcom_id: p.id for p in session.query(Individual).filter_by(tree_id=tree_id)}
+        ged2db = {
+            p.gedcom_id: p.id
+            for p in session.query(Individual).filter_by(tree_id=uploaded_tree_id)
+        }
 
-        # --- 2) Insert/Update Families & Relationships ---
+        # 2️⃣ Families & Relationships -------------------------------------
         for fam in data.get("families", []):
             fam_id = fam.get("gedcom_id")
-            raw_h, raw_w = fam.get("husband_id"), fam.get("wife_id")
-            h_id = ged2db.get(raw_h)
-            w_id = ged2db.get(raw_w)
+            h_id = ged2db.get(fam.get("husband_id"))
+            w_id = ged2db.get(fam.get("wife_id"))
 
-            existing_fam = session.query(Family).filter_by(
-                gedcom_id=fam_id,
-                tree_id=tree_id
-            ).first()
+            existing_fam = (
+                session.query(Family)
+                .filter_by(gedcom_id=fam_id, tree_id=uploaded_tree_id)
+                .first()
+            )
 
             if existing_fam:
                 existing_fam.husband_id = h_id
                 existing_fam.wife_id = w_id
             else:
-                f = Family(
-                    gedcom_id=fam_id,
-                    husband_id=h_id,
-                    wife_id=w_id,
-                    tree_id=tree_id
+                session.add(
+                    Family(
+                        gedcom_id=fam_id,
+                        husband_id=h_id,
+                        wife_id=w_id,
+                        tree_id=uploaded_tree_id,
+                    )
                 )
-                session.add(f)
 
             for child_ged in fam.get("children", []):
                 child_db_id = ged2db.get(child_ged)
-                if h_id and child_db_id:
-                    session.add(TreeRelationship(
-                        tree_id=tree_id,
-                        person_id=h_id,
-                        related_person_id=child_db_id,
-                        relationship_type="father"
-                    ))
-                if w_id and child_db_id:
-                    session.add(TreeRelationship(
-                        tree_id=tree_id,
-                        person_id=w_id,
-                        related_person_id=child_db_id,
-                        relationship_type="mother"
-                    ))
+                if child_db_id:
+                    if h_id:
+                        session.add(
+                            TreeRelationship(
+                                tree_id=uploaded_tree_id,
+                                person_id=h_id,
+                                related_person_id=child_db_id,
+                                relationship_type="father",
+                            )
+                        )
+                    if w_id:
+                        session.add(
+                            TreeRelationship(
+                                tree_id=uploaded_tree_id,
+                                person_id=w_id,
+                                related_person_id=child_db_id,
+                                relationship_type="mother",
+                            )
+                        )
 
         try:
             session.flush()
         except Exception as e:
-            logger.error(f"Flush failed after inserting Families/Relationships: {e}")
+            logger.error("Flush failed after Families: %s", e)
             summary["errors"].append("Flush error after families")
             if not dry_run:
                 raise
 
-        # --- 3) Insert Events + Resolve Locations (with M2M) ---
+        # 3️⃣ Events & Locations -------------------------------------------
         for evt in data.get("events", []):
             if not evt.get("event_type"):
-                logger.warning(f"Skipping event missing event_type: {evt}")
                 summary["warnings"].append("Missing event_type in an event")
                 continue
 
-            place = evt.get("location") or evt.get("place")
             location_id = None
-            if place:
-                event_year = None
+            if (place := evt.get("location") or evt.get("place")):
+                year = None
                 if evt.get("date"):
-                    try:
-                        dt = parse_date_flexible(evt["date"])
-                        if dt:
-                            event_year = dt.year
-                    except Exception:
-                        pass
+                    dt = parse_date_flexible(evt["date"])
+                    year = dt.year if dt else None
 
                 loc_out = self.location_service.resolve_location(
                     raw_place=place,
-                    event_year=event_year,
+                    event_year=year,
                     source_tag=evt.get("source_tag", ""),
-                    tree_id=tree_id,
+                    tree_id=uploaded_tree_id,
                 )
 
-                loc = session.query(Location).filter_by(normalized_name=loc_out.normalized_name).first()
+                loc = (
+                    session.query(Location)
+                    .filter_by(normalized_name=loc_out.normalized_name)
+                    .first()
+                )
                 if not loc:
                     loc = Location(
                         raw_name=loc_out.raw_name,
@@ -239,42 +261,30 @@ class GEDCOMParser:
                 location_id = loc.id
 
             dt = parse_date_flexible(evt.get("date")) if evt.get("date") else None
-            e = Event(
+            ev = Event(
                 event_type=evt.get("event_type", "UNKNOWN"),
                 date=dt,
                 date_precision=evt.get("date_precision"),
                 notes=evt.get("notes"),
                 source_tag=evt.get("source_tag"),
                 category=evt.get("category", "unspecified"),
-                tree_id=tree_id,
-                location_id=location_id
+                tree_id=uploaded_tree_id,
+                location_id=location_id,
+                tree_version_id=tree_version_id,
             )
 
-            # --- 🔥 Attach participants (M2M) ---
-            individual_gedcom_id = evt.get("individual_gedcom_id")
-            if individual_gedcom_id:
-                indiv_db_id = ged2db.get(individual_gedcom_id)
-                if indiv_db_id:
-                    individual = session.get(Individual, indiv_db_id)
-                    if individual:
-                        e.participants.append(individual)
-                    else:
-                        logger.warning(f"Individual {individual_gedcom_id} not found in DB.")
-                else:
-                    logger.warning(f"No DB ID found for GEDCOM ID {individual_gedcom_id}.")
+            # link participant
+            if ind_ged := evt.get("individual_gedcom_id"):
+                if ind_db := ged2db.get(ind_ged):
+                    if person := session.get(Individual, ind_db):
+                        ev.participants.append(person)
 
-            session.add(e)
+            session.add(ev)
             summary["event_count"] += 1
 
-        if not dry_run:
-            try:
-                session.commit()
-            except Exception as e:
-                logger.error(f"Commit failed: {e}")
-                summary["errors"].append(f"Commit failed: {str(e)}")
-                raise
-        else:
+        if dry_run:
             session.rollback()
+        else:
+            session.commit()
 
-        # Proactive: Always return summary, even if zero events
         return summary

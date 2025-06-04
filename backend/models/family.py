@@ -12,7 +12,7 @@ from sqlalchemy.orm import relationship
 from .base import Base, TimestampMixin, ReprMixin
 from .enums import FamilyTypeEnum
 from sqlalchemy import Enum as SQLEnum   # give it a short alias
-from backend.models.tree import TreeRelationship
+from backend.models.uploaded_tree import TreeRelationship
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
@@ -25,7 +25,7 @@ class Family(Base, TimestampMixin, ReprMixin):
     id              = Column(Integer, primary_key=True, autoincrement=True)
     tree_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("tree.id", ondelete="CASCADE"),
+        ForeignKey("uploaded_trees.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )

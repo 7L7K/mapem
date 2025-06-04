@@ -30,7 +30,7 @@ class TreeVersion(Base):
     • tree_id alias keeps the test-suite happy
     """
 
-    __tablename__ = "tree"
+    __tablename__ = "tree_versions"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
 

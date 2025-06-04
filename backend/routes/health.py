@@ -8,4 +8,4 @@ health_routes = Blueprint("health", __name__, url_prefix="/api")
 @debug_route
 def ping():
     """Simple health check endpoint."""
-    return jsonify({"message": "pong"}), 200
+    return jsonify({"status": "ok"}), 200

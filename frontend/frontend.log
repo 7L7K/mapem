@@ -3,25 +3,21 @@
 > vite
 
 
-  VITE v4.5.13  ready in 311 ms
+  VITE v4.5.13  ready in 222 ms
 
   ➜  Local:   http://localhost:5173/
   ➜  Network: use --host to expose
 
-[2m[113.93ms][22m [@tailwindcss/postcss] src/shared/styles/main.css
-[2m[  0.27ms][22m  [2m ↳ [22mQuick bail check
-[2m[ 12.41ms][22m  [2m ↳ [22mSetup compiler
-[2m[  0.40ms][22m    [2m ↳ [22mPostCSS AST -> Tailwind CSS AST
-[2m[ 11.97ms][22m    [2m ↳ [22mCreate compiler
-[2m[  0.15ms][22m  [2m ↳ [22mRegister full rebuild paths
-[2m[ 13.90ms][22m  [2m ↳ [22mSetup scanner
-[2m[ 35.42ms][22m  [2m ↳ [22mScan for candidates
-[2m[ 13.17ms][22m  [2m ↳ [22mRegister dependency messages
-[2m[ 33.70ms][22m  [2m ↳ [22mBuild utilities
-[2m[  2.31ms][22m  [2m ↳ [22mTransform Tailwind CSS AST into PostCSS AST
-[2m[  2.00ms][22m  [2m ↳ [22mUpdate PostCSS AST
-
-
-[2m[0.41ms][22m [@tailwindcss/postcss] node_modules/leaflet/dist/leaflet.css
-[2m[0.25ms][22m  [2m ↳ [22mQuick bail check
+[2m[74.42ms][22m [@tailwindcss/postcss] src/shared/styles/main.css
+[2m[ 0.11ms][22m  [2m ↳ [22mQuick bail check
+[2m[12.60ms][22m  [2m ↳ [22mSetup compiler
+[2m[ 0.46ms][22m    [2m ↳ [22mPostCSS AST -> Tailwind CSS AST
+[2m[12.11ms][22m    [2m ↳ [22mCreate compiler
+[2m[ 0.10ms][22m  [2m ↳ [22mRegister full rebuild paths
+[2m[ 1.98ms][22m  [2m ↳ [22mSetup scanner
+[2m[15.01ms][22m  [2m ↳ [22mScan for candidates
+[2m[11.85ms][22m  [2m ↳ [22mRegister dependency messages
+[2m[28.91ms][22m  [2m ↳ [22mBuild utilities
+[2m[ 1.90ms][22m  [2m ↳ [22mTransform Tailwind CSS AST into PostCSS AST
+[2m[ 1.50ms][22m  [2m ↳ [22mUpdate PostCSS AST
 

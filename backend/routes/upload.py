@@ -123,8 +123,8 @@ def upload_tree():
         parsed = parser.parse_file()
         logger.info(
             "✅ Parsed %d individuals, %d events",
-            len(parsed['individuals']),
-            len(parsed['events']),
+            len(parsed["individuals"]),
+            len(parsed["events"]),
         )
 
         # 5️⃣ Insert UploadedTree + TreeVersion
@@ -143,7 +143,12 @@ def upload_tree():
 
         # 6️⃣ Save parsed data to DB
         logger.debug("💾 Saving to database ...")
-        summary = parser.save_to_db(db, tree_id=version.id, dry_run=False)
+        summary = parser.save_to_db(
+            session=db,
+            uploaded_tree_id=uploaded_tree.id,  # ← correct FK
+            tree_version_id=version.id,         # ← optional, for future use
+            dry_run=False,
+        )
         logger.debug("✅ save_to_db() complete — summary: %s", summary)
 
         # 7️⃣ Commit
@@ -159,10 +164,10 @@ def upload_tree():
         return (
             jsonify(
                 status="success",
-                uploaded_tree_id=uploaded_tree.id,
-                version_id=version.id,
+                uploaded_tree_id=str(uploaded_tree.id),
+                version_id=str(version.id),
                 summary=summary,
-                tree_id=uploaded_tree.id,
+                tree_id=str(uploaded_tree.id),
                 version=version.version_number,
             ),
             200,
