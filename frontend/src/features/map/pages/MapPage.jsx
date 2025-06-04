@@ -3,7 +3,7 @@ import { getMovements } from "@lib/api/api"
 import { useTree }  from "@shared/context/TreeContext"
 import { useSearch } from "@shared/context/SearchContext"
 import { useMapControl } from "@shared/context/MapControlContext"
-import MapView         from "@/features/map/components/MigrationMap"
+import MigrationMap    from "@/features/map/components/MigrationMap"
 import FilterHeader    from "@shared/components/Header/FilterHeader"
 import LegendPanel     from "@/features/map/components/LegendPanel"
 import TypeSearch      from "@/features/map/components/TypeSearch"
@@ -72,7 +72,7 @@ export default function MapPage() {
       </div>
 
       {activeSection === "filters" && <AdvancedFilterDrawer />}
-      <MapView movements={movements} loading={loading} error={error} />
+      <MigrationMap movements={movements} loading={loading} error={error} />
       <LegendPanel
         movements={movements}
         people={visibleCounts.people}
