@@ -1,6 +1,7 @@
 # backend/utils/logger.py
 import logging
-import sys
+import sys 
+import os
 
 _LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
 
@@ -38,4 +39,20 @@ def get_logger(name: str = "mapem", level: int = logging.DEBUG) -> logging.Logge
     configure_logging(level)
     logger = logging.getLogger(name)
     logger.setLevel(level)
+    return logger
+
+
+def get_file_logger(module_name: str):
+    log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
+    os.makedirs(log_dir, exist_ok=True)
+    file_path = os.path.join(log_dir, f"{module_name}.log")
+    logger = logging.getLogger(module_name)
+    logger.setLevel(logging.DEBUG)
+    # Prevent duplicate handlers
+    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == file_path for h in logger.handlers):
+        fh = logging.FileHandler(file_path, encoding='utf-8')
+        fh.setLevel(logging.DEBUG)
+        formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(name)s | %(message)s')
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
     return logger

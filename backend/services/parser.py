@@ -24,12 +24,14 @@ from ..models import (
 from backend.services.location_service import LocationService
 from backend.utils.helpers import split_full_name
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+ 
+from backend.utils.logger import get_file_logger
 
-# ────────────────────────────────────────────────────────────────
-# CONSTANTS
-# ────────────────────────────────────────────────────────────────
+logger = get_file_logger("parser")
+
+# ...rest of your imports and code...
+
+
 TAG_CATEGORY_MAP: Dict[str, str] = {
     "BIRT": "life_event",
     "DEAT": "life_event",
@@ -44,9 +46,6 @@ TAG_CATEGORY_MAP: Dict[str, str] = {
 FANOUT_TAGS = {"MARR", "DIV"}
 
 
-# ────────────────────────────────────────────────────────────────
-# PARSER CLASS
-# ────────────────────────────────────────────────────────────────
 class GEDCOMParser:
     """End‑to‑end pipeline: **read GEDCOM → normalise → persist**.
 
@@ -61,9 +60,6 @@ class GEDCOMParser:
         self.data: Dict[str, List[Dict[str, Any]]] = {}
         logger.debug("Initialized GEDCOMParser for %s", file_path)
 
-    # ═══════════════════════════════════════════════════════════
-    # FILE PARSING
-    # ═══════════════════════════════════════════════════════════
     def parse_file(self) -> Dict[str, List[Dict[str, Any]]]:
         """Parse *once* and cache the result in :pyattr:`data`."""
         t0 = datetime.now()
@@ -85,7 +81,6 @@ class GEDCOMParser:
                 tag = (evt.get("source_tag") or "").upper()
                 evt["category"] = TAG_CATEGORY_MAP.get(tag, "unspecified")
             events.extend(evts)
-        logger.info("👤 Parsed %d individuals → %d individual‑level events", len(individuals), len(events))
 
         # 2️⃣ Families --------------------------------------------------------------------
         for raw_fam in raw.get("families", []):
@@ -105,12 +100,17 @@ class GEDCOMParser:
                             indiv_evt = evt.copy()
                             indiv_evt["individual_gedcom_id"] = spouse
                             events.append(indiv_evt)
+                            # 📝 Fan-out log
+                            logger.info(f"🔁 FAN-OUT {tag} → gedcom_id {spouse}")
                     continue  # skip family‑level record
                 fam_evts_keep.append(evt)
             events.extend(fam_evts_keep)
-        logger.info("🏠 Parsed %d families — total events: %d", len(families), len(events))
 
-        # Cache & return
+        # 📝 Summary after parsing
+        logger.info(
+            "✅ parse_file done: %d individuals, %d families, %d raw events",
+            len(individuals), len(families), len(events)
+        )
         self.data = {
             "individuals": individuals,
             "families": families,
@@ -119,9 +119,6 @@ class GEDCOMParser:
         logger.debug("parse_file() complete in %.2fs", (datetime.now() - t0).total_seconds())
         return self.data
 
-    # ═══════════════════════════════════════════════════════════
-    # DATABASE WRITE
-    # ═══════════════════════════════════════════════════════════
     def save_to_db(
         self,
         session: Session,
@@ -147,7 +144,7 @@ class GEDCOMParser:
             session.add(tree_version)
             session.flush()
             tree_version_id = tree_version.id
-            logger.debug("Created new TreeVersion %s", tree_version_id)
+            logger.info(f"🌳 New TreeVersion {tree_version_id}")
         else:
             logger.debug("Using existing TreeVersion %s", tree_version_id)
 
@@ -174,19 +171,20 @@ class GEDCOMParser:
                 existing.first_name = first_name
                 existing.last_name = last_name
                 existing.occupation = occupation
+                logger.info(f"+Individual {existing.id} (gedcom {gedcom_id}) [UPDATED]")
             else:
-                session.add(
-                    Individual(
-                        gedcom_id=gedcom_id,
-                        first_name=first_name,
-                        last_name=last_name,
-                        occupation=occupation,
-                        tree_id=tree_version_id,
-                    )
+                new_ind = Individual(
+                    gedcom_id=gedcom_id,
+                    first_name=first_name,
+                    last_name=last_name,
+                    occupation=occupation,
+                    tree_id=tree_version_id,
                 )
+                session.add(new_ind)
+                session.flush()
+                logger.info(f"+Individual {new_ind.id} (gedcom {gedcom_id})")
                 summary["people_count"] += 1
 
-        self._flush(session, summary, "Individuals")
         ged2db = {p.gedcom_id: p.id for p in session.query(Individual).filter_by(tree_id=tree_version_id)}
 
         # ── Families & Relationships ------------------------------------
@@ -205,10 +203,13 @@ class GEDCOMParser:
             if existing_fam:
                 existing_fam.husband_id = h_id
                 existing_fam.wife_id = w_id
+                logger.info(f"+Family {existing_fam.id}")
             else:
-                session.add(Family(gedcom_id=fam_id, husband_id=h_id, wife_id=w_id, tree_id=tree_version_id))
-
-            # parent‑child edges -----------------------------------------
+                new_fam = Family(gedcom_id=fam_id, husband_id=h_id, wife_id=w_id, tree_id=tree_version_id)
+                session.add(new_fam)
+                session.flush()
+                logger.info(f"+Family {new_fam.id}")
+            # parent‑child edges
             for child_ged in fam.get("children", []):
                 child_db_id = ged2db.get(child_ged)
                 if child_db_id:
@@ -224,9 +225,20 @@ class GEDCOMParser:
         logger.debug("Persisting %d events", len(events))
         for evt in events:
             if not evt.get("event_type"):
-                warn = "Missing event_type — skipped event"
+                warn = "⛔ Skipped event: Missing event_type"
                 summary["warnings"].append(warn)
                 logger.warning(warn)
+                continue
+
+            # Reasonable bad date skip
+            bad_date = False
+            date_str = evt.get("date")
+            if date_str and not parse_date_flexible(date_str):
+                warn = f"⛔ Skipped event: Bad date '{date_str}'"
+                summary["warnings"].append(warn)
+                logger.warning(warn)
+                bad_date = True
+            if bad_date:
                 continue
 
             location_id = self._resolve_location(session, evt, uploaded_tree_id)  # may be None
@@ -239,15 +251,19 @@ class GEDCOMParser:
                 notes=evt.get("notes"),
                 source_tag=evt.get("source_tag"),
                 category=evt.get("category", "unspecified"),
-                location_id=location_id,  # ← NULLable, we *keep* the event even if unresolved
+                location_id=location_id,
                 tree_id=tree_version_id,
             )
 
-            # participant link ------------------------------------------
             if (ind_ged := evt.get("individual_gedcom_id")) and (ind_db := ged2db.get(ind_ged)):
                 person = session.get(Individual, ind_db)
                 if person:
                     ev.participants.append(person)
+
+            # 📝 Log every event before adding
+            logger.info(
+                f"+Event {ev.event_type}@{ev.date} → loc={location_id} | participant_ged={evt.get('individual_gedcom_id')}"
+            )
 
             session.add(ev)
             summary["event_count"] += 1
@@ -263,9 +279,6 @@ class GEDCOMParser:
             logger.info("✅ Committed TreeVersion %s", tree_version_id)
         return summary
 
-    # ────────────────────────────────────────────────────────────
-    # INTERNAL HELPERS
-    # ────────────────────────────────────────────────────────────
     def _flush(self, session: Session, summary: Dict[str, Any], label: str) -> None:
         try:
             session.flush()

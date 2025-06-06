@@ -16,23 +16,18 @@ from backend.models.location_models import LocationOut
 from backend.services.geocode import Geocode
 from typing import Any
 
+from backend.utils.logger import get_file_logger
 
-# Initialize your Geocode engine (api_key can come from env or config)
+logger = get_file_logger("location_processor") 
+
 GEOCODER = Geocode(api_key=os.getenv("GEOCODE_API_KEY"))
 
-logger = get_logger(__name__)
-
-DEFAULT_FIXES_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "manual_place_fixes.json")
-
-# ─── File paths ─────────────────────────────────────────────────
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
 MANUAL_FIXES_PATH = os.path.join(DATA_DIR, "manual_place_fixes.json")
 UNRESOLVED_LOG_PATH = os.path.join(DATA_DIR, "unresolved_locations.jsonl")
 
-# ─── Keep track of what we've written this run ──────────────────
 _SEEN_UNRESOLVED: set[str] = set()
 
-# ─── Load manual fixes (key = normalized place) ────────────────
 def _load_manual_fixes() -> Dict[str, Any]:
     if not os.path.exists(MANUAL_FIXES_PATH):
         logger.warning("⚠️ manual_place_fixes.json not found.")
@@ -48,7 +43,6 @@ def _load_manual_fixes() -> Dict[str, Any]:
 
 MANUAL_FIXES = _load_manual_fixes()
 
-# ─── Exportable helper ─────────────────────────────────────────
 def load_manual_place_fixes(path=None):
     path = path or os.path.join(os.path.dirname(__file__), "..", "data", "manual_place_fixes.json")
     if os.path.exists(path):
@@ -100,11 +94,12 @@ def process_location(
     normalized = normalize_location(raw_place)
     now = datetime.now(timezone.utc).isoformat()
 
-    logger.debug(f"🌍 process_location start: raw='{raw_place}' normalized='{normalized}'")
+    # Start log
+    logger.info(f"🌍 process_location: INPUT='{raw_place}' | normalized='{normalized}' | tag={source_tag} | year={event_year}")
 
-    # 1) empty → nothing after normalizing
+    # 1) Empty string after normalizing
     if not normalized:
-        logger.warning(f"⚠️ normalized to empty: '{raw_place}' (tree_id: {tree_id})")
+        logger.warning(f"⛔ Dropped: normalized to empty ('{raw_place}') [tree={tree_id}]")
         _log_unresolved_once(raw_place, "empty_after_normalise", tree_id=tree_id)
         return LocationOut(
             raw_name=raw_place,
@@ -117,10 +112,10 @@ def process_location(
             timestamp=now,
         )
 
-    # 2) manual fix override
+    # 2) Manual fix override
     if normalized in MANUAL_FIXES:
         manual = MANUAL_FIXES[normalized]
-        logger.debug(f"🔧 manual fix hit: '{normalized}' → {manual}")
+        logger.info(f"🔧 CLASSIFICATION=manual_fix | '{raw_place}' → '{manual.get('normalized_name', normalized)}'")
         return LocationOut(
             raw_name=manual.get("raw_name", raw_place),
             normalized_name=manual.get("normalized_name", normalized),
@@ -132,7 +127,14 @@ def process_location(
             timestamp=now,
         )
 
-    # 3) Vague state-only fallback logic
+    # 3) Historical/beat classification (STUB EXAMPLE)
+    # if historical_layer and historical_layer.is_historical(normalized, event_year):
+    #     hist_data = historical_layer.lookup(normalized, event_year)
+    #     logger.info(f"🏛️ CLASSIFICATION=historical_beat | '{raw_place}' ({event_year}) → '{hist_data['normalized_name']}'")
+    #     return LocationOut(...)
+    # (Uncomment/expand when ready)
+
+    # 4) Vague state-only fallback logic
     STATE_VAGUE = {
         "mississippi": (32.7364, -89.6678),
         "arkansas": (34.799, -92.199),
@@ -145,7 +147,7 @@ def process_location(
 
     if normalized in STATE_VAGUE:
         lat, lng = STATE_VAGUE[normalized]
-        logger.info(f"🕳️ vague state fallback for '{raw_place}' (→ {lat}, {lng})")
+        logger.info(f"🕳️ CLASSIFICATION=vague_state_pre1890 | '{raw_place}' → '{normalized}' @ ({lat}, {lng})")
         return LocationOut(
             raw_name=raw_place,
             normalized_name=normalized,
@@ -157,18 +159,18 @@ def process_location(
             timestamp=now,
         )
 
-    # 4) Try API geocode (last resort)
-    logger.info(f"🌎 [process_location] Trying API geocode for '{raw_place}' (normalized: '{normalized}')")
+    # 5) Try API geocode (last resort)
+    logger.info(f"🌎 CLASSIFICATION=api | Trying geocode for '{raw_place}' (normalized: '{normalized}')")
     geo_result = GEOCODER.get_or_create_location(None, raw_place)
     if geo_result and geo_result.latitude and geo_result.longitude:
-        logger.info(f"✅ [process_location] Geocoded: '{raw_place}' → {geo_result.latitude}, {geo_result.longitude}")
+        logger.info(f"✅ CLASSIFICATION=api | Geocoded '{raw_place}' → ({geo_result.latitude}, {geo_result.longitude}) | normalized='{geo_result.normalized_name}'")
         geo_result.status = "ok"
         geo_result.source = geo_result.source or "api"
         geo_result.timestamp = now
         return geo_result
 
-    # 5) Still nothing → mark unresolved and log
-    logger.error(f"❌ [process_location] Could NOT geocode '{raw_place}' (normalized: '{normalized}')")
+    # 6) Still nothing → mark unresolved and log
+    logger.error(f"❌ Dropped: Could NOT geocode '{raw_place}' (normalized: '{normalized}') [tree={tree_id}]")
     _log_unresolved_once(raw_place, "api_failed", tree_id=tree_id)
     return LocationOut(
         raw_name=raw_place,

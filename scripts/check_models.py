@@ -10,7 +10,7 @@ import logging
 from backend.models import Base
 from backend.db import get_engine
 
-logger = logging.getLogger(__name__)
+ 
 logging.basicConfig(level=logging.INFO)
 
 def check_model_tables():

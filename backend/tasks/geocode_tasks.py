@@ -23,7 +23,6 @@ geocoder = Geocode(api_key=API_KEY)
 
 # 📟 Logger for visibility
 logger = logging.getLogger("mapem.geocode_tasks")
-logger.setLevel(logging.DEBUG)
 
 
 @celery_app.task(bind=True, max_retries=3, default_retry_delay=10)

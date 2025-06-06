@@ -4,7 +4,7 @@ from sqlalchemy.sql import text
 from backend.db import get_engine, SessionLocal
 from backend.models import Base
 
-logger = logging.getLogger(__name__)
+ 
 
 def clear_database():
     engine = get_engine()

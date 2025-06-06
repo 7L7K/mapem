@@ -17,7 +17,7 @@ import uuid
 from backend.models.base import SerializeMixin, Base, TimestampMixin, ReprMixin
 from backend.models.enums import GenderEnum
 
-logger = logging.getLogger(__name__)
+ 
 
 
 class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):

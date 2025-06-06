@@ -12,7 +12,7 @@ from backend.routes.heatmap import heatmap_routes
 from backend.utils.debug_routes import debug_route
 import logging
 
-logger = logging.getLogger(__name__)
+ 
 
 
 

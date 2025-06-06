@@ -2,7 +2,7 @@ import logging
 from typing import Tuple
 from backend.models import Event
 
-logger = logging.getLogger(__name__)
+ 
 
 def primary_participant(event: Event, *, strategy: str = "first") -> Tuple[int, str]:
     """

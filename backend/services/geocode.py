@@ -15,7 +15,6 @@ from backend import models
 from backend.utils.helpers import normalize_location, calculate_name_similarity
 
 logger = logging.getLogger("backend.services.geocode")
-logger.setLevel(logging.DEBUG)
 
 def classify_location_failure(raw_name):
     generic = {"mississippi", "usa", "tennessee", "louisiana", "unknown"}

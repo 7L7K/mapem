@@ -212,14 +212,12 @@ export default function MigrationMap({
     });
   }, [movements, geocodedMap]);
 
-  // ───────────────────────────────────────────────────────────────────────────
-  // 6. Filter out any that STILL don’t have a real number:
-  //    i.e. cases where `mv.latitude` was missing or geocode also failed
-  // ───────────────────────────────────────────────────────────────────────────
+  // 6. Keep only those that actually got numeric coords
   const validMovements = finalMovements.filter((mv) => {
-    const lat = mv._markerLat;
-    const lng = mv._markerLng;
-    return typeof lat === "number" && typeof lng === "number";
+    return (
+      typeof mv._markerLat === "number" &&
+      typeof mv._markerLng === "number"
+    );
   });
 
   // ───────────────────────────────────────────────────────────────────────────

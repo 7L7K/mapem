@@ -16,7 +16,7 @@ from sqlalchemy.orm import relationship, synonym
 
 from backend.models.base import Base
 
-logger = logging.getLogger(__name__)
+ 
 
 
 class TreeVersion(Base):

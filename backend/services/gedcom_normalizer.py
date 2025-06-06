@@ -1,7 +1,9 @@
 from datetime import datetime
 import logging
 
-logger = logging.getLogger(__name__)
+from backend.utils.logger import get_file_logger
+
+logger = get_file_logger("gedcom_normalizer")
 
 def parse_date_flexible(date_str):
     if not date_str:
@@ -104,6 +106,19 @@ def normalize_individual(raw_ind):
             if val:
                 person["notes"] += val + " "
 
+    # LOG EVERY INDIVIDUAL as requested
+    missing = []
+    if not person["name"]:
+        missing.append("name")
+    if not person["gedcom_id"]:
+        missing.append("gedcom_id")
+    if not person["occupation"]:
+        missing.append("occupation")
+    logger.info(
+        f"👤 normalize_individual: gedcom_id={person['gedcom_id']}, name='{person['name']}'"
+        + (f" [MISSING: {', '.join(missing)}]" if missing else "")
+    )
+
     if not got_job:
         logger.info("🕵️ No occupation found for %s (%s)", person["name"], person["gedcom_id"])
 
@@ -138,7 +153,7 @@ def extract_events_from_individual(individual_record, normalized_individual, cou
                 "place_only"
             )
             _track(f"{etype}_{precision}")
-            events.append({
+            event = {
                 "event_type": etype,
                 "individual_gedcom_id": gid,
                 "date": date_obj.isoformat() if date_obj else None,
@@ -147,7 +162,13 @@ def extract_events_from_individual(individual_record, normalized_individual, cou
                 "location": place,
                 "source_tag": tag,
                 "category": category
-            })
+            }
+            events.append(event)
+
+            # LOG EVERY EVENT as requested
+            logger.info(
+                f"📅 INDI {gid} → {etype}@{event['date']} (place='{place}')"
+            )
 
     return events
 
@@ -194,7 +215,7 @@ def extract_events_from_family(family_record, normalized_family, counters=None):
                     "place_only"
                 )
                 _track(f"family_{event_type}_{precision}")
-                events.append({
+                event = {
                     "event_type": event_type,
                     "family_gedcom_id": fam_id,
                     "husband_gedcom_id": husb_id,
@@ -205,6 +226,16 @@ def extract_events_from_family(family_record, normalized_family, counters=None):
                     "source_tag": tag,
                     "category": category,
                     "notes": ""
-                })
+                }
+                events.append(event)
+
+                # LOG EVERY FAMILY EVENT
+                logger.info(
+                    f"👪 FAM {fam_id} → {event_type}@{event['date']} for husband={husb_id} wife={wife_id} (place='{place}')"
+                )
+
+    # 🟧 If you later add fan-out logic for census/residence events attached to children, add logs there
+    # Example:
+    # logger.info(f"🏠 FAM {fam_id} → {event_type}@{event['date']} FAN-OUT to children: {child_ids}")
 
     return events

@@ -1,3 +1,4 @@
+#/Users/kingal/mapem/backend/routes/events.py
 from flask import Blueprint, jsonify, request
 import logging
 from uuid import UUID
@@ -8,8 +9,7 @@ from backend.models import Event, TreeVersion
 from backend.utils.debug_routes import debug_route
 
 event_routes = Blueprint("events", __name__, url_prefix="/api/events")
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+ 
 
 @event_routes.route("/", methods=["GET"], strict_slashes=False)
 @cross_origin()

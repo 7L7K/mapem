@@ -15,7 +15,12 @@ from backend.services.geocode import Geocode
 from backend.services.location_processor import process_location
 from backend.utils.log_utils import normalize_place
 
-logger = logging.getLogger(__name__)
+ 
+from backend.utils.logger import get_file_logger
+
+logger = get_file_logger("loc_services")
+
+# ...rest of your imports and code...
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers

@@ -15,12 +15,15 @@ from backend.services.location_service import LocationService
 from backend.services.parser import GEDCOMParser
 from backend.utils.helpers import generate_temp_path
 from backend.utils.debug_routes import debug_route
+from backend.utils.logger import get_file_logger
+
+logger = get_file_logger("upload")
+# ...rest of your imports and code...
 
 # ────────────────────────────────────────────────────────────────
 # Config
 # ────────────────────────────────────────────────────────────────
 upload_routes: Final = Blueprint("upload", __name__, url_prefix="/api/upload")
-logger: Final = logging.getLogger("mapem")
 
 MAX_FILE_SIZE_MB: Final[int] = 20
 ALLOWED_EXTENSIONS: Final[set[str]] = {".ged", ".gedcom"}
@@ -38,9 +41,7 @@ def _build_location_service() -> LocationService:
     )
     return LocationService(api_key=api_key)
 
-
 def _next_version_number(db, uploaded_tree_id: int) -> int:
-    """Return the next version number for a given uploaded tree."""
     last = (
         db.query(TreeVersion.version_number)
         .filter(TreeVersion.uploaded_tree_id == uploaded_tree_id)
@@ -49,14 +50,11 @@ def _next_version_number(db, uploaded_tree_id: int) -> int:
     )
     return (last[0] + 1) if last else 1
 
-
 def _extract_file():
-    """Return the first matching FileStorage object or None."""
     for key in GEDCOM_FILE_KEYS:
         if key in request.files:
             return request.files[key], key
     return None, None
-
 
 # ────────────────────────────────────────────────────────────────
 # Routes
@@ -82,11 +80,13 @@ def upload_tree():
         logger.debug("🗂 Using file field '%s': %s", matched_key, file.filename)
 
         file.seek(0, os.SEEK_END)
-        size_mb = file.tell() / (1024 * 1024)
-        logger.debug("📏 Uploaded size: %.2f MB", size_mb)
+        size_bytes = file.tell()
+        size_mb = size_bytes / (1024 * 1024)
+        file.seek(0)
+        logger.info(f"➡️ POST /api/upload — file received ({file.filename}), size {size_bytes:,} bytes ({size_mb:.2f} MB)")
+
         if size_mb > MAX_FILE_SIZE_MB:
             return jsonify({"error": f"File > {MAX_FILE_SIZE_MB} MB"}), 400
-        file.seek(0)
 
         ext = Path(file.filename).suffix.lower()
         if ext not in ALLOWED_EXTENSIONS:
@@ -145,9 +145,15 @@ def upload_tree():
         logger.debug("💾 Saving to database ...")
         summary = parser.save_to_db(
             session=db,
-            uploaded_tree_id=uploaded_tree.id,  # ← correct FK
-            tree_version_id=version.id,         # ← optional, for future use
+            uploaded_tree_id=uploaded_tree.id,
+            tree_version_id=version.id,
             dry_run=False,
+        )
+        # ✳️ LOG the summary (debug goal)
+        logger.info(
+            "🧾 Upload Summary: %s people, %s events",
+            summary.get("people_count", "NA"),
+            summary.get("event_count", "NA"),
         )
         logger.debug("✅ save_to_db() complete — summary: %s", summary)
 
@@ -175,12 +181,14 @@ def upload_tree():
 
     except Exception as exc:
         db.rollback()
-        logger.exception("❌ GEDCOM upload failed")
+        # 🔴 Full stacktrace log, always
+        logger.error("❌ GEDCOM upload failed: %s", exc)
+        logger.error(traceback.format_exc())
         return (
             jsonify(
                 error="Upload failed",
                 details=str(exc),
-                trace=traceback.format_exc(limit=3),
+                trace=traceback.format_exc(),
             ),
             500,
         )

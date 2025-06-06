@@ -1,3 +1,4 @@
+#backend/models/event.py
 import logging
 from sqlalchemy import (
     Column, Integer, ForeignKey, Date, String, Index, Table
@@ -7,8 +8,7 @@ from .base import Base, ReprMixin
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+ 
 
 # ─── Association Table: Event ↔ Individual ─────────────
 event_participants = Table(

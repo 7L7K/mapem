@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, inspect
 from backend.config import settings
 from backend.db import get_engine
 
-logger = logging.getLogger(__name__)
+ 
 
 # Use our central engine created from settings
 engine = get_engine()

@@ -31,17 +31,21 @@ export default function MapPage() {
 
     getMovements(treeId, filters)
       .then(data => {
-        // ensure it's an array
-        const arr = Array.isArray(data) ? data : []
-        const flat = arr.flatMap(person =>
-          (person.movements || []).map(m => ({
-            ...m,
-            person_id:   person.person_id,
-            person_name: person.name,
-          }))
-        )
-        devLog(`[📦 Received ${flat.length} movements]`)
-        setMovements(flat)
+        // if API returns flat segments array:
+        let segments = []
+        if (Array.isArray(data) && data.length && data[0].event_type) {
+          segments = data
+        } else if (Array.isArray(data)) {
+         // old shape: [{ person..., movements: [...] }, ...]
+          segments = data.flatMap(person =>
+            (person.movements || []).map(m => ({
+              ...m,
+              person_id:   person.person_id,
+              person_name: person.name,
+            }))
+          )
+        }
+        setMovements(segments)
       })
       .catch(err => {
         console.error("❌ Movement fetch failed", err)

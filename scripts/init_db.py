@@ -7,7 +7,7 @@ from backend.models.base import Base
 from backend.db import get_engine
 
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+ 
 
 def main():
     engine = get_engine()
