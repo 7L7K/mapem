@@ -28,7 +28,7 @@ export default function FamilySelector() {
 
   return (
     <div className={`transition-all ${open ? 'w-full' : 'w-40'} bg-[var(--surface)] border border-white/10 rounded overflow-hidden`}>
-      <ul className="divide-y divide-white/10">
+      <ul className="max-h-60 overflow-y-auto divide-y divide-white/10">
         {results.map((f) => (
           <li key={f.id}>
             <button
