@@ -86,12 +86,6 @@ export const getMovements = (treeId, filters = {}) =>
     params: filters,
     paramsSerializer: p => qs.stringify(p, { arrayFormat: 'repeat', skipNulls: true }),
   }));
-
-export const getFamilyMovements = (treeId, familyId, filters = {}) =>
-  getMovements(treeId, { ...filters, familyId, grouped: 'family' });
-
-export const getGroupMovements = (treeId, personIds = [], filters = {}) =>
-  getMovements(treeId, { ...filters, personIds: personIds.join(','), grouped: 'person' });
 export const getTimeline  = (treeId)  => ok(client.get(`/api/timeline/${treeId}`));
 export const getSchema    = ()        => ok(client.get('/api/schema'));
 
