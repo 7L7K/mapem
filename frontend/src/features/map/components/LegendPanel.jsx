@@ -32,8 +32,10 @@ export default function LegendPanel() {
           items.push(['👤', 'People', counts.people]);
         if (mode === 'family')
           items.push(['👪', 'Families', counts.families]);
-        if (mode === 'person' && filters.selectedPersonId)
+        if (mode === 'person' && filters.selectedPersonId) {
           items.push(['🏠', 'Household', counts.household]);
+        }
+
         items.push(['🌳', 'Whole Tree', counts.wholeTree]);
         return items;
       })()
