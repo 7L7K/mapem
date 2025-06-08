@@ -44,6 +44,41 @@ def _setup_tree(db_session):
 def test_group_by_person(client, db_session):
     tree_id, version_id, fam_id, dad_id, mom_id = _setup_tree(db_session)
 
+    # Add a person with no movements
+    person_no_moves = Individual(
+        tree_version_id=version_id,
+        name="NoMove Person",
+        gender="U"
+    )
+    db_session.add(person_no_moves)
+    db_session.commit()
+
+    response = client.get(f"/api/trees/{tree_id}/movements/group_by_person")
+    assert response.status_code == 200
+    data = response.get_json()
+
+    # Find each person in the response
+    dad = next((p for p in data if p["id"] == dad_id), None)
+    mom = next((p for p in data if p["id"] == mom_id), None)
+    no_move = next((p for p in data if p["id"] == person_no_moves.id), None)
+
+    # Assert dad's movements
+    assert dad is not None
+    assert isinstance(dad["movements"], list)
+    # Example: check that dad has expected movement(s)
+    assert any("location" in m and "date" in m for m in dad["movements"])
+    # Optionally, check for specific movement content if known
+
+    # Assert mom's movements
+    assert mom is not None
+    assert isinstance(mom["movements"], list)
+    assert any("location" in m and "date" in m for m in mom["movements"])
+
+    # Assert person with no movements
+    assert no_move is not None
+    assert isinstance(no_move["movements"], list)
+    assert len(no_move["movements"]) == 0
+
     res = client.get(f"/api/movements/{tree_id}?grouped=person")
     assert res.status_code == 200
     data = res.get_json()
