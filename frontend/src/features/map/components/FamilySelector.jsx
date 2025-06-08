@@ -12,7 +12,13 @@ export default function FamilySelector() {
 
   useEffect(() => {
     if (filters.person.trim().length < 2) return setResults([]);
-    api.search(filters.person).then(setResults);
+    api.search(filters.person)
+      .then(setResults)
+      .catch((err) => {
+        // You can replace this with a toast or error UI if desired
+        console.error('Failed to search families:', err);
+        setResults([]);
+      });
   }, [filters.person]);
 
   const handleSelect = (family) => {
