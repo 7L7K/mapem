@@ -60,3 +60,8 @@ scripts/*.zip
 scripts/flask.log
 scripts/geocode_cache.json
 scripts/zip_gpt/
+
+# Top of file (or anywhere)
+notes.txt
+__pycache__/
+*.pyc
