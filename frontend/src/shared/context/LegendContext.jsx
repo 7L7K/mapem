@@ -9,7 +9,7 @@ const LegendContext = createContext(null);
 export const useLegend = () => useContext(LegendContext);
 
 export function LegendProvider({ children }) {
-  const { filters } = useSearch();
+  const { filters, mode } = useSearch();
   const { treeId } = useTree();
   const [counts, setCounts] = useState({
     people: 0,
@@ -38,7 +38,7 @@ export function LegendProvider({ children }) {
   // 2) Visible counts
   useEffect(() => {
     if (!treeId) return;
-    devLog("LegendContext", "🔍 Fetching visible counts for", filters);
+    devLog("LegendContext", "🔍 Fetching visible counts for", { mode, filters });
     api.getVisibleCounts(treeId, filters)
     .then((res) => {
       devLog("LegendContext", "✅ Got visible counts", res);
@@ -47,7 +47,7 @@ export function LegendProvider({ children }) {
       setCounts((c) => ({ ...c, people, families }));
     })
         .catch((err) => devLog("LegendContext", "❌ getVisibleCounts failed", err));
-  }, [treeId, filters]);
+  }, [treeId, filters, mode]);
 
   // 3) Household size
   useEffect(() => {

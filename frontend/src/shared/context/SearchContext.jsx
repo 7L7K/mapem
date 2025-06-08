@@ -21,6 +21,8 @@ const defaultFilters = {
   },
   relations: {},
   sources: {},
+  selectedFamilyId: null,
+  compareIds: [],
 };
 
 const defaultCtx = {
