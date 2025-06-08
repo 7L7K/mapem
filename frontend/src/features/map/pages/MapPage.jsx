@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react"
-import { getMovements } from "@lib/api/api"
+import {
+  getMovements,
+  getFamilyMovements,
+  getGroupMovements,
+} from "@lib/api/api"
 import { useTree }  from "@shared/context/TreeContext"
 import { useSearch } from "@shared/context/SearchContext"
 import { useMapControl } from "@shared/context/MapControlContext"
@@ -9,6 +13,8 @@ import AdvancedFilterDrawer from "@/features/map/components/AdvancedFilterDrawer
 import LegendPanel     from "@/features/map/components/LegendPanel"
 import TypeSearch      from "@/features/map/components/TypeSearch"
 import PersonSelector  from "@/features/map/components/PersonSelector"
+import FamilySelector  from "@/features/map/components/FamilySelector"
+import GroupSelector   from "@/features/map/components/GroupSelector"
 import PersonMap       from "@/features/map/components/PersonMap"
 import FamilyMap       from "@/features/map/components/FamilyMap"
 import GroupMap        from "@/features/map/components/GroupMap"
@@ -34,9 +40,18 @@ export default function MapPage() {
 
     setLoading(true)
     setError(null)
-    devLog("[🗺️ Fetching movements]", treeId, filters)
+    devLog("[🗺️ Fetching movements]", treeId, filters, mode)
 
-    getMovements(treeId, filters)
+    const { selectedFamilyId, compareIds, ...baseFilters } = filters
+
+    const fetcher =
+      mode === "family"
+        ? getFamilyMovements(treeId, selectedFamilyId, baseFilters)
+        : mode === "compare"
+        ? getGroupMovements(treeId, compareIds, baseFilters)
+        : getMovements(treeId, baseFilters)
+
+    fetcher
       .then(data => {
         // if API returns flat segments array:
         let segments = []
@@ -72,6 +87,8 @@ export default function MapPage() {
           <ModeSelector />
           {(activeSection === null || activeSection === "search") && <TypeSearch />}
           {activeSection === "person" && <PersonSelector />}
+          {activeSection === "family" && <FamilySelector />}
+          {activeSection === "compare" && <GroupSelector />}
           {activeSection === null && (
             <button
               onClick={() => toggleSection("filters")}
