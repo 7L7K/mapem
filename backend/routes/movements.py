@@ -8,13 +8,7 @@ from flask import Blueprint, request, jsonify, abort
 from sqlalchemy.orm import joinedload
 
 from backend.db import SessionLocal
-from backend.models import (
-    UploadedTree,
-    TreeVersion,
-    Event,
-    Family,
-    TreeRelationship,
-)
+from backend.models import UploadedTree, TreeVersion, Event
 from backend.services.query_builders import build_event_query
 
  
@@ -51,12 +45,9 @@ def get_movements(uploaded_tree_id: str):
             },
             "vague": request.args.get("vague", "false").lower() == "true",
             "person": request.args.get("person"),
-            "personIds": request.args.get("personIds"),
-            "familyId": request.args.get("familyId"),
             "relations": request.args.get("relations"),  # could be JSON string
             "sources": request.args.get("sources"),
         }
-        group_mode = request.args.get("grouped")
 
         # 3) Build & run the filtered events query
         events_q = (
@@ -110,42 +101,6 @@ def get_movements(uploaded_tree_id: str):
 
         logger.debug("🧩 Built %s movement segments", len(movements))
         logger.debug("🕓 Event date types: %s", set(type(e.date) for e in ev_list if e.date))
-
-        if group_mode == "person":
-            grouped = defaultdict(list)
-            for m in movements:
-                pid = m["person_ids"][0]
-                grouped[pid].append(m)
-            return jsonify(grouped), 200
-
-        if group_mode == "family":
-            fam_map = {}
-            families = db.query(Family).filter(Family.tree_id == version.id).all()
-            for fam in families:
-                for pid in [fam.husband_id, fam.wife_id]:
-                    if pid:
-                        fam_map[pid] = fam.id
-                child_rows = (
-                    db.query(TreeRelationship.related_person_id)
-                    .filter(
-                        TreeRelationship.tree_id == fam.tree.uploaded_tree_id,
-                        TreeRelationship.person_id.in_(
-                            filter(None, [fam.husband_id, fam.wife_id])
-                        ),
-                    )
-                    .all()
-                )
-                for r in child_rows:
-                    fam_map[r[0]] = fam.id
-
-            grouped = defaultdict(list)
-            for m in movements:
-                pid = m["person_ids"][0]
-                fid = fam_map.get(pid)
-                if fid:
-                    grouped[fid].append(m)
-            return jsonify(grouped), 200
-
         return jsonify(movements), 200
 
     except Exception as exc:
