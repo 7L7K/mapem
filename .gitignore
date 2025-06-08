@@ -1,15 +1,15 @@
 # ─── Node & Build ───────────────────────────────
-/node_modules
-/dist
-/.vite
-frontend/node_modules/
-frontend/.vite/
-frontend/frontend.log
-frontend/frontend_patch_*.log
+/node_modules/
+/dist/
+/.vite/
+/frontend/node_modules/
+/frontend/.vite/
+/frontend/frontend.log
+/frontend/frontend_patch_*.log
 
 # ─── Env & OS ───────────────────────────────────
-*.env
 .env
+*.env
 .envrc
 .DS_Store
 __MACOSX
@@ -20,22 +20,21 @@ __pycache__/
 /*.pyc
 *.pyc
 *.pyo
-*.db
-*.sqlite3
-*.sqlite
-*.bak.*
-*.jsonl.bak
 *.log
-*.zip
+*.db
+*.sqlite*
+*.bak.*
 *.tmp
 *.swp
-.pyc
+*.zip
+*.jsonl.bak
 
-# ─── Project Structure ──────────────────────────
-/frontend/archive/
-/frontend_archive/
+# ─── Project Data & Cache ───────────────────────
 /geocode_cache.json
 /flask.log
+/startup.log
+/frontend/archive/
+/frontend_archive/
 /backend/mapem.db
 /backend/Archive*.zip
 /backend/*.bak
@@ -51,42 +50,13 @@ tests/__pycache__/
 /test/__pycache__/
 /test_import.py
 
-# ─── Scripts & Trash ────────────────────────────
+# ─── Scripts ────────────────────────────────────
 scripts/*.log
 scripts/*.bak
 scripts/cache/
-scripts/flask.log
-scripts/*.pyc
-scripts/geocode_cache.json
-scripts/*.zip
 scripts/tmp/
+scripts/*.pyc
+scripts/*.zip
+scripts/flask.log
+scripts/geocode_cache.json
 scripts/zip_gpt/
-.env
-flask.log
-notes.txt
-backend/__pycache__/db.cpython-313.pyc
-backend/__pycache__/main.cpython-313.pyc
-backend/models/__pycache__/__init__.cpython-313.pyc
-backend/models/__pycache__/location_models.cpython-313.pyc
-backend/routes/__pycache__/__init__.cpython-313.pyc
-backend/routes/__pycache__/events.cpython-313.pyc
-backend/routes/__pycache__/health.cpython-313.pyc
-backend/routes/__pycache__/heatmap.cpython-313.pyc
-backend/routes/__pycache__/movements.cpython-313.pyc
-backend/routes/__pycache__/people.cpython-313.pyc
-backend/routes/__pycache__/schema.cpython-313.pyc
-backend/routes/__pycache__/timeline.cpython-313.pyc
-backend/routes/__pycache__/trees.cpython-313.pyc
-backend/routes/__pycache__/upload.cpython-313.pyc
-backend/services/__pycache__/gedcom_normalizer.cpython-313.pyc
-backend/services/__pycache__/geocode.cpython-313.pyc
-backend/services/__pycache__/location_processor.cpython-313.pyc
-backend/services/__pycache__/location_service.cpython-313.pyc
-backend/services/__pycache__/parser.cpython-313.pyc
-backend/services/__pycache__/query_builders.cpython-313.pyc
-backend/utils/__pycache__/helpers.cpython-313.pyc
-backend/utils/__pycache__/log_utils.cpython-313.pyc
-backend/utils/__pycache__/logger.cpython-313.pyc
-frontend/frontend.log
-flask.log
-startup.log
