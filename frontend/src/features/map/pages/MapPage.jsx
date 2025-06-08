@@ -3,21 +3,28 @@ import { getMovements } from "@lib/api/api"
 import { useTree }  from "@shared/context/TreeContext"
 import { useSearch } from "@shared/context/SearchContext"
 import { useMapControl } from "@shared/context/MapControlContext"
-import MigrationMap    from "@/features/map/components/MigrationMap"
+import ModeSelector    from "@shared/components/Header/ModeSelector"
 import FilterHeader    from "@shared/components/Header/FilterHeader"
+import AdvancedFilterDrawer from "@/features/map/components/AdvancedFilterDrawer"
 import LegendPanel     from "@/features/map/components/LegendPanel"
 import TypeSearch      from "@/features/map/components/TypeSearch"
 import PersonSelector  from "@/features/map/components/PersonSelector"
+import PersonMap       from "@/features/map/components/PersonMap"
+import FamilyMap       from "@/features/map/components/FamilyMap"
+import GroupMap        from "@/features/map/components/GroupMap"
 import { log as devLog } from "@/lib/api/devLogger.js"
 
 export default function MapPage() {
   const { treeId } = useTree()
-  const { filters, visibleCounts } = useSearch()
+  const { filters, visibleCounts, mode } = useSearch()
   const { activeSection, toggleSection } = useMapControl()
 
   const [movements, setMovements] = useState([])
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState(null)
+
+  const MapComponent =
+    mode === "family" ? FamilyMap : mode === "compare" ? GroupMap : PersonMap
 
   // tree selection handled by TreeProvider
 
@@ -62,6 +69,7 @@ export default function MapPage() {
     <div className="relative w-full h-full">
       <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-4xl">
         <FilterHeader>
+          <ModeSelector />
           {(activeSection === null || activeSection === "search") && <TypeSearch />}
           {activeSection === "person" && <PersonSelector />}
           {activeSection === null && (
@@ -76,7 +84,7 @@ export default function MapPage() {
       </div>
 
       {activeSection === "filters" && <AdvancedFilterDrawer />}
-      <MigrationMap movements={movements} loading={loading} error={error} />
+      <MapComponent movements={movements} loading={loading} error={error} />
       <LegendPanel
         movements={movements}
         people={visibleCounts.people}
