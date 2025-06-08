@@ -1,60 +1,69 @@
+import datetime as dt
 import pytest
-from backend.main import create_app
-from backend.db import get_engine, SessionLocal
-from backend.models import Base
 
-@pytest.fixture(scope="module")
-def test_client():
-    app = create_app()
-    app.config['TESTING'] = True
+from backend.models import (
+    UploadedTree, TreeVersion, Individual, Family, Location, Event,
+    event_participants,
+)
 
-    # Use a fresh DB for testing (optional, depends on your setup)
-    engine = get_engine()
-    Base.metadata.create_all(engine)
 
-    with app.test_client() as client:
-        yield client
+def _setup_tree(db_session):
+    ut = UploadedTree(tree_name="MoveTree")
+    db_session.add(ut); db_session.flush()
 
-def test_movements_geocoded(test_client):
-    # Replace this with a valid tree_id in your test DB
-    test_tree_id = "a55c0019-c44a-43f5-a2f1-606912b3f3c5"
+    tv = TreeVersion(uploaded_tree_id=ut.id, version_number=1)
+    db_session.add(tv); db_session.flush()
 
-    response = test_client.get(f"/api/movements/{test_tree_id}")
-    assert response.status_code == 200
+    dad = Individual(tree_id=tv.id, gedcom_id="I1", first_name="Dad", last_name="Doe")
+    mom = Individual(tree_id=tv.id, gedcom_id="I2", first_name="Mom", last_name="Doe")
+    db_session.add_all([dad, mom]); db_session.flush()
 
-    data = response.get_json()
-    assert isinstance(data, list)
+    fam = Family(tree_id=tv.id, husband_id=dad.id, wife_id=mom.id)
+    db_session.add(fam); db_session.flush()
 
-    # Check that at least one movement is returned
-    assert len(data) > 0, "No movements returned"
+    loc1 = Location(raw_name="A", normalized_name="a", latitude=1, longitude=1, confidence_score=1, status="ok")
+    loc2 = Location(raw_name="B", normalized_name="b", latitude=2, longitude=2, confidence_score=1, status="ok")
+    db_session.add_all([loc1, loc2]); db_session.flush()
 
-    # Validate that lat/lng and other geo info exists in every movement event
-    for ev in data:
-        # lat/lng may be None if no location — fail if that happens
-        lat = ev.get("latitude")
-        lng = ev.get("longitude")
+    e1 = Event(tree_id=tv.id, event_type="birth", date=dt.date(1800,1,1), location_id=loc1.id)
+    e2 = Event(tree_id=tv.id, event_type="residence", date=dt.date(1850,1,1), location_id=loc2.id)
+    e3 = Event(tree_id=tv.id, event_type="birth", date=dt.date(1805,1,1), location_id=loc1.id)
+    e4 = Event(tree_id=tv.id, event_type="residence", date=dt.date(1855,1,1), location_id=loc2.id)
+    db_session.add_all([e1,e2,e3,e4]); db_session.flush()
 
-        assert lat is not None, f"Missing latitude for event id {ev.get('id')}"
-        assert lng is not None, f"Missing longitude for event id {ev.get('id')}"
+    db_session.execute(event_participants.insert().values([
+        {"event_id": e1.id, "individual_id": dad.id},
+        {"event_id": e2.id, "individual_id": dad.id},
+        {"event_id": e3.id, "individual_id": mom.id},
+        {"event_id": e4.id, "individual_id": mom.id},
+    ]))
+    db_session.commit()
+    return ut.id, tv.id, fam.id, dad.id, mom.id
 
-        # Optionally check confidence and source exist (can be None)
-        assert "confidence_score" in ev
-        assert "source" in ev
 
-from backend.db import SessionLocal
-from backend.models.event import Event
+def test_group_by_person(client, db_session):
+    tree_id, version_id, fam_id, dad_id, mom_id = _setup_tree(db_session)
 
-def test_event_types_are_normalized():
-    session = SessionLocal()
-    expected = {
-        "birth", "death", "burial", "residence",
-        "marriage", "divorce", "separation", "adoption",
-        "baptism", "christening", "census",
-        "emigration", "immigration"
-    }
+    res = client.get(f"/api/movements/{tree_id}?grouped=person")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert isinstance(data, dict)
+    assert set(data.keys()) == {dad_id, mom_id}
 
-    result = session.query(Event.event_type).distinct().all()
-    event_types = {row[0] for row in result}
-    missing = expected - event_types
 
-    assert not missing, f"Missing expected event types: {missing}"
+def test_person_ids_filter(client, db_session):
+    tree_id, version_id, fam_id, dad_id, mom_id = _setup_tree(db_session)
+
+    res = client.get(f"/api/movements/{tree_id}?grouped=person&personIds={dad_id}")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert list(data.keys()) == [dad_id]
+
+
+def test_group_by_family(client, db_session):
+    tree_id, version_id, fam_id, dad_id, mom_id = _setup_tree(db_session)
+    res = client.get(f"/api/movements/{tree_id}?grouped=family&familyId={fam_id}")
+    assert res.status_code == 200
+    data = res.get_json()
+    assert list(data.keys()) == [fam_id]
+

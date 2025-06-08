@@ -4,7 +4,13 @@ from typing import Any, Dict, Iterable, Set, List
 from sqlalchemy import extract, func, or_, select
 from sqlalchemy.orm import Query, Session
 
-from backend.models import Event, Location, Individual, Family
+from backend.models import (
+    Event,
+    Location,
+    Individual,
+    Family,
+    TreeRelationship,
+)
 from backend.models.event import event_participants      # ⬅️ NEW
 from backend.db import SessionLocal
 
@@ -109,16 +115,54 @@ def _apply_source_filter(q: Query, filters: Dict[str, Any]) -> Query:
     return q.filter(Event.source_tag.in_(expanded))
 
 def _apply_person_filter(session: Session, q: Query, filters: Dict[str, Any]) -> Query:
-    pid_raw = filters.get("person")
-    if not pid_raw:
-        return q
-    try:
-        pid = int(pid_raw)
-    except (ValueError, TypeError):
-        logger.warning("⚠️ Invalid person id %r — skipping", pid_raw)
-        return q
+    """Apply filters for person, personIds, or familyId."""
+    ids: Set[int] = set()
 
-    ids = _expand_related_ids(session, pid, filters.get("relations", {}))
+    # single person id + relations
+    pid_raw = filters.get("person")
+    if pid_raw:
+        try:
+            pid = int(pid_raw)
+            ids |= _expand_related_ids(session, pid, filters.get("relations", {}))
+        except (ValueError, TypeError):
+            logger.warning("⚠️ Invalid person id %r — skipping", pid_raw)
+
+    # multiple person ids
+    raw_list = filters.get("personIds") or []
+    if isinstance(raw_list, str):
+        parts = [p.strip() for p in raw_list.split(",") if p.strip()]
+    else:
+        parts = list(raw_list)
+    for part in parts:
+        try:
+            ids.add(int(part))
+        except (ValueError, TypeError):
+            logger.warning("⚠️ Invalid id in personIds: %r", part)
+
+    # family id
+    fam_raw = filters.get("familyId")
+    if fam_raw:
+        try:
+            fid = int(fam_raw)
+            fam = session.get(Family, fid)
+            if fam:
+                for pid in [fam.husband_id, fam.wife_id]:
+                    if pid:
+                        ids.add(pid)
+                child_rows = (
+                    session.query(TreeRelationship.related_person_id)
+                    .filter(
+                        TreeRelationship.tree_id == fam.tree.uploaded_tree_id,
+                        TreeRelationship.person_id.in_(
+                            filter(None, [fam.husband_id, fam.wife_id])
+                        ),
+                    )
+                    .all()
+                )
+                ids.update(r[0] for r in child_rows)
+        except (ValueError, TypeError):
+            logger.warning("⚠️ Invalid family id %r", fam_raw)
+
     if not ids:
         return q
 
