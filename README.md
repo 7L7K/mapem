@@ -21,3 +21,27 @@ cp .env.example .env
 - **src/features/** – feature slices (map, people, analytics…)
 - **src/shared/** – design‑system, contexts, hooks, styles
 - **src/lib/** – API clients & helper libs
+
+## Selector Usage Example
+
+The `SearchContext` exposes `selectedFamilyId` and `compareIds` for advanced
+filter modes. Pair the context with selector components to choose people,
+families or comparison groups:
+
+```jsx
+import PersonSelector from '@/features/map/components/PersonSelector';
+import FamilySelector from '@/features/map/components/FamilySelector';
+import GroupSelector  from '@/features/map/components/GroupSelector';
+import { useSearch } from '@/shared/context/SearchContext';
+
+function MapControls() {
+  const { mode } = useSearch();
+  return (
+    <>
+      {mode === 'person' && <PersonSelector />}
+      {mode === 'family' && <FamilySelector />}
+      {mode === 'compare' && <GroupSelector />}
+    </>
+  );
+}
+```

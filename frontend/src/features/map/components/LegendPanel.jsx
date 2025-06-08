@@ -7,7 +7,7 @@ import { devLog } from '@shared/utils/devLogger';
 
 export default function LegendPanel() {
   const { counts } = useLegend();
-  const { filters } = useSearch();
+  const { filters, mode } = useSearch();
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -26,13 +26,17 @@ export default function LegendPanel() {
     >
       <h3 className="font-semibold mb-1 text-white">Legend</h3>
 
-      {[
-        ['👤', 'People', counts.people],
-        ['👪', 'Families', counts.families],
-        filters.selectedPersonId && ['🏠', 'Household', counts.household],
-        ['🌳', 'Whole Tree', counts.wholeTree],
-      ]
-        .filter(Boolean)
+      {(() => {
+        const items = [];
+        if (mode === 'person' || mode === 'compare')
+          items.push(['👤', 'People', counts.people]);
+        if (mode === 'family')
+          items.push(['👪', 'Families', counts.families]);
+        if (mode === 'person' && filters.selectedPersonId)
+          items.push(['🏠', 'Household', counts.household]);
+        items.push(['🌳', 'Whole Tree', counts.wholeTree]);
+        return items;
+      })()
         .map(([icon, label, value]) => (
           <div key={label} className="flex justify-between text-white">
             <div className="flex items-center">
