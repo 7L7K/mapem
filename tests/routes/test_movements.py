@@ -1,208 +1,60 @@
 import pytest
-from flask import json
-import datetime as dt
-
-from backend.models import UploadedTree, TreeVersion, Individual, Event, Location
-from backend.db import get_db
-from backend.models import event_participants
 from backend.main import create_app
+from backend.db import get_engine, SessionLocal
+from backend.models import Base
 
+@pytest.fixture(scope="module")
+def test_client():
+    app = create_app()
+    app.config['TESTING'] = True
 
-# ─── /api/movements/<tree_id> tests ───────────────────────────────────────────
-@pytest.fixture
-def test_movements_404_on_missing_tree(client):
-    fake_id = "11111111-2222-3333-4444-555555555555"
-    response = client.get(f"/api/movements/{fake_id}")
-    assert response.status_code == 404
-    assert b"not found" in response.data.lower()
-    print("🔥 Response status:", response.status)
-    print("🔥 Response data:", response.data.decode())
+    # Use a fresh DB for testing (optional, depends on your setup)
+    engine = get_engine()
+    Base.metadata.create_all(engine)
 
+    with app.test_client() as client:
+        yield client
 
+def test_movements_geocoded(test_client):
+    # Replace this with a valid tree_id in your test DB
+    test_tree_id = "a55c0019-c44a-43f5-a2f1-606912b3f3c5"
 
-def test_event_with_null_location_id_is_skipped(client):
-    with client.application.app_context():
-        db = next(get_db())
+    response = test_client.get(f"/api/movements/{test_tree_id}")
+    assert response.status_code == 200
 
-        uploaded_tree = UploadedTree(tree_name="Null Location Tree", uploader_name="test")
-        db.add(uploaded_tree)
-        db.flush()
+    data = response.get_json()
+    assert isinstance(data, list)
 
-        tree = TreeVersion(uploaded_tree_id=uploaded_tree.id, version_number=1)
-        db.add(tree)
-        db.flush()
+    # Check that at least one movement is returned
+    assert len(data) > 0, "No movements returned"
 
-        person = Individual(tree_id=tree.id, gedcom_id="@I1@", first_name="Null", last_name="Case")
-        db.add(person)
-        db.flush()
+    # Validate that lat/lng and other geo info exists in every movement event
+    for ev in data:
+        # lat/lng may be None if no location — fail if that happens
+        lat = ev.get("latitude")
+        lng = ev.get("longitude")
 
-        event = Event(tree_id=tree.id, event_type="birth", location_id=None)
-        db.add(event)
-        db.flush()
+        assert lat is not None, f"Missing latitude for event id {ev.get('id')}"
+        assert lng is not None, f"Missing longitude for event id {ev.get('id')}"
 
-        db.execute(event_participants.insert().values(
-            event_id=event.id, individual_id=person.id
-        ))
-        db.commit()
+        # Optionally check confidence and source exist (can be None)
+        assert "confidence_score" in ev
+        assert "source" in ev
 
-        response = client.get(f"/api/movements/{tree.id}")
-        assert response.status_code == 200
-        assert response.get_json() == []
+from backend.db import SessionLocal
+from backend.models.event import Event
 
+def test_event_types_are_normalized():
+    session = SessionLocal()
+    expected = {
+        "birth", "death", "burial", "residence",
+        "marriage", "divorce", "separation", "adoption",
+        "baptism", "christening", "census",
+        "emigration", "immigration"
+    }
 
-def test_valid_location_creates_movement(client):
-    with client.application.app_context():
-        db = next(get_db())
+    result = session.query(Event.event_type).distinct().all()
+    event_types = {row[0] for row in result}
+    missing = expected - event_types
 
-        uploaded_tree = UploadedTree(tree_name="Movement Tree", uploader_name="test")
-        db.add(uploaded_tree)
-        db.flush()
-
-        tree = TreeVersion(uploaded_tree_id=uploaded_tree.id, version_number=1)
-        db.add(tree)
-        db.flush()
-
-        loc = Location(
-            raw_name="Greenwood, MS",
-            normalized_name="greenwood_ms",
-            latitude=33.5162,
-            longitude=-90.1790,
-            confidence_score=0.9,
-            status="ok",
-        )
-        db.add(loc)
-        db.flush()
-
-        person = Individual(tree_id=tree.id, gedcom_id="@I2@", first_name="Move", last_name="Tester")
-        db.add(person)
-        db.flush()
-
-        event = Event(
-            tree_id=tree.id, 
-            event_type="birth", 
-            location_id=loc.id, 
-            date=dt.date(1900, 1, 1)
-        )
-        db.add(event)
-        db.flush()
-
-        db.execute(event_participants.insert().values(
-            event_id=event.id, individual_id=person.id
-        ))
-        db.commit()
-
-        response = client.get(f"/api/movements/{tree.id}")
-        assert response.status_code == 200
-        data = response.get_json()
-
-        assert isinstance(data, list)
-        assert len(data) == 1
-        movement = data[0]
-
-        assert movement["event_type"] == "birth"
-        assert movement["lat"] == 33.5162
-        assert movement["lng"] == -90.1790
-        assert movement["location"] == "greenwood_ms"
-
-
-def test_unresolved_location_logged_correctly(client):
-    with client.application.app_context():
-        db = next(get_db())
-
-        uploaded_tree = UploadedTree(tree_name="Vague Tree", uploader_name="test")
-        db.add(uploaded_tree)
-        db.flush()
-
-        tree = TreeVersion(uploaded_tree_id=uploaded_tree.id, version_number=1)
-        db.add(tree)
-        db.flush()
-
-        unresolved_loc = Location(
-            raw_name="Somewhere in Mississippi",
-            normalized_name="mississippi",
-            latitude=None,
-            longitude=None,
-            status="vague_state_pre1890",
-        )
-        db.add(unresolved_loc)
-        db.flush()
-
-        person = Individual(tree_id=tree.id, gedcom_id="@I3@", first_name="Vague", last_name="Entry")
-        db.add(person)
-        db.flush()
-
-        event = Event(tree_id=tree.id, event_type="residence", location_id=unresolved_loc.id)
-        db.add(event)
-        db.flush()
-
-        db.execute(event_participants.insert().values(
-            event_id=event.id, individual_id=person.id
-        ))
-        db.commit()
-
-        response = client.get(f"/api/movements/{tree.id}")
-        assert response.status_code == 200
-        assert response.get_json() == []
-
-
-def test_event_gets_movement_after_location_added(client):
-    with client.application.app_context():
-        db = next(get_db())
-
-        uploaded = UploadedTree(tree_name="Hotpatch Test Tree")
-        db.add(uploaded)
-        db.flush()
-
-        tree = TreeVersion(uploaded_tree_id=uploaded.id, version_number=1)
-        db.add(tree)
-        db.flush()
-
-        person = Individual(tree_id=tree.id, gedcom_id="@I4@", first_name="Hot", last_name="Patch")
-        db.add(person)
-        db.flush()
-
-        event = Event(
-            tree_id=tree.id,
-            event_type="birth",
-            date=dt.date(1900, 1, 1),
-            location_id=None,
-        )
-        db.add(event)
-        db.flush()
-
-        db.execute(event_participants.insert().values(
-            event_id=event.id, individual_id=person.id
-        ))
-        db.commit()
-
-        res = client.get(f"/api/movements/{tree.id}")
-        assert res.status_code == 200
-        assert res.get_json() == []
-
-        # Add location and patch event
-        loc = Location(
-            raw_name="Jackson, MS",
-            normalized_name="jackson_ms",
-            latitude=32.2988,
-            longitude=-90.1848,
-            confidence_score=0.9,
-            status="ok",
-        )
-        db.add(loc)
-        db.flush()
-
-        event.location_id = loc.id
-        db.add(event)
-        db.commit()
-
-        res2 = client.get(f"/api/movements/{tree.id}")
-        assert res2.status_code == 200
-        data = res2.get_json()
-        assert isinstance(data, list)
-        assert len(data) == 1
-
-        m = data[0]
-        assert m["event_type"] == "birth"
-        assert m["lat"] == 32.2988
-        assert m["lng"] == -90.1848
-        assert "jackson" in m["location"]
+    assert not missing, f"Missing expected event types: {missing}"

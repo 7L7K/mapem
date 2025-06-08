@@ -8,23 +8,14 @@ from urllib.parse import urlencode
 from typing import Optional, Dict, Any
 from pathlib import Path
 from pydantic import BaseModel
+from backend.models.location_models import LocationOut
+
 
 from backend import models
 from backend.utils.helpers import normalize_location, calculate_name_similarity
 
 logger = logging.getLogger("backend.services.geocode")
 logger.setLevel(logging.DEBUG)
-
-# ─── Return model (Pydantic, exportable) ───────────
-class LocationOut(BaseModel):
-    raw_name: str
-    normalized_name: str
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    confidence_score: float = 0.0
-    confidence_label: str = ""
-    status: str = ""
-    source: str = ""
 
 def classify_location_failure(raw_name):
     generic = {"mississippi", "usa", "tennessee", "louisiana", "unknown"}
@@ -280,4 +271,4 @@ class Geocode:
         )
 
 # Export the return model for your tests and routes
-__all__ = ["Geocode", "LocationOut"]
+__all__ = ["Geocode"]

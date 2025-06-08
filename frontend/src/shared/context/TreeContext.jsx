@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
 import * as api from "@lib/api/api";
 
-// ───────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 // Tree Context
-// ───────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────
 
 export const TreeContext = createContext({
+  tree: null,
   treeId: null,
   setTreeId: () => {},
   allTrees: [],
@@ -20,6 +21,7 @@ export function TreeProvider({ children }) {
   const [allTrees, setAllTrees] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Smart setter with localStorage sync
   const setTreeId = (id) => {
     console.debug("[TreeContext] 🔁 setTreeId called with:", id);
     setTreeIdRaw(id);
@@ -62,10 +64,16 @@ export function TreeProvider({ children }) {
       });
   }, []);
 
-  const treeName = allTrees.find((t) => String(t.id) === String(treeId))?.tree_name || "Unknown Tree";
+  // Memoize the selected tree object for fast lookups
+  const tree = useMemo(
+    () => allTrees.find((t) => String(t.id) === String(treeId)) || null,
+    [allTrees, treeId]
+  );
+
+  const treeName = tree?.tree_name || "Unknown Tree";
 
   return (
-    <TreeContext.Provider value={{ treeId, setTreeId, allTrees, loading, treeName }}>
+    <TreeContext.Provider value={{ tree, treeId, setTreeId, allTrees, loading, treeName }}>
       {children}
     </TreeContext.Provider>
   );

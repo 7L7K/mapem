@@ -1,12 +1,10 @@
 
-# File: logging.py
+# File: /Users/kingal/mapem/backend/utils/log_utils.py
 # Created: 2025-04-06 16:00:50
 # Edited by: King
 # Last Edited: 2025-04-06 16:00:50
 # Description: User action logging for tracking decisions and changes.
 
-# logging.py
-# logging.py
 from backend.models import UserAction
 from datetime import datetime
 from backend.utils.helpers import normalize_location

@@ -1,9 +1,8 @@
 # backend/models/tree.py
 
-from datetime import datetime, timezone
 import logging
-from sqlalchemy.dialects.postgresql import UUID
 import uuid
+from datetime import datetime, timezone
 from sqlalchemy import (
     Column,
     DateTime,
@@ -12,13 +11,10 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
 )
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship, synonym
 
 from backend.models.base import Base
-import uuid
-from sqlalchemy import Column, Integer, String, DateTime
-from datetime import datetime, timezone
-
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +34,7 @@ class TreeVersion(Base):
         UUID(as_uuid=True),
         ForeignKey("uploaded_trees.id"),
         nullable=False,
-        index=True,  # Speed up queries filtering by upload
+        index=True,
     )
     tree_id = synonym("uploaded_tree_id")  # 🧪 test compatibility
 
@@ -46,56 +42,20 @@ class TreeVersion(Base):
     diff_summary = Column(String)
     status = Column(String, default="active")
 
-    created_at = Column(
-        DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        nullable=False,
-    )
-    updated_at = Column(
-        DateTime,
-        default=lambda: datetime.now(timezone.utc),
-        onupdate=lambda: datetime.now(timezone.utc),
-        nullable=False,
-    )
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
+                        onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     # Relationships
-    uploaded_tree = relationship(
-        "UploadedTree",
-        back_populates="versions",
-        lazy="joined",
-    )
-    tree_persons = relationship(
-        "TreePerson",
-        back_populates="tree_version",
-        cascade="all, delete-orphan",
-    )
-    relationships = relationship(
-        "TreeRelationship",
-        back_populates="tree",
-        cascade="all, delete-orphan",
-    )
-    individuals = relationship(
-        "Individual",
-        back_populates="tree",
-        cascade="all, delete-orphan",
-    )
-    families = relationship(
-    "Family",
-    back_populates="tree",
-    cascade="all, delete-orphan",
-    )
-    events = relationship(
-    "Event",
-    back_populates="tree",
-    cascade="all, delete-orphan",
-    )
-
+    uploaded_tree = relationship("UploadedTree", back_populates="versions", lazy="joined")
+    tree_persons = relationship("TreePerson", back_populates="tree_version", cascade="all, delete-orphan")
+    individuals = relationship("Individual", back_populates="tree", cascade="all, delete-orphan")
+    families = relationship("Family", back_populates="tree", cascade="all, delete-orphan")
+    events = relationship("Event", back_populates="tree", cascade="all, delete-orphan")
+    # relationships = relationship("TreeRelationship", back_populates="tree", cascade="all, delete-orphan")
 
     __table_args__ = (
-        UniqueConstraint(
-            "uploaded_tree_id", "version_number",
-            name="uq_uploaded_tree_version"
-        ),
+        UniqueConstraint("uploaded_tree_id", "version_number", name="uq_uploaded_tree_version"),
     )
 
     def is_active(self):
@@ -115,7 +75,7 @@ class TreeVersion(Base):
             "updated_at": self.updated_at.isoformat(),
         }
 
-    def __repr__(self) -> str:  # pragma: no cover
+    def __repr__(self) -> str:
         return (
             f"<TreeVersion id={self.id} "
             f"upload={self.uploaded_tree_id} v{self.version_number}>"

@@ -53,6 +53,14 @@ def _normalise_checkbox_input(raw_val: Any, valid: set[str]) -> List[str]:
 
     cleaned: List[str] = []
 
+    # ---------------------------------------------------------
+    # list  → ["birth", "death"]
+    # str   → "birth,death"
+    # dict  → {"birth":true,"death":false}
+    # ---------------------------------------------------------
+    if isinstance(raw_val, str):
+        raw_val = [s.strip() for s in raw_val.split(",") if s.strip()]
+
     if isinstance(raw_val, list):
         for item in raw_val:
             if not isinstance(item, str):
@@ -115,7 +123,9 @@ def normalize_filters(raw: Dict[str, Any]) -> Dict[str, Any]:
         raise TypeError("filters payload must be a JSON object")
 
     valid_keys = {
-        "eventTypes", "yearRange", "year", "vague",
+        "eventTypes", "yearRange", "year",    # legacy
+        "yearStart", "yearEnd",               # NEW
+        "vague",
         "confidenceThreshold", "sources", "person", "relations",
     }
     unknown = set(raw) - valid_keys
@@ -127,7 +137,14 @@ def normalize_filters(raw: Dict[str, Any]) -> Dict[str, Any]:
     sources     = _normalise_checkbox_input(raw.get("sources"),     _VALID_SOURCE_TAGS)
 
     # year
-    yr_raw = raw.get("year") if raw.get("year") not in (None, {}) else raw.get("yearRange")
+    # year — support         ?yearStart=1880&yearEnd=1920
+    if "yearStart" in raw or "yearEnd" in raw:
+        yr_raw = [
+            raw.get("yearStart", _parse_year(None)["min"]),
+            raw.get("yearEnd",   _parse_year(None)["max"]),
+        ]
+    else:
+        yr_raw = raw.get("year") if raw.get("year") not in (None, {}) else raw.get("yearRange")
     year_block = _parse_year(yr_raw)
 
     # vague toggle

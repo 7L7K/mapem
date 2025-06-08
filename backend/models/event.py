@@ -27,7 +27,7 @@ class Event(Base, ReprMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     tree_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("uploaded_trees.id", ondelete="CASCADE"),
+        ForeignKey("tree_versions.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
@@ -40,7 +40,7 @@ class Event(Base, ReprMixin):
     location_id    = Column(Integer, ForeignKey("locations.id", ondelete="SET NULL"), index=True)
 
     # ─── Relationships ───────────────────────────────────
-    tree           = relationship("UploadedTree", back_populates="events", lazy="joined")
+    tree           = relationship("TreeVersion", back_populates="events", lazy="joined")
     location       = relationship("Location", lazy="joined")
     event_sources  = relationship("EventSource", back_populates="event", cascade="all, delete-orphan", lazy="noload")
 

@@ -13,6 +13,12 @@ from typing import Dict, Optional
 from backend.utils.helpers import normalize_location
 from backend.utils.logger import get_logger
 from backend.models.location_models import LocationOut
+from backend.services.geocode import Geocode
+from typing import Any
+
+
+# Initialize your Geocode engine (api_key can come from env or config)
+GEOCODER = Geocode(api_key=os.getenv("GEOCODE_API_KEY"))
 
 logger = get_logger(__name__)
 
@@ -27,7 +33,7 @@ UNRESOLVED_LOG_PATH = os.path.join(DATA_DIR, "unresolved_locations.jsonl")
 _SEEN_UNRESOLVED: set[str] = set()
 
 # ─── Load manual fixes (key = normalized place) ────────────────
-def _load_manual_fixes() -> Dict[str, Dict]:
+def _load_manual_fixes() -> Dict[str, Any]:
     if not os.path.exists(MANUAL_FIXES_PATH):
         logger.warning("⚠️ manual_place_fixes.json not found.")
         return {}
@@ -103,10 +109,10 @@ def process_location(
         return LocationOut(
             raw_name=raw_place,
             normalized_name="",
-            latitude=None, 
+            latitude=None,
             longitude=None,
             confidence_score=0.0,
-            status="unresolved", 
+            status="unresolved",
             source="unknown",
             timestamp=now,
         )
@@ -121,37 +127,56 @@ def process_location(
             latitude=manual.get("latitude"),
             longitude=manual.get("longitude"),
             confidence_score=manual.get("confidence_score", 1.0),
-            status="manual_fix", source="manual",
+            status="manual_fix",
+            source="manual",
             timestamp=now,
         )
 
-    # 3) vague (no comma → probably just state/county)
-    if "," not in raw_place:
-        # pre-1890 gets its own tag
-        status = (
-            "vague_state_pre1890"
-            if event_year is not None and event_year < 1890
-            else "vague_state"
-        )
+    # 3) Vague state-only fallback logic
+    STATE_VAGUE = {
+        "mississippi": (32.7364, -89.6678),
+        "arkansas": (34.799, -92.199),
+        "tennessee": (35.5175, -86.5804),
+        "alabama": (32.8067, -86.7911),
+        "louisiana": (30.9843, -91.9623),
+        "illinois": (40.6331, -89.3985),
+        "ohio": (40.4173, -82.9071),
+    }
+
+    if normalized in STATE_VAGUE:
+        lat, lng = STATE_VAGUE[normalized]
+        logger.info(f"🕳️ vague state fallback for '{raw_place}' (→ {lat}, {lng})")
         return LocationOut(
             raw_name=raw_place,
-            normalized_name="",
-            latitude=None,
-            longitude=None,
-            confidence_score=0.5,
-            status=status,
-            source="vague",
+            normalized_name=normalized,
+            latitude=lat,
+            longitude=lng,
+            confidence_score=0.4,
+            status="vague_state_pre1890",
+            source="fallback",
             timestamp=now,
         )
 
-    # 4) give up → unresolved
-    logger.error(f"❌ unresolved: '{normalized}' (no match, tree_id: {tree_id})")
-    _log_unresolved_once(raw_place, "no_manual_match", tree_id=tree_id)
+    # 4) Try API geocode (last resort)
+    logger.info(f"🌎 [process_location] Trying API geocode for '{raw_place}' (normalized: '{normalized}')")
+    geo_result = GEOCODER.get_or_create_location(None, raw_place)
+    if geo_result and geo_result.latitude and geo_result.longitude:
+        logger.info(f"✅ [process_location] Geocoded: '{raw_place}' → {geo_result.latitude}, {geo_result.longitude}")
+        geo_result.status = "ok"
+        geo_result.source = geo_result.source or "api"
+        geo_result.timestamp = now
+        return geo_result
+
+    # 5) Still nothing → mark unresolved and log
+    logger.error(f"❌ [process_location] Could NOT geocode '{raw_place}' (normalized: '{normalized}')")
+    _log_unresolved_once(raw_place, "api_failed", tree_id=tree_id)
     return LocationOut(
         raw_name=raw_place,
         normalized_name=normalized,
-        latitude=None, longitude=None,
-        confidence_score=0.5,
-        status="unresolved", source="manual",
+        latitude=None,
+        longitude=None,
+        confidence_score=0.0,
+        status="unresolved",
+        source="api",
         timestamp=now,
     )

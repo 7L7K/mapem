@@ -1,4 +1,3 @@
-// src/shared/context/SearchContext.jsx
 import React, {
   createContext,
   useContext,
@@ -8,9 +7,6 @@ import React, {
 } from "react";
 import { useTree } from "@shared/context/TreeContext";
 import { getVisibleCounts } from "@lib/api/api";
-
-const SearchContext = createContext(null);
-export const useSearch = () => useContext(SearchContext);
 
 const defaultFilters = {
   person: "",
@@ -26,6 +22,26 @@ const defaultFilters = {
   relations: {},
   sources: {},
 };
+
+const defaultCtx = {
+  filters: defaultFilters,
+  setFilters: () => {},
+  isDrawerOpen: false,
+  setIsDrawerOpen: () => {},
+  toggleFilters: () => {},
+  decade: [1900, 2020],
+  setDecade: () => {},
+  mode: "person",
+  setMode: () => {},
+  wholeTree: false,
+  toggleWholeTree: () => {},
+  clearAll: () => {},
+  visibleCounts: { people: 0, families: 0, wholeTree: 0 },
+};
+
+const SearchContext = createContext(defaultCtx);
+
+export const useSearch = () => useContext(SearchContext);
 
 export function SearchProvider({ children }) {
   const { treeId: activeTreeId } = useTree();

@@ -29,7 +29,7 @@ class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
     id = Column(Integer, primary_key=True, autoincrement=True)
     tree_id = Column(
         UUID(as_uuid=True),
-        ForeignKey("uploaded_trees.id", ondelete="CASCADE"),
+        ForeignKey("tree_versions.id", ondelete="CASCADE"),
         index=True,
         nullable=False,
     )

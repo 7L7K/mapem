@@ -1,16 +1,4 @@
 {
-  "mississippi": [
-    32.9715285,
-    -89.7348497,
-    "Mississippi, United States",
-    0.8
-  ],
-  "chicago_illinois_usa": [
-    41.8755616,
-    -87.6244212,
-    "Chicago, Cook County, Illinois, United States",
-    0.8
-  ],
   "mississippi_usa": [
     32.9715285,
     -89.7348497,
@@ -28,6 +16,12 @@
     -89.7348497,
     "Mississippi, United States",
     0.8
+  ],
+  "beat_2_beat_2_sunflower_mississippi_usa": [
+    3.2245323,
+    101.6504338,
+    "The Beat 2.0, Karya Bayu Metropolitian (Kiara Bay), 16D, Kepong, Kuala Lumpur, Malaysia \u0645\u0644\u064a\u0633\u064a\u0627",
+    0.7
   ],
   "chicago_cook_illinois_united_states_of_america": [
     41.8755616,
@@ -47,6 +41,12 @@
     "Saint Louis, Missouri, United States",
     0.8
   ],
+  "boliver_mississippi_usa": [
+    32.4257102,
+    -93.3479482,
+    "Port Boliver, Webster Parish, Louisiana, 71039, United States",
+    0.7
+  ],
   "shelby_bolivar_mississippi_united_states_of_america": [
     33.9509439,
     -90.7678781,
@@ -64,6 +64,12 @@
     -91.0635857,
     "Greenville, Washington County, Mississippi, United States",
     0.8
+  ],
+  "phoebe_mississippi_usa": [
+    -42.7643429,
+    173.2277656,
+    "Phoebe, Hurunui District, New Zealand / Aotearoa",
+    0.7
   ],
   "hillside_cook_county_illinois_united_states_of_america": [
     41.8778084,
@@ -93,12 +99,6 @@
     33.0603103,
     -89.0495278,
     "Winston County, Mississippi, United States",
-    0.8
-  ],
-  "tennessee": [
-    35.7730076,
-    -86.2820081,
-    "Tennessee, United States",
     0.8
   ],
   "ackerman_mississippi": [
@@ -131,12 +131,6 @@
     "Key West Inn Greenville, South Walnut Street, Greenville, Washington County, Mississippi, 38704, United States",
     0.8
   ],
-  "itta_bena": [
-    33.4951269,
-    -90.3229458,
-    "Itta Bena, Leflore County, Mississippi, 38941, United States",
-    0.8
-  ],
   "greenwood_leflore_mississippi_usa": [
     33.5162315,
     -90.1795281,
@@ -156,9 +150,9 @@
     0.8
   ],
   "milwaukee_milwaukee_wisconsin_united_states_of_america": [
-    43.0386475,
-    -87.9090751,
-    "Milwaukee, Milwaukee County, Wisconsin, United States",
+    43.0775181,
+    -87.8812647,
+    "Milwaukee, 2200, East Kenwood Boulevard, Downer Woods, East Side, Milwaukee, Milwaukee County, Wisconsin, 53211, United States",
     0.8
   ],
   "dodge_wisconsin": [
@@ -174,9 +168,9 @@
     0.8
   ],
   "milwaukee_milwaukee_wisconsin_usa": [
-    43.0386475,
-    -87.9090751,
-    "Milwaukee, Milwaukee County, Wisconsin, United States",
+    43.0775181,
+    -87.8812647,
+    "Milwaukee, 2200, East Kenwood Boulevard, Downer Woods, East Side, Milwaukee, Milwaukee County, Wisconsin, 53211, United States",
     0.8
   ],
   "sunflower_county_mississippi_usa": [
@@ -189,12 +183,6 @@
     33.4503557,
     -90.5054445,
     "Moorhead, Sunflower County, Mississippi, 38761, United States",
-    0.8
-  ],
-  "louisiana": [
-    30.8703881,
-    -92.007126,
-    "Louisiana, United States",
     0.8
   ],
   "collinston_louisiana": [
@@ -261,12 +249,6 @@
     32.6909704,
     -91.8717943,
     "Collinston, Morehouse Parish, Louisiana, United States",
-    0.8
-  ],
-  "united_kingdom": [
-    54.7023545,
-    -3.2765753,
-    "United Kingdom",
     0.8
   ],
   "collinston_morehouse_louisiana": [
@@ -341,271 +323,73 @@
     "Winston County, Mississippi, United States",
     0.8
   ],
-  "pheba_clay_county_mississippi_united_states": [
-    33.584287,
-    -88.9497805,
-    "Pheba, Clay County, Mississippi, United States",
-    0.8
-  ],
-  "the_beat_2_0_karya_bayu_metropolitian_kiara_bay_16d_kepong_kuala_lumpur_malaysia": [
-    3.2245323,
-    101.6504338,
-    "The Beat 2.0, Karya Bayu Metropolitian (Kiara Bay), 16D, Kepong, Kuala Lumpur, Malaysia \u0645\u0644\u064a\u0633\u064a\u0627",
-    0.8
-  ],
-  "chicago_cook_county_illinois_united_states": [
-    41.8755616,
-    -87.6244212,
-    "Chicago, Cook County, Illinois, United States",
-    0.8
-  ],
-  "ruleville_sunflower_county_mississippi_38771_united_states": [
-    33.7259478,
-    -90.5514806,
-    "Ruleville, Sunflower County, Mississippi, 38771, United States",
-    0.8
-  ],
-  "saint_louis_missouri_united_states": [
-    38.6280278,
-    -90.1910154,
-    "Saint Louis, Missouri, United States",
-    0.8
-  ],
-  "port_boliver_webster_parish_louisiana_71039_united_states": [
-    32.4257102,
-    -93.3479482,
-    "Port Boliver, Webster Parish, Louisiana, 71039, United States",
-    0.8
-  ],
-  "shelby_bolivar_county_mississippi_38774_united_states": [
-    33.9509439,
-    -90.7678781,
-    "Shelby, Bolivar County, Mississippi, 38774, United States",
-    0.8
-  ],
-  "itta_bena_leflore_county_mississippi_38941_united_states": [
-    33.4951269,
-    -90.3229458,
-    "Itta Bena, Leflore County, Mississippi, 38941, United States",
-    0.8
-  ],
-  "greenville_washington_county_mississippi_united_states": [
-    33.4111051,
-    -91.0635857,
-    "Greenville, Washington County, Mississippi, United States",
-    0.8
-  ],
-  "phoebe_hurunui_district_new_zealand_aotearoa": [
-    -42.7643429,
-    173.2277656,
-    "Phoebe, Hurunui District, New Zealand / Aotearoa",
-    0.8
-  ],
-  "hillside_proviso_township_cook_county_illinois_60162_united_states": [
-    41.8778084,
-    -87.9028398,
-    "Hillside, Proviso Township, Cook County, Illinois, 60162, United States",
-    0.8
-  ],
-  "south_carolina_united_states": [
-    33.6874388,
-    -80.4363743,
-    "South Carolina, United States",
-    0.8
-  ],
-  "franklin_monroe_county_alabama_united_states": [
-    31.7145996,
-    -87.4113791,
-    "Franklin, Monroe County, Alabama, United States",
-    0.8
-  ],
-  "winston_county_mississippi_united_states": [
-    33.0603103,
-    -89.0495278,
-    "Winston County, Mississippi, United States",
-    0.8
-  ],
-  "ackerman_choctaw_county_mississippi_united_states": [
-    33.3101243,
-    -89.1728434,
-    "Ackerman, Choctaw County, Mississippi, United States",
-    0.8
-  ],
-  "choctaw_county_mississippi_united_states": [
-    33.3569348,
-    -89.2390212,
-    "Choctaw County, Mississippi, United States",
-    0.8
-  ],
-  "key_west_inn_greenville_south_walnut_street_greenville_washington_county_mississippi_38704_united_states": [
-    33.4092227,
-    -91.0665882,
-    "Key West Inn Greenville, South Walnut Street, Greenville, Washington County, Mississippi, 38704, United States",
-    0.8
-  ],
-  "greenwood_leflore_county_mississippi_united_states": [
-    33.5162315,
-    -90.1795281,
-    "Greenwood, Leflore County, Mississippi, United States",
-    0.8
-  ],
-  "tunica_county_mississippi_united_states": [
-    34.6398783,
-    -90.3623833,
-    "Tunica County, Mississippi, United States",
-    0.8
-  ],
-  "shaw_bolivar_county_mississippi_united_states": [
-    33.6023471,
-    -90.7712419,
-    "Shaw, Bolivar County, Mississippi, United States",
-    0.8
-  ],
-  "milwaukee_2200_east_kenwood_boulevard_downer_woods_east_side_milwaukee_milwaukee_county_wisconsin_53211_united_states": [
-    43.0775181,
-    -87.8812647,
-    "Milwaukee, 2200, East Kenwood Boulevard, Downer Woods, East Side, Milwaukee, Milwaukee County, Wisconsin, 53211, United States",
-    0.8
-  ],
-  "dodge_county_wisconsin_united_states": [
-    43.413614,
-    -88.7177834,
-    "Dodge County, Wisconsin, United States",
-    0.8
-  ],
-  "sunflower_county_mississippi_united_states": [
-    33.4980504,
-    -90.602067,
-    "Sunflower County, Mississippi, United States",
-    0.8
-  ],
-  "moorhead_sunflower_county_mississippi_38761_united_states": [
-    33.4503557,
-    -90.5054445,
-    "Moorhead, Sunflower County, Mississippi, 38761, United States",
-    0.8
-  ],
-  "collinston_morehouse_parish_louisiana_united_states": [
-    32.6909704,
-    -91.8717943,
-    "Collinston, Morehouse Parish, Louisiana, United States",
-    0.8
-  ],
-  "wmdc_am_hazelhurst_us_51_hazlehurst_copiah_county_mississippi_39077_united_states": [
-    31.8929371,
-    -90.4023145,
-    "WMDC-AM (Hazelhurst), US 51, Hazlehurst, Copiah County, Mississippi, 39077, United States",
-    0.8
-  ],
-  "cleveland_bolivar_county_mississippi_38732_united_states": [
-    33.7440023,
-    -90.7248187,
-    "Cleveland, Bolivar County, Mississippi, 38732, United States",
-    0.8
-  ],
-  "leland_washington_county_mississippi_38756_united_states": [
-    33.4053949,
-    -90.8976007,
-    "Leland, Washington County, Mississippi, 38756, United States",
-    0.8
-  ],
-  "crete_will_county_illinois_united_states": [
-    41.4445334,
-    -87.6313829,
-    "Crete, Will County, Illinois, United States",
-    0.8
-  ],
-  "compton_los_angeles_county_california_united_states": [
-    33.894927,
-    -118.226624,
-    "Compton, Los Angeles County, California, United States",
-    0.8
-  ],
-  "louisana_avenue_port_arthur_jefferson_county_texas_77640_united_states": [
-    29.9230819,
-    -94.0181218,
-    "Louisana Avenue, Port Arthur, Jefferson County, Texas, 77640, United States",
-    0.8
-  ],
-  "moorehead_lake_dam_grenada_county_mississippi_38940_united_states": [
-    33.7584491,
-    -89.9567532,
-    "Moorehead Lake Dam, Grenada County, Mississippi, 38940, United States",
-    0.7
-  ],
-  "cook_county_illinois_united_states": [
-    41.8197385,
-    -87.756525,
-    "Cook County, Illinois, United States",
-    0.8
-  ],
-  "elwood_will_county_illinois_united_states": [
-    41.4039201,
-    -88.1117242,
-    "Elwood, Will County, Illinois, United States",
-    0.8
-  ],
-  "h_w_morehead_road_scott_county_mississippi_39152_united_states": [
-    32.2603265,
-    -89.5870253,
-    "H W Morehead Road, Scott County, Mississippi, 39152, United States",
-    0.8
-  ],
-  "fayette_county_west_tennessee_tennessee_united_states": [
-    35.1739357,
-    -89.4175416,
-    "Fayette County, West Tennessee, Tennessee, United States",
-    0.8
-  ],
-  "indianola_sunflower_county_mississippi_38751_united_states": [
-    33.4509513,
-    -90.6550917,
-    "Indianola, Sunflower County, Mississippi, 38751, United States",
-    0.8
-  ],
-  "spay_road_choctaw_county_mississippi_united_states": [
+  "spay_choctaw_mississippi_usa": [
     33.1500096,
     -89.2262762,
     "Spay Road, Choctaw County, Mississippi, United States",
     0.8
   ],
-  "beat_5_bhatti_bradree": [
+  "beat_5_choctaw_mississippi_usa": [
     33.4067072,
     73.2225448,
     "Beat 5, \u06af\u0631\u06cc\u0646\u0688 \u0679\u0631\u0646\u06a9 \u0631\u0648\u0688, Bhatti Bradree, \u0688\u06be\u0648\u06a9 \u0628\u06c1\u0627\u0648\u0644, \u0645\u0646\u062f\u0631\u06c1, \u062a\u062d\u0635\u06cc\u0644 \u06af\u0648\u062c\u0631 \u062e\u0627\u0646, \u0636\u0644\u0639 \u0631\u0627\u0648\u0644\u067e\u0646\u0688\u06cc, \u0631\u0627\u0648\u0644\u067e\u0646\u0688\u06cc \u0688\u0648\u06cc\u0698\u0646, \u067e\u0646\u062c\u0627\u0628, \u067e\u0627\u06a9\u0633\u062a\u0627\u0646",
-    0.8
+    0.7
   ],
-  "4_carrer_del_beat_sim_el_g_tic_ciutat_vella_barcelona_barcelon_s_barcelona_catalunya_08002_espa_a": [
+  "beat_4_tallahatchie_mississippi_usa": [
     41.3810198,
     2.1755657,
     "4, Carrer del Beat Sim\u00f3, el G\u00f2tic, Ciutat Vella, Barcelona, Barcelon\u00e8s, Barcelona, Catalunya, 08002, Espa\u00f1a",
-    0.8
+    0.7
   ],
-  "31546_95456": [
+  "beat_4_leflore_mississippi_usa": [
+    41.3810198,
+    2.1755657,
+    "4, Carrer del Beat Sim\u00f3, el G\u00f2tic, Ciutat Vella, Barcelona, Barcelon\u00e8s, Barcelona, Catalunya, 08002, Espa\u00f1a",
+    0.7
+  ],
+  "police_district_1_harrison_mississippi_usa": [
     35.8479054,
     51.0133116,
     "\u067e\u0644\u06cc\u0633, \u0637\u0627\u0644\u0642\u0627\u0646\u06cc \u0634\u0645\u0627\u0644\u06cc, \u0639\u0638\u06cc\u0645\u06cc\u0647, \u0645\u0646\u0637\u0642\u0647 \u06f1, \u06a9\u0631\u062c, \u0628\u062e\u0634 \u0645\u0631\u06a9\u0632\u06cc \u06a9\u0631\u062c, \u0634\u0647\u0631\u0633\u062a\u0627\u0646 \u06a9\u0631\u062c, \u0627\u0633\u062a\u0627\u0646 \u0627\u0644\u0628\u0631\u0632, 31546-95456, \u0627\u06cc\u0631\u0627\u0646",
-    0.8
+    0.7
   ],
-  "district_10_baguio_cordillera_administrative_region_2600_philippines": [
+  "district_10_la_grange_fayette_tennessee_usa": [
     16.4114167,
     120.5981304,
     "District 10, Baguio, Cordillera Administrative Region, 2600, Philippines",
-    0.8
+    0.7
   ],
-  "district_12_baguio_cordillera_administrative_region_2600_philippines": [
+  "district_12_fayette_tennessee_usa": [
     16.376743,
     120.6167872,
     "District 12, Baguio, Cordillera Administrative Region, 2600, Philippines",
+    0.7
+  ],
+  "sunflower_mississippi": [
+    33.4980504,
+    -90.602067,
+    "Sunflower County, Mississippi, United States",
     0.8
   ],
-  "universidade_federal_rural_do_rio_de_janeiro_km_07_ufrrj_serop_dica_regi_o_geogr_fica_imediata_do_rio_de_janeiro_regi_o_metropolitana_do_rio_de_janeiro_regi_o_geogr_fica_intermedi_ria_do_rio_de_janeiro_rio_de_janeiro_regi_o_sudeste_23897_000_brasil": [
+  "beat_2_sunflower_mississippi_usa": [
+    3.2245323,
+    101.6504338,
+    "The Beat 2.0, Karya Bayu Metropolitian (Kiara Bay), 16D, Kepong, Kuala Lumpur, Malaysia \u0645\u0644\u064a\u0633\u064a\u0627",
+    0.7
+  ],
+  "rural_sunflower_mississippi": [
     -22.7855401,
     -43.6886453,
     "Universidade Federal Rural do Rio de Janeiro, km 07, UFRRJ, Serop\u00e9dica, Regi\u00e3o Geogr\u00e1fica Imediata do Rio de Janeiro, Regi\u00e3o Metropolitana do Rio de Janeiro, Regi\u00e3o Geogr\u00e1fica Intermedi\u00e1ria do Rio de Janeiro, Rio de Janeiro, Regi\u00e3o Sudeste, 23897-000, Brasil",
+    0.7
+  ],
+  "ackerman_choctaw_mississippi_usa": [
+    33.3101243,
+    -89.1728434,
+    "Ackerman, Choctaw County, Mississippi, United States",
     0.8
   ],
-  "bolivar_county_mississippi_united_states": [
+  "bolivar_mississippi_usa": [
     33.7702263,
     -90.8519798,
     "Bolivar County, Mississippi, United States",
