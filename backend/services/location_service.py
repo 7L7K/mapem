@@ -45,7 +45,7 @@ class LocationService:
     def __init__(
         self,
         api_key: Optional[str] = None,
-        cache_file: str = "geocode_cache.json",
+        cache_file: Optional[str] = None,
         use_cache: bool = True,
         data_dir: Optional[str] = None,
     ):

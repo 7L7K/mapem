@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-Read geocode_cache.json and upsert into the DB: 
+Read permanent_geocodes.json and upsert into the DB:
   - INSERT brand-new normalized_name’s
   - UPDATE lat/lng on any existing normalized_name that still has NULL coords
   - LOG ALL DECISIONS (inserted / updated / skipped) with reason
@@ -10,12 +10,13 @@ Read geocode_cache.json and upsert into the DB:
 import json
 import os
 from pathlib import Path
+from backend.config import DATA_DIR
 from datetime import datetime
 from backend.db import SessionLocal
 from backend.models import Location
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-CACHE_FILE = Path(os.getenv("GEOCODE_CACHE_FILE", BASE_DIR / "geocode_cache.json"))
+CACHE_FILE = Path(os.getenv("GEOCODE_CACHE_FILE", DATA_DIR / "permanent_geocodes.json"))
 
 def main():
     print(f"📂 Reading cache from {CACHE_FILE}")
