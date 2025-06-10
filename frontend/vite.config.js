@@ -1,33 +1,36 @@
-//Users/kingal/mapem/frontend/vite.config.js
+// vite.config.js
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
-// https://vitejs.dev/config/
+
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
-      '@features': path.resolve(__dirname, 'src/features'),
-      '@shared': path.resolve(__dirname, 'src/shared'),
-      '@app': path.resolve(__dirname, 'src/app'),
-      '@lib': path.resolve(__dirname, 'src/lib'),
-      '@components': path.resolve(__dirname, 'src/shared/components'),
-      '@styles': path.resolve(__dirname, 'src/styles'),
-
-
+      '@features': path.resolve(__dirname, './src/features'),
+      '@shared': path.resolve(__dirname, './src/shared'),
+      '@lib': path.resolve(__dirname, './src/lib'),
+      '@app': path.resolve(__dirname, './src/app'),
 
     },
-    dedupe: ['react', 'react-dom', 'react-leaflet'],
   },
   server: {
     proxy: {
-      "/api": {
-        target: "http://localhost:5050",
+      '/api': {
+        target: 'http://localhost:5050',
         changeOrigin: true,
         secure: false,
-      }
-},
-},
+        /** 👇 this runs for every proxied response */
+        configure(proxy) {
+          proxy.on('proxyRes', (proxyRes) => {
+            delete proxyRes.headers['access-control-allow-origin'];
+            delete proxyRes.headers['access-control-allow-credentials'];
+          });
+        },
+      },
+    },
+  },
 });

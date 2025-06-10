@@ -95,3 +95,14 @@ export const compareTrees = (newId, existingId)          =>
   ok(client.get('/api/compare_trees', { params: { new_id: newId, existing_id: existingId } }));
 
 export { AxiosError } from 'axios';
+// Add this at the end of api.js
+export const getFamilyMovements = (treeId, filters = {}) =>
+  ok(client.get(`/api/family-movements/${treeId}`, {
+    params: filters,
+    paramsSerializer: p => qs.stringify(p, { arrayFormat: 'repeat', skipNulls: true }),
+  }));
+export const getGroupMovements = (treeId, filters = {}) =>
+  ok(client.get(`/api/group-movements/${treeId}`, {
+    params: filters,
+    paramsSerializer: p => qs.stringify(p, { arrayFormat: 'repeat', skipNulls: true }),
+  }));

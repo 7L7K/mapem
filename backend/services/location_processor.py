@@ -1,180 +1,289 @@
 """
 Normalize, classify, and (when possible) geocode raw place strings
-coming from GEDCOM uploads. All heavy lifting for historical beats,
-manual overrides, vague state tagging, and unresolved logging
-happens here.
-"""
+coming from GEDCOM uploads.
 
+ now handles:
+   • manual overrides
+   • fuzzy-alias typo cleanup
+   • RapidFuzz auto-corrections
+   • vague state + county centroids
+   • historical beat lookup
+   • DB session fuzzy match
+   • retry-safe TTL cache in Geocoder
+   • unresolved logging
+"""
+#/Users/kingal/mapem/backend/services/location_processor.py
+from __future__ import annotations
+from backend.config import settings
 import os
 import json
 from datetime import datetime, timezone
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
+
+from rapidfuzz import process as fuzz
 
 from backend.utils.helpers import normalize_location
-from backend.utils.logger import get_logger
+from backend.utils.logger   import get_file_logger
 from backend.models.location_models import LocationOut
 from backend.services.geocode import Geocode
-from typing import Any
 
-from backend.utils.logger import get_file_logger
+logger = get_file_logger("location_processor")
 
-logger = get_file_logger("location_processor") 
-
-GEOCODER = Geocode(api_key=os.getenv("GEOCODE_API_KEY"))
-
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
-MANUAL_FIXES_PATH = os.path.join(DATA_DIR, "manual_place_fixes.json")
+# ────────────────────────────────────────────────────────────────────────────
+DATA_DIR            = os.path.join(os.path.dirname(__file__), "..", "data")
+MANUAL_FIXES_PATH   = os.path.join(DATA_DIR, "manual_place_fixes.json")
+FUZZY_ALIASES_PATH  = os.path.join(DATA_DIR, "fuzzy_aliases.json")
 UNRESOLVED_LOG_PATH = os.path.join(DATA_DIR, "unresolved_locations.jsonl")
+HISTORICAL_DIR      = os.path.join(DATA_DIR, "historical_places")
+
+GEOCODER = Geocode(api_key=settings.GEOCODE_API_KEY)
+logger.info("🧪 Using GEOCODE_API_KEY = %s", settings.GEOCODE_API_KEY[:6] + "..." if settings.GEOCODE_API_KEY else "None")
+
 
 _SEEN_UNRESOLVED: set[str] = set()
 
-def _load_manual_fixes() -> Dict[str, Any]:
-    if not os.path.exists(MANUAL_FIXES_PATH):
-        logger.warning("⚠️ manual_place_fixes.json not found.")
-        return {}
+# ─── JSON helpers ───────────────────────────────────────────────────────────
+
+
+def _safe_load_json(path: str, default: Any) -> Any:
+    if not os.path.exists(path):
+        logger.warning("⚠️ %s not found.", os.path.basename(path))
+        return default
     try:
-        with open(MANUAL_FIXES_PATH) as f:
-            raw = json.load(f)
-        logger.debug(f"✅ Loaded {len(raw)} manual place fixes")
-        return {normalize_location(k): v for k, v in raw.items()}
+        with open(path) as f:
+            return json.load(f)
     except Exception as e:
-        logger.error(f"❌ Failed loading manual fixes: {e}")
-        return {}
+        logger.error("❌ Failed loading %s: %s", path, e)
+        return default
 
-MANUAL_FIXES = _load_manual_fixes()
 
-def load_manual_place_fixes(path=None):
-    path = path or os.path.join(os.path.dirname(__file__), "..", "data", "manual_place_fixes.json")
-    if os.path.exists(path):
-        try:
-            with open(path, "r") as f:
-                return json.load(f)
-        except Exception as e:
-            logger.warning(f"Failed to load manual fixes: {e}")
-    return {}
+MANUAL_FIXES_RAW: Dict[str, Dict[str, Any]] = _safe_load_json(MANUAL_FIXES_PATH, {})
+FUZZY_ALIASES_RAW: Dict[str, str] = _safe_load_json(FUZZY_ALIASES_PATH, {})
 
-def log_unresolved_location(
-    raw_name: str,
-    reason: str,
-    status: str,
-    source_tag: str = "unknown",
-    suggested_fix: Optional[str] = None,
-    tree_id: Optional[str] = None,
-) -> None:
+# Keys must be normalized!
+MANUAL_FIXES: Dict[str, Dict[str, Any]] = {
+    normalize_location(k): v for k, v in MANUAL_FIXES_RAW.items()
+}
+FUZZY_ALIASES: Dict[str, str] = {
+    normalize_location(k): normalize_location(v) for k, v in FUZZY_ALIASES_RAW.items()
+}
+
+# Build a list of “known good” names for fuzzy search
+_KNOWN_LOCATIONS: list[str] = list(MANUAL_FIXES.keys()) + list(FUZZY_ALIASES.values())
+
+# ─── Vague state + county fallbacks ─────────────────────────────────────────
+STATE_VAGUE: Dict[str, tuple[float, float]] = {
+    "mississippi": (32.7364, -89.6678),
+    "arkansas": (34.7990, -92.1990),
+    "tennessee": (35.5175, -86.5804),
+    "alabama": (32.8067, -86.7911),
+    "louisiana": (30.9843, -91.9623),
+    "illinois": (40.6331, -89.3985),
+    "ohio": (40.4173, -82.9071),
+}
+
+COUNTY_VAGUE: Dict[str, tuple[float, float]] = {
+    # Mississippi Delta focus — add more as needed
+    "sunflower county": (33.5000, -90.5500),
+    "leflore county": (33.5519, -90.3084),
+    "bolivar county": (33.7188, -91.0160),
+    "tallahatchie county": (33.9508, -90.1889),
+    "washington county ms": (33.2993, -91.0387),
+}
+
+# ─── Historical places loader ───────────────────────────────────────────────
+HISTORICAL_LOOKUP: dict[str, tuple[float, float, str]] = {}  # norm → (lat,lng,modern)
+
+
+def _load_historical_places() -> None:
+    if not os.path.isdir(HISTORICAL_DIR):
+        logger.info("🕰️  No historical_places/ folder found.")
+        return
+
+    for fname in os.listdir(HISTORICAL_DIR):
+        if not fname.endswith(".json"):
+            continue
+        path = os.path.join(HISTORICAL_DIR, fname)
+        data = _safe_load_json(path, {})
+        for raw_key, rec in data.items():
+            norm_key = normalize_location(raw_key)
+            HISTORICAL_LOOKUP[norm_key] = (
+                rec["lat"],
+                rec["lng"],
+                rec.get("modern_equivalent", norm_key),
+            )
+    logger.info("🗺️  Loaded %d historical place records.", len(HISTORICAL_LOOKUP))
+
+
+_load_historical_places()
+
+# Update _KNOWN_LOCATIONS for RapidFuzz auto-fix
+_KNOWN_LOCATIONS.extend(list(HISTORICAL_LOOKUP.keys()))
+_KNOWN_LOCATIONS.extend(list(COUNTY_VAGUE.keys()))
+_KNOWN_LOCATIONS = list(set(_KNOWN_LOCATIONS))  # dedupe
+
+# ─── Unresolved logger helper ───────────────────────────────────────────────
+
+
+def _log_unresolved_once(raw: str, reason: str, tree_id: Optional[str]) -> None:
+    key = f"{raw}|{reason}|{tree_id}"
+    if key in _SEEN_UNRESOLVED:
+        return
+    _SEEN_UNRESOLVED.add(key)
+
     entry = {
-        "raw_name": raw_name,
-        "source_tag": source_tag,
+        "raw_name": raw,
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "reason": reason,
-        "status": status,
-        "suggested_fix": suggested_fix,
+        "status": "manual_fix_pending",
         "tree_id": tree_id,
     }
     try:
         with open(UNRESOLVED_LOG_PATH, "a") as f:
             f.write(json.dumps(entry) + "\n")
-        logger.warning(f"📝 [unresolved logged] {entry}")
+        logger.warning("📝 unresolved logged: %s", entry)
     except Exception as e:
-        logger.error(f"❌ failed to write unresolved_location for '{raw_name}': {e}")
+        logger.error("❌ failed to write unresolved_location for '%s': %s", raw, e)
 
-def _log_unresolved_once(place: str, reason: str, tree_id: Optional[str] = None) -> None:
-    key = f"{place}|{reason}|{tree_id}"
-    if key in _SEEN_UNRESOLVED:
-        logger.debug(f"🔁 already saw unresolved {key}, skipping write")
-        return
-    _SEEN_UNRESOLVED.add(key)
-    log_unresolved_location(raw_name=place, reason=reason, status="manual_fix_pending", tree_id=tree_id)
+
+# ─── Main processor ─────────────────────────────────────────────────────────
+
 
 def process_location(
     raw_place: str,
     source_tag: str = "",
     event_year: Optional[int] = None,
-    tree_id: Optional[str] = None
+    tree_id: Optional[str] = None,
+    db_session=None,
 ) -> LocationOut:
-    normalized = normalize_location(raw_place)
+    """Primary resolver used by parser & API."""
     now = datetime.now(timezone.utc).isoformat()
+    norm = normalize_location(raw_place)
 
-    # Start log
-    logger.info(f"🌍 process_location: INPUT='{raw_place}' | normalized='{normalized}' | tag={source_tag} | year={event_year}")
+    logger.info(
+        "🌍 process_location: raw='%s' | norm='%s' | tag=%s | yr=%s",
+        raw_place,
+        norm,
+        source_tag,
+        event_year,
+    )
 
-    # 1) Empty string after normalizing
-    if not normalized:
-        logger.warning(f"⛔ Dropped: normalized to empty ('{raw_place}') [tree={tree_id}]")
-        _log_unresolved_once(raw_place, "empty_after_normalise", tree_id=tree_id)
+    # 1. empty / nonsense — BUT keep one-word state / county names
+    if not norm:
+        raw_lower = raw_place.strip().lower()
+
+        # State-only (vague) fallback
+        if raw_lower in STATE_VAGUE:
+            norm = raw_lower
+            logger.info("🕳️ single-state fallback '%s' → '%s'", raw_place, norm)
+
+        # County-only fallback
+        elif raw_lower in COUNTY_VAGUE:
+            norm = raw_lower
+            logger.info("🏛️ single-county fallback '%s' → '%s'", raw_place, norm)
+
+        else:
+            logger.warning("⛔ Dropped empty-norm '%s'", raw_place)
+            _log_unresolved_once(raw_place, "empty_after_normalise", tree_id)
+            return LocationOut(
+                raw_name=raw_place,
+                normalized_name="",
+                latitude=None,
+                longitude=None,
+                confidence_score=0.0,
+                status="unresolved",
+                source="normalize",
+                timestamp=now,
+            )
+        
+
+    # 2. manual fixes
+    if norm in MANUAL_FIXES:
+        fix = MANUAL_FIXES[norm]
+        logger.info("🔧 manual_fix '%s' → '%s'", raw_place, norm)
         return LocationOut(
-            raw_name=raw_place,
-            normalized_name="",
-            latitude=None,
-            longitude=None,
-            confidence_score=0.0,
-            status="unresolved",
-            source="unknown",
-            timestamp=now,
-        )
-
-    # 2) Manual fix override
-    if normalized in MANUAL_FIXES:
-        manual = MANUAL_FIXES[normalized]
-        logger.info(f"🔧 CLASSIFICATION=manual_fix | '{raw_place}' → '{manual.get('normalized_name', normalized)}'")
-        return LocationOut(
-            raw_name=manual.get("raw_name", raw_place),
-            normalized_name=manual.get("normalized_name", normalized),
-            latitude=manual.get("latitude"),
-            longitude=manual.get("longitude"),
-            confidence_score=manual.get("confidence_score", 1.0),
+            raw_name=fix.get("raw_name", raw_place),
+            normalized_name=fix.get("normalized_name", norm),
+            latitude=fix.get("lat") or fix.get("latitude"),
+            longitude=fix.get("lng") or fix.get("longitude"),
+            confidence_score=float(fix.get("confidence", 1.0)),
             status="manual_fix",
             source="manual",
             timestamp=now,
         )
 
-    # 3) Historical/beat classification (STUB EXAMPLE)
-    # if historical_layer and historical_layer.is_historical(normalized, event_year):
-    #     hist_data = historical_layer.lookup(normalized, event_year)
-    #     logger.info(f"🏛️ CLASSIFICATION=historical_beat | '{raw_place}' ({event_year}) → '{hist_data['normalized_name']}'")
-    #     return LocationOut(...)
-    # (Uncomment/expand when ready)
+    # 3. alias table (one-step recurse)
+    if norm in FUZZY_ALIASES:
+        aliased = FUZZY_ALIASES[norm]
+        logger.info("🔁 alias_fix '%s' → '%s'", raw_place, aliased)
+        return process_location(aliased, source_tag, event_year, tree_id, db_session)
 
-    # 4) Vague state-only fallback logic
-    STATE_VAGUE = {
-        "mississippi": (32.7364, -89.6678),
-        "arkansas": (34.799, -92.199),
-        "tennessee": (35.5175, -86.5804),
-        "alabama": (32.8067, -86.7911),
-        "louisiana": (30.9843, -91.9623),
-        "illinois": (40.6331, -89.3985),
-        "ohio": (40.4173, -82.9071),
-    }
+    # 4. RapidFuzz auto-fix
+    if _KNOWN_LOCATIONS:
+        match, score, _ = fuzz.extractOne(norm, _KNOWN_LOCATIONS)
+        if score >= 85:
+            logger.info("✨ RapidFuzz %d%% '%s' → '%s'", score, raw_place, match)
+            return process_location(match, source_tag, event_year, tree_id, db_session)
 
-    if normalized in STATE_VAGUE:
-        lat, lng = STATE_VAGUE[normalized]
-        logger.info(f"🕳️ CLASSIFICATION=vague_state_pre1890 | '{raw_place}' → '{normalized}' @ ({lat}, {lng})")
+    # 5. vague county fallback
+    if norm in COUNTY_VAGUE:
+        lat, lng = COUNTY_VAGUE[norm]
+        logger.info("🏛️ vague_county '%s' (%s,%s)", raw_place, lat, lng)
         return LocationOut(
             raw_name=raw_place,
-            normalized_name=normalized,
+            normalized_name=norm,
             latitude=lat,
             longitude=lng,
-            confidence_score=0.4,
-            status="vague_state_pre1890",
+            confidence_score=0.35,
+            status="vague_county",
             source="fallback",
             timestamp=now,
         )
 
-    # 5) Try API geocode (last resort)
-    logger.info(f"🌎 CLASSIFICATION=api | Trying geocode for '{raw_place}' (normalized: '{normalized}')")
-    geo_result = GEOCODER.get_or_create_location(None, raw_place)
-    if geo_result and geo_result.latitude and geo_result.longitude:
-        logger.info(f"✅ CLASSIFICATION=api | Geocoded '{raw_place}' → ({geo_result.latitude}, {geo_result.longitude}) | normalized='{geo_result.normalized_name}'")
-        geo_result.status = "ok"
-        geo_result.source = geo_result.source or "api"
-        geo_result.timestamp = now
-        return geo_result
+    # 6. vague state fallback
+    if norm in STATE_VAGUE:
+        lat, lng = STATE_VAGUE[norm]
+        logger.info("🕳️ vague_state '%s' (%s,%s)", raw_place, lat, lng)
+        return LocationOut(
+            raw_name=raw_place,
+            normalized_name=norm,
+            latitude=lat,
+            longitude=lng,
+            confidence_score=0.4,
+            status="vague_state",
+            source="fallback",
+            timestamp=now,
+        )
 
-    # 6) Still nothing → mark unresolved and log
-    logger.error(f"❌ Dropped: Could NOT geocode '{raw_place}' (normalized: '{normalized}') [tree={tree_id}]")
-    _log_unresolved_once(raw_place, "api_failed", tree_id=tree_id)
+    # 7. historical lookup
+    if norm in HISTORICAL_LOOKUP:
+        lat, lng, modern = HISTORICAL_LOOKUP[norm]
+        logger.info("📜 historical '%s' → '%s' (%s,%s)", raw_place, modern, lat, lng)
+        return LocationOut(
+            raw_name=raw_place,
+            normalized_name=modern,
+            latitude=lat,
+            longitude=lng,
+            confidence_score=0.9,
+            status="historical",
+            source="historical",
+            timestamp=now,
+        )
+
+    # 8. API geocode / DB fuzzy
+    geo = GEOCODER.get_or_create_location(db_session, raw_place)
+    if geo and geo.latitude is not None and geo.longitude is not None:
+        logger.info("✅ api_geocode '%s' → (%s,%s)", raw_place, geo.latitude, geo.longitude)
+        geo.status = geo.status or "ok"
+        geo.timestamp = now
+        return geo
+
+    # 9. unresolved
+    logger.error("❌ unresolved '%s'", raw_place)
+    _log_unresolved_once(raw_place, "api_failed", tree_id)
     return LocationOut(
         raw_name=raw_place,
-        normalized_name=normalized,
+        normalized_name=norm,
         latitude=None,
         longitude=None,
         confidence_score=0.0,
@@ -182,3 +291,7 @@ def process_location(
         source="api",
         timestamp=now,
     )
+
+
+# alias for import-compat
+log_unresolved_location = _log_unresolved_once

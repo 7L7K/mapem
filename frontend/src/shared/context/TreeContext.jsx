@@ -1,9 +1,13 @@
-import React, { createContext, useContext, useState, useEffect, useMemo } from "react";
+// frontend/src/shared/context/TreeContext.jsx
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+} from "react";
+import { useLocation } from "react-router-dom";
 import * as api from "@lib/api/api";
-
-// ─────────────────────────────────────────────
-// Tree Context
-// ─────────────────────────────────────────────
 
 export const TreeContext = createContext({
   tree: null,
@@ -17,63 +21,65 @@ export const TreeContext = createContext({
 export const useTree = () => useContext(TreeContext);
 
 export function TreeProvider({ children }) {
+  const location = useLocation();
+
   const [treeId, setTreeIdRaw] = useState(null);
   const [allTrees, setAllTrees] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Smart setter with localStorage sync
+  // Keep localStorage in-sync
   const setTreeId = (id) => {
-    console.debug("[TreeContext] 🔁 setTreeId called with:", id);
     setTreeIdRaw(id);
-    if (id) {
-      window.localStorage.setItem("lastTreeId", String(id));
-      console.debug("[TreeContext] 💾 saved treeId to localStorage:", id);
-    } else {
-      localStorage.removeItem("lastTreeId");
-      console.debug("[TreeContext] 🧹 removed stale treeId from localStorage");
-    }
+    if (id) localStorage.setItem("lastTreeId", id);
+    else    localStorage.removeItem("lastTreeId");
   };
 
+  /* ───── 1. grab :treeId from the URL whenever it changes ───── */
   useEffect(() => {
-    const saved = window.localStorage.getItem("lastTreeId");
-    console.debug("[TreeContext] 🔍 Checking saved treeId:", saved);
+    const match = location.pathname.match(/\/map\/([^/]+)/);
+    if (match && match[1] !== treeId) {
+      setTreeIdRaw(match[1]);
+    }
+  }, [location.pathname, treeId]);
+
+  /* ───── 2. load tree list ───── */
+  useEffect(() => {
+    const saved = localStorage.getItem("lastTreeId");
 
     api.getTrees()
-      .then((trees) => {
-        console.debug("[TreeContext] 🌳 fetched trees:", trees);
-        setAllTrees(trees);
+      .then((res) => {
+        // Accept both shapes
+        const list = Array.isArray(res)         ? res
+                  : Array.isArray(res.trees)    ? res.trees
+                  : [];
+        console.debug("[TreeContext] 🌳 fetched trees:", list);
+
+        setAllTrees(list);
         setLoading(false);
 
-        const validIds = new Set(trees.map(t => String(t.id)));
-
-        if (saved && validIds.has(saved)) {
-          console.debug("[TreeContext] ✅ saved treeId is valid:", saved);
-          setTreeIdRaw(saved);
-        } else if (trees.length > 0) {
-          const fallback = String(trees[0].id);
-          console.warn("[TreeContext] ❗ invalid or missing treeId — falling back to:", fallback);
-          setTreeId(fallback);
-        } else {
-          console.warn("[TreeContext] ⚠️ no trees available");
-          setTreeId(null);
+        if (!treeId) {
+          const validIds = new Set(list.map((t) => t.uploaded_tree_id));
+          if (saved && validIds.has(saved))      setTreeIdRaw(saved);
+          else if (list.length)                  setTreeIdRaw(list[0].uploaded_tree_id);
         }
       })
       .catch((err) => {
-        console.error("[TreeContext] ❌ failed to fetch trees:", err);
+        console.error("[TreeContext] failed to fetch trees:", err);
         setLoading(false);
       });
-  }, []);
+  }, [treeId]);
 
-  // Memoize the selected tree object for fast lookups
-  const tree = useMemo(
-    () => allTrees.find((t) => String(t.id) === String(treeId)) || null,
-    [allTrees, treeId]
-  );
+  /* ───── 3. derived values ───── */
+  const tree = useMemo(() => {
+    return (allTrees || []).find((t) => t.uploaded_tree_id === treeId) || null;
+  }, [allTrees, treeId]);
 
   const treeName = tree?.tree_name || "Unknown Tree";
 
   return (
-    <TreeContext.Provider value={{ tree, treeId, setTreeId, allTrees, loading, treeName }}>
+    <TreeContext.Provider
+      value={{ tree, treeId, setTreeId, allTrees, loading, treeName }}
+    >
       {children}
     </TreeContext.Provider>
   );

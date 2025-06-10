@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     PORT: int = 5050
     DEBUG: bool = False
     GOOGLE_MAPS_API_KEY: str = ""
-
+    GEOCODE_API_KEY: str = ""   # <---- ADD THIS LINE
     SQLALCHEMY_ECHO: ClassVar[bool] = True  # ✅ FIXED
 
     @property
@@ -30,3 +30,8 @@ class Settings(BaseSettings):
 
 # ✅ Global instance
 settings = Settings()
+
+import os
+print("🧪 GEOCODE_API_KEY =", os.getenv("GEOCODE_API_KEY"))
+print("📦 Loaded geocode key:", "✅" if settings.GOOGLE_MAPS_API_KEY else "❌ MISSING")
+

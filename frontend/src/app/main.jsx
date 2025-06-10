@@ -6,11 +6,14 @@ import Router from "./router";
 import UploadStatusOverlay from "@features/upload/components/UploadStatusOverlay";
 import "../shared/styles/main.css";
 
-
-
 const App = () => (
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true,
+      }}
+    >
       <Providers>
         {/* Overlay is global and always available */}
         <UploadStatusOverlay />

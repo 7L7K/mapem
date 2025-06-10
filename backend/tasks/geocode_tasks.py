@@ -9,7 +9,7 @@ from backend.services.geocode import Geocode
 
 # Set up SQLAlchemy session factory
 engine = get_engine()
-SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False, autocommit=False)
 
 # ⛓️ Load API Key
 API_KEY = os.getenv("GEOCODE_API_KEY")

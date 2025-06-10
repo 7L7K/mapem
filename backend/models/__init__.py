@@ -16,10 +16,9 @@ from .user_action      import UserAction
 import logging
 from backend.db import engine
 
- 
 
 if __name__ == "__main__":
-    logger.info(
-      "📦 Models registered in Base.metadata → %s",
-      list(Base.metadata.tables),
-    )
+    from pprint import pprint
+
+    print("📦 Tables in Base.metadata:")
+    pprint(list(Base.metadata.tables))
