@@ -6,7 +6,7 @@ from backend.utils.helpers import normalize_location
 
 
 def test_apply_manual_fixes_on_mock_data(tmp_path):
-    # Simulate unresolved_locations.jsonl file
+    # Simulate unresolved_locations.json file
     unresolved_data = [
         {
             "raw_name": "Ackerman, Choctaw, Mississippi, USA",
@@ -26,10 +26,9 @@ def test_apply_manual_fixes_on_mock_data(tmp_path):
         }
     ]
 
-    unresolved_path = tmp_path / "unresolved_locations.jsonl"
+    unresolved_path = tmp_path / "unresolved_locations.json"
     with open(unresolved_path, "w") as f:
-        for entry in unresolved_data:
-            f.write(json.dumps(entry) + "\n")
+        json.dump(unresolved_data, f)
 
     # Simulate manual_place_fixes.json
     fixes = {
