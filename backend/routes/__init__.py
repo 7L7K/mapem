@@ -20,6 +20,7 @@ from backend.routes.health    import health_routes
 from backend.routes.heatmap   import heatmap_routes
 from backend.routes.geocode_api import bp as geocode_routes  # ← NEW
 from backend.routes.geocode_dashboard import geocode_dashboard
+from backend.routes.analytics import analytics_routes
 
 from backend.utils.debug_routes import debug_route
 
@@ -39,6 +40,7 @@ def register_routes(app):
         movements_routes,
         health_routes,
         heatmap_routes,
+        analytics_routes,
         geocode_routes,        # ← NEW
         geocode_dashboard,
     ]
