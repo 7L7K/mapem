@@ -45,3 +45,12 @@ function MapControls() {
   );
 }
 ```
+
+## Backend Utility Scripts
+
+Location cleanup helpers now live under `backend/scripts`. Useful commands:
+
+```bash
+python backend/scripts/retry_unresolved.py   # retry unresolved geocodes
+python backend/scripts/audit_unresolved.py   # inspect unresolved entries
+```
