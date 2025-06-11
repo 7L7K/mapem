@@ -3,6 +3,13 @@
 from pydantic_settings import BaseSettings
 from pydantic import computed_field
 from typing import ClassVar  # ✅ This is required for SQLALCHEMY_ECHO
+from pathlib import Path
+import os
+
+# Base directory for backend
+BASE_DIR = Path(__file__).resolve().parent
+# Allow overriding with MAPEM_DATA_DIR
+DATA_DIR = Path(os.getenv("MAPEM_DATA_DIR", BASE_DIR / "data"))
 
 class Settings(BaseSettings):
     DB_NAME: str = "genealogy_db"
@@ -31,7 +38,6 @@ class Settings(BaseSettings):
 # ✅ Global instance
 settings = Settings()
 
-import os
 print("🧪 GEOCODE_API_KEY =", os.getenv("GEOCODE_API_KEY"))
 print("📦 Loaded geocode key:", "✅" if settings.GOOGLE_MAPS_API_KEY else "❌ MISSING")
 
