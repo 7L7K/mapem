@@ -3,6 +3,7 @@ import sys
 import json
 import logging
 import argparse
+from backend.config import DATA_DIR
 from sqlalchemy.orm import sessionmaker
 from backend.db import get_engine
 from backend.models.location import Location, LocationStatusEnum
@@ -21,7 +22,7 @@ def load_locations_from_json(path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--file", default="backend/data/unresolved_locations.json")
+    parser.add_argument("--file", default=str(DATA_DIR / "unresolved_locations.json"))
     args = parser.parse_args()
 
     unresolved = load_locations_from_json(args.file)

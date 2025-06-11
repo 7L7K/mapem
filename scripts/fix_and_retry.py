@@ -20,15 +20,14 @@ from backend.services.geocode import Geocode
 from backend.services.location_processor import log_unresolved_location
 from backend.utils.helpers import normalize_location
 from backend.utils.logger import get_file_logger  # ✅ this line
+from backend.config import DATA_DIR
 
 logger = get_file_logger("fix_and_retry")  # ✅ sets up file logging
 
 
 # ─── Config ──────────────────────────────────────────────────────
-BASE = os.path.dirname(os.path.dirname(__file__))
-DATA_DIR = os.path.join(BASE, "backend", "data")
-UNRESOLVED_LOG = os.path.join(DATA_DIR, "unresolved_locations.jsonl")
-DEFAULT_FIXES = os.path.join(DATA_DIR, "manual_place_fixes.json")
+UNRESOLVED_LOG = DATA_DIR / "unresolved_locations.jsonl"
+DEFAULT_FIXES = DATA_DIR / "manual_place_fixes.json"
 
 # ─── Logger Setup ────────────────────────────────────────────────
 logger = logging.getLogger("fix_and_retry")
@@ -81,7 +80,7 @@ def apply_manual_fixes():
     # Backup unresolved log
     if os.path.exists(UNRESOLVED_LOG):
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        backup_path = UNRESOLVED_LOG + f".bak.{timestamp}"
+        backup_path = UNRESOLVED_LOG.with_name(UNRESOLVED_LOG.name + f".bak.{timestamp}")
         shutil.copyfile(UNRESOLVED_LOG, backup_path)
         logger.info(f"📦 Backup of unresolved log saved to: {backup_path}")
 

@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from backend.db import get_engine
 from backend.models.location import Location
 from backend.services.geocode import Geocode
+from backend.config import DATA_DIR
 
 # ───────────────────────────────────────────────
 # Setup path + logging
@@ -13,7 +14,7 @@ from backend.services.geocode import Geocode
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-UNRESOLVED_PATH = os.path.join(PROJECT_ROOT, "backend", "data", "unresolved_locations.json")
+UNRESOLVED_PATH = DATA_DIR / "unresolved_locations.json"
 
 logging.basicConfig(
     level=logging.DEBUG,

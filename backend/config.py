@@ -3,6 +3,11 @@
 from pydantic_settings import BaseSettings
 from pydantic import computed_field
 from typing import ClassVar  # ✅ This is required for SQLALCHEMY_ECHO
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+LOG_DIR = BASE_DIR / "logs"
 
 class Settings(BaseSettings):
     DB_NAME: str = "genealogy_db"

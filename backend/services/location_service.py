@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -17,6 +18,7 @@ from backend.utils.log_utils import normalize_place
 
  
 from backend.utils.logger import get_file_logger
+from backend.config import DATA_DIR
 
 logger = get_file_logger("loc_services")
 
@@ -49,10 +51,10 @@ class LocationService:
         use_cache: bool = True,
         data_dir: Optional[str] = None,
     ):
-        self.data_dir = (
+        self.data_dir = Path(
             data_dir
             or os.getenv("MAPEM_DATA_DIR")
-            or os.path.join(os.path.dirname(__file__), "..", "data")
+            or DATA_DIR
         )
         logger.debug("🔍 LocationService using data_dir=%s", self.data_dir)
 
@@ -62,7 +64,7 @@ class LocationService:
 
         # ── Manual overrides ──────────────────────────────────────────────
         self.manual_fixes: dict[str, dict] = {}
-        manual_path = os.path.join(self.data_dir, "manual_place_fixes.json")
+        manual_path = self.data_dir / "manual_place_fixes.json"
         if os.path.exists(manual_path):
             try:
                 for key, val in _load_json(manual_path).items():
@@ -74,12 +76,12 @@ class LocationService:
 
         # ── Historical lookup ─────────────────────────────────────────────
         self.historical_lookup: dict[str, dict] = {}
-        hist_dir = os.path.join(self.data_dir, "historical_places")
+        hist_dir = self.data_dir / "historical_places"
         if os.path.isdir(hist_dir):
             for fname in os.listdir(hist_dir):
                 if fname.endswith(".json"):
                     try:
-                        for key, val in _load_json(os.path.join(hist_dir, fname)).items():
+                        for key, val in _load_json(hist_dir / fname).items():
                             nk = normalize_place(key) or key
                             self.historical_lookup[nk.lower()] = val
                     except Exception as e:
@@ -87,7 +89,7 @@ class LocationService:
         logger.info("✅ Loaded %d historical records.", len(self.historical_lookup))
 
         # Unresolved output path
-        self.unresolved_path = os.path.join(self.data_dir, "unresolved_locations.json")
+        self.unresolved_path = self.data_dir / "unresolved_locations.json"
 
     # ─────────────────────────────────────────────────────────────────────────
     # Main entry point

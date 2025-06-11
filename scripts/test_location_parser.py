@@ -14,9 +14,11 @@ def normalize_string(s: str) -> str:
 
 # ─── Paths & Load Fixes ───────────────────────────────────────────────────────
 
+from backend.config import DATA_DIR
+
 PROJECT_ROOT    = Path(__file__).resolve().parents[1]
-FIXES_PATH      = PROJECT_ROOT / "backend" / "data" / "manual_place_fixes.json"
-UNRESOLVED_PATH = PROJECT_ROOT / "backend" / "data" / "unresolved_locations.json"
+FIXES_PATH      = DATA_DIR / "manual_place_fixes.json"
+UNRESOLVED_PATH = DATA_DIR / "unresolved_locations.json"
 
 try:
     with FIXES_PATH.open() as f:

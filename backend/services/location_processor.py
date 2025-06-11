@@ -14,7 +14,7 @@ coming from GEDCOM uploads.
 """
 #/Users/kingal/mapem/backend/services/location_processor.py
 from __future__ import annotations
-from backend.config import settings
+from backend.config import settings, DATA_DIR
 import os
 import json
 from datetime import datetime, timezone
@@ -30,11 +30,10 @@ from backend.services.geocode import Geocode
 logger = get_file_logger("location_processor")
 
 # ────────────────────────────────────────────────────────────────────────────
-DATA_DIR            = os.path.join(os.path.dirname(__file__), "..", "data")
-MANUAL_FIXES_PATH   = os.path.join(DATA_DIR, "manual_place_fixes.json")
-FUZZY_ALIASES_PATH  = os.path.join(DATA_DIR, "fuzzy_aliases.json")
-UNRESOLVED_LOG_PATH = os.path.join(DATA_DIR, "unresolved_locations.jsonl")
-HISTORICAL_DIR      = os.path.join(DATA_DIR, "historical_places")
+MANUAL_FIXES_PATH   = DATA_DIR / "manual_place_fixes.json"
+FUZZY_ALIASES_PATH  = DATA_DIR / "fuzzy_aliases.json"
+UNRESOLVED_LOG_PATH = DATA_DIR / "unresolved_locations.jsonl"
+HISTORICAL_DIR      = DATA_DIR / "historical_places"
 
 GEOCODER = Geocode(api_key=settings.GEOCODE_API_KEY)
 logger.info("🧪 Using GEOCODE_API_KEY = %s", settings.GEOCODE_API_KEY[:6] + "..." if settings.GEOCODE_API_KEY else "None")
