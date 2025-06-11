@@ -12,18 +12,22 @@ from pathlib import Path
 
 @pytest.fixture(scope="session")
 def app():
-    app = create_app()
-    app.config.update({
-        "TESTING": True
-    })
-
     # Create a test DB engine (in-memory SQLite)
     test_engine = create_engine("sqlite:///:memory:", future=True)
     TestingSessionLocal = sessionmaker(bind=test_engine, autoflush=False, autocommit=False, future=True)
 
-    # Patch the app-wide engine/session for tests
+    # Patch the app-wide engine/session before app creation
     backend.db.engine = test_engine
     backend.db.SessionLocal = TestingSessionLocal
+    backend.db.get_engine.cache_clear()
+    backend.db.get_sessionmaker.cache_clear()
+    backend.db.get_engine = lambda db_uri=None: test_engine
+    backend.db.get_sessionmaker = lambda db_uri=None: TestingSessionLocal
+
+    app = create_app()
+    app.config.update({
+        "TESTING": True
+    })
 
     # Set up schema
     Base.metadata.create_all(bind=test_engine)

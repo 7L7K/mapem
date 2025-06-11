@@ -19,9 +19,9 @@ def fake_timestamp() -> str:
 @pytest.fixture(autouse=True)
 def patch_data_files(tmp_path: Path, monkeypatch):
     """
-    Create throw-away manual & historical data the real service loader can see.
-    IMPORTANT: keys must be  *lat* / *lng*  because LocationService
-    uses manual_hit.get("lat") / .get("lng")
+    Create temporary manual & historical data for backward compat.
+    Current LocationService no longer reads these files but tests keep them
+    around in case other components rely on MAPEM_DATA_DIR.
     """
     data_dir = tmp_path / "data"
     data_dir.mkdir()
@@ -44,7 +44,7 @@ def patch_data_files(tmp_path: Path, monkeypatch):
         }
     }))
 
-    # Make LocationService load from this tmp directory
+    # Environment variable kept for backward compatibility
     monkeypatch.setenv("MAPEM_DATA_DIR", str(data_dir))
 
 
@@ -86,7 +86,7 @@ def service(monkeypatch) -> LocationService:
     )
 
     # --- stub process_location --------------------------------------------
-    def mock_process_location(raw_place, event_year, source_tag="", tree_id=None):
+    def mock_process_location(raw_place, event_year, source_tag="", tree_id=None, geocoder=None):
         name = (raw_place or "").lower()
         ts = fake_timestamp()
 
@@ -113,15 +113,15 @@ def service(monkeypatch) -> LocationService:
                 timestamp=ts,
             )
         if "realcity" in name:
-            # Let the geocoder supply lat/lng; only return the normalised name
+            geo_hit = geocoder.get_or_create_location(None, "realcity_rc") if geocoder else None
             return LocationOut(
                 raw_name=raw_place,
                 normalized_name="realcity_rc",
-                latitude=None,
-                longitude=None,
-                confidence_score=0.0,
-                status="needs_geocode",
-                source="raw",
+                latitude=geo_hit.get("latitude") if isinstance(geo_hit, dict) else getattr(geo_hit, "latitude", None),
+                longitude=geo_hit.get("longitude") if isinstance(geo_hit, dict) else getattr(geo_hit, "longitude", None),
+                confidence_score=geo_hit.get("confidence_score", 0.0) if isinstance(geo_hit, dict) else getattr(geo_hit, "confidence_score", 0.0),
+                status=geo_hit.get("status", "needs_geocode") if isinstance(geo_hit, dict) else getattr(geo_hit, "status", "needs_geocode"),
+                source=geo_hit.get("source", "raw") if isinstance(geo_hit, dict) else getattr(geo_hit, "source", "raw"),
                 timestamp=ts,
             )
         if "mississippi" in name and event_year < 1890:
@@ -212,14 +212,6 @@ def test_nonsense_input(service):
     assert out.status == "unresolved"
     assert out.latitude is None
 
-def test_loader_respects_env_dir(tmp_path):
-    """If we point MAPEM_DATA_DIR at tmp_path the service should load from it."""
-    (tmp_path / "manual_place_fixes.json").write_text(
-        json.dumps({"sample_town": {"lat": 9.9, "lng": 8.8}})
-    )
-    service = LocationService(data_dir=str(tmp_path))
-    assert "sample_town" in service.manual_fixes           # key is normalized later
-
 
 def test_override_applies_before_geocoder(service, monkeypatch):
     """
@@ -232,6 +224,6 @@ def test_override_applies_before_geocoder(service, monkeypatch):
 
     monkeypatch.setattr("backend.services.location_service.Geocode", lambda *a, **k: BoomGeocode())
 
-    svc = LocationService(api_key="X", data_dir=os.getenv("MAPEM_DATA_DIR"))
+    svc = LocationService(api_key="X")
     out = svc.resolve_location("Test City, TC", event_year=2000)
     assert out.latitude == 1.1 and out.status.startswith("manual")
