@@ -164,10 +164,12 @@ def process_location(
     event_year: Optional[int] = None,
     tree_id: Optional[str] = None,
     db_session=None,
+    geocoder: Optional[Geocode] = None,
 ) -> LocationOut:
     """Primary resolver used by parser & API."""
     now = datetime.now(timezone.utc).isoformat()
     norm = normalize_location(raw_place)
+    geo_service = geocoder or GEOCODER
 
     logger.info(
         "🌍 process_location: raw='%s' | norm='%s' | tag=%s | yr=%s",
@@ -225,14 +227,14 @@ def process_location(
     if norm in FUZZY_ALIASES:
         aliased = FUZZY_ALIASES[norm]
         logger.info("🔁 alias_fix '%s' → '%s'", raw_place, aliased)
-        return process_location(aliased, source_tag, event_year, tree_id, db_session)
+        return process_location(aliased, source_tag, event_year, tree_id, db_session, geocoder)
 
     # 4. RapidFuzz auto-fix
     if _KNOWN_LOCATIONS:
         match, score, _ = fuzz.extractOne(norm, _KNOWN_LOCATIONS)
         if score >= 85:
             logger.info("✨ RapidFuzz %d%% '%s' → '%s'", score, raw_place, match)
-            return process_location(match, source_tag, event_year, tree_id, db_session)
+            return process_location(match, source_tag, event_year, tree_id, db_session, geocoder)
 
     # 5. vague county fallback
     if norm in COUNTY_VAGUE:
@@ -280,10 +282,18 @@ def process_location(
         )
 
     # 8. API geocode / DB fuzzy
-    geo = GEOCODER.get_or_create_location(db_session, raw_place)
+    geo = geo_service.get_or_create_location(db_session, raw_place)
     if geo and geo.latitude is not None and geo.longitude is not None:
-        logger.info("✅ api_geocode '%s' → (%s,%s)", raw_place, geo.latitude, geo.longitude)
-        geo.status = geo.status or "ok"
+        if (
+            geo.latitude == 0.0
+            and geo.longitude == 0.0
+            and event_year is not None
+            and event_year < 1890
+        ):
+            logger.info("🟠 0,0 coords pre-1890 → vague_state_pre1890")
+            geo.status = "vague_state_pre1890"
+        else:
+            geo.status = geo.status or "ok"
         geo.timestamp = now
         return geo
 

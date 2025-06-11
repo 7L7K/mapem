@@ -1,6 +1,6 @@
 import datetime as _dt
 import pytest
-from backend.db import SessionLocal
+import backend.db as db
 from backend.models import UploadedTree, TreeVersion, Event
 from backend.services.query_builders import build_event_query
 from backend.services.filters import normalize_filters
@@ -16,7 +16,7 @@ from backend.models import event_participants
 
 # ─── fixture ──────────────────────────────────────────────────────────
 @pytest.fixture
-def seeded_tree_and_events(db_session):
+def seeded_tree_and_events(app, db_session):
     ut = UploadedTree(  tree_name="QB Test")
     db_session.add(ut); db_session.flush()
 
@@ -36,7 +36,7 @@ def seeded_tree_and_events(db_session):
 
 
 # ─── tests ────────────────────────────────────────────────────────────
-def test_query_with_basic_year_range(db_session, seeded_tree_and_events):
+def test_query_with_basic_year_range(app, db_session, seeded_tree_and_events):
     filters = {
         "year": {"min": 1800, "max": 1950},
         "eventTypes": {"birth": True, "death": True},
@@ -49,7 +49,7 @@ def test_query_with_basic_year_range(db_session, seeded_tree_and_events):
     assert {r.event_type for r in rows} == {"birth", "death"}
 
 
-def test_query_filters_out_death_events(db_session, seeded_tree_and_events):
+def test_query_filters_out_death_events(app, db_session, seeded_tree_and_events):
     filters = {
         "year": {"min": 1800, "max": 1950},
         "eventTypes": {"birth": True, "death": False},
@@ -60,20 +60,20 @@ def test_query_filters_out_death_events(db_session, seeded_tree_and_events):
     assert all(r.event_type == "birth" for r in rows)
 
 
-def test_event_query_builds_ok():
+def test_event_query_builds_ok(app):
     filters = normalize_filters({
         "eventTypes": ["birth"],
         "sources": ["manual"],
         "year": {"min": 1800, "max": 2000},
     })
-    session = SessionLocal()
+    session = db.SessionLocal()
     try:
         str(build_event_query(session, tree_id=1, filters=filters))  # compile-time only
     finally:
         session.close()
 
 
-def test_query_with_event_type_filter(db_session, seeded_tree_and_events):
+def test_query_with_event_type_filter(app, db_session, seeded_tree_and_events):
     filters = {
         "eventTypes": {"birth": True, "death": False},
         "year": {"min": 1800, "max": 2000},
@@ -85,7 +85,7 @@ def test_query_with_event_type_filter(db_session, seeded_tree_and_events):
 
 from uuid import uuid4
 
-def test_query_filters_by_participant(db_session, seeded_tree_and_events):
+def test_query_filters_by_participant(app, db_session, seeded_tree_and_events):
     tree_id = seeded_tree_and_events
 
     alice = Individual(

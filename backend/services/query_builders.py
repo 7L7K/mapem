@@ -6,7 +6,7 @@ from sqlalchemy.orm import Query, Session
 
 from backend.models import Event, Location, Individual, Family
 from backend.models.event import event_participants      # ⬅️ NEW
-from backend.db import SessionLocal
+import backend.db as db
 
 logger = logging.getLogger("mapem.query_builders")
 
@@ -149,7 +149,7 @@ def build_event_query(session: Session, tree_id: int, filters: Dict[str, Any]) -
 
 def compute_visible_counts(tree_id: int, filters: Dict[str, Any]) -> Dict[str, int]:
     logger.debug("🧮 compute_visible_counts tree=%s", tree_id)
-    session = SessionLocal()
+    session = db.SessionLocal()
     try:
         q = build_event_query(session, tree_id, filters)
         rows = (q.with_entities(Event.event_type, func.count().label("cnt"))
