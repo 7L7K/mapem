@@ -9,11 +9,16 @@ from typing import Final
 
 from flask import Blueprint, jsonify, request
 
+import subprocess
+import sys
 from backend.db import SessionLocal
 from backend.models import TreeVersion, UploadedTree
 from backend.services.location_service import LocationService
 from backend.services.parser import GEDCOMParser
-from backend.utils.helpers import generate_temp_path
+from backend.utils.helpers import (
+    generate_temp_path,
+    increment_upload_count,
+)
 from backend.utils.debug_routes import debug_route
 from backend.utils.logger import get_file_logger
 
@@ -188,6 +193,20 @@ def upload_tree():
                     version.id,
                 )
                 logger.info("🎉 Upload and parse complete!")
+
+                count = increment_upload_count()
+                logger.debug("📈 upload_count updated to %s", count)
+                if count % 5 == 0:
+                    script = (
+                        Path(__file__).resolve().parents[2]
+                        / "scripts"
+                        / "retry_unresolved.py"
+                    )
+                    logger.info("🔁 Running unresolved retry batch — count=%s", count)
+                    try:
+                        subprocess.run([sys.executable, str(script)], check=True)
+                    except Exception as exc:
+                        logger.error("⚠️ retry_unresolved.py failed: %s", exc)
 
                 return (
                     jsonify(

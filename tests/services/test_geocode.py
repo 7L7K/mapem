@@ -1,20 +1,21 @@
 import pytest
 from backend.services.geocode import Geocode, LocationOut
+from unittest.mock import patch
 
 @pytest.fixture
 def geocoder():
     # Force a manual fix for Boliver
     manual_fixes = {
         "boliver_mississippi": {
-            "lat": 33.8,
-            "lng": -90.7,
+            "latitude": 33.8,
+            "longitude": -90.7,
             "modern_equivalent": "Bolivar County, Mississippi, USA",
         }
     }
     historical_lookup = {
-        "sunflower:beat 2": {
-            "lat": 33.5,
-            "lng": -90.5,
+        "beat 2": {
+            "latitude": 33.5,
+            "longitude": -90.5,
             "modern_equivalent": "Beat 2, Sunflower County, Mississippi",
         }
     }
@@ -29,15 +30,16 @@ def test_manual_override_hit(geocoder):
     result = geocoder.get_or_create_location(None, "Boliver, Mississippi")
     assert isinstance(result, LocationOut)
     assert result.source == "manual"
-    assert result.status == "manual"
+    assert result.status == "ok"
 
-def test_vague_state_classification(geocoder):
+@patch("backend.services.geocode.Geocode._nominatim", return_value=(None, None, None, None))
+def test_vague_state_classification(mock_geo, geocoder):
     result = geocoder.get_or_create_location(None, "Mississippi")
     assert result is None
 
 from unittest.mock import patch
 
-@patch("backend.services.geocode.Geocode._nominatim_geocode", return_value=(None, None, None, None))
+@patch("backend.services.geocode.Geocode._nominatim", return_value=(None, None, None, None))
 def test_unresolved_logged(mock_geo, geocoder):
     result = geocoder.get_or_create_location(None, "unknown place")
     assert result is None

@@ -1,13 +1,24 @@
-# os.path.expanduser("~")/mapem/backend/config.py
+# backend/config.py
 
-from pydantic_settings import BaseSettings
-from pydantic import computed_field
-from typing import ClassVar  # ✅ This is required for SQLALCHEMY_ECHO
+import os
 from pathlib import Path
+from pydantic_settings import BaseSettings
+from typing import ClassVar
 
+# ─────────────────────────────────────────────
+# File System Constants
+# ─────────────────────────────────────────────
+
+# Always points to backend/
 BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
-LOG_DIR = BASE_DIR / "logs"
+
+# Allow override with MAPEM_DATA_DIR and MAPEM_LOG_DIR, else default to subfolders in backend/
+DATA_DIR = Path(os.getenv("MAPEM_DATA_DIR", BASE_DIR / "data"))
+LOG_DIR = Path(os.getenv("MAPEM_LOG_DIR", BASE_DIR / "logs"))
+
+# ─────────────────────────────────────────────
+# Settings Class (Pydantic)
+# ─────────────────────────────────────────────
 
 class Settings(BaseSettings):
     DB_NAME: str = "genealogy_db"
@@ -18,8 +29,8 @@ class Settings(BaseSettings):
     PORT: int = 5050
     DEBUG: bool = False
     GOOGLE_MAPS_API_KEY: str = ""
-    GEOCODE_API_KEY: str = ""   # <---- ADD THIS LINE
-    SQLALCHEMY_ECHO: ClassVar[bool] = True  # ✅ FIXED
+    GEOCODE_API_KEY: str = ""
+    SQLALCHEMY_ECHO: ClassVar[bool] = True  # Can make dynamic if you want
 
     @property
     def database_uri(self) -> str:
@@ -31,12 +42,28 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
-        extra = "allow"  # This is fine
+        extra = "allow"
 
-# ✅ Global instance
+# Global instance
 settings = Settings()
 
-import os
-print("🧪 GEOCODE_API_KEY =", os.getenv("GEOCODE_API_KEY"))
-print("📦 Loaded geocode key:", "✅" if settings.GOOGLE_MAPS_API_KEY else "❌ MISSING")
+# ─────────────────────────────────────────────
+# Visible Path & Key Check (Debug)
+# ─────────────────────────────────────────────
+
+def _show_partial_key(key: str) -> str:
+    if not key:
+        return "❌ MISSING"
+    if len(key) < 8:
+        return "🔒 (short/hidden)"
+    return key[:4] + "..." + key[-4:]
+
+if __name__ == "__main__" or os.getenv("MAPEM_DEBUG_CONFIG", "") == "1":
+    print("🗂️  BASE_DIR:", BASE_DIR)
+    print("📁 DATA_DIR:", DATA_DIR)
+    print("🗂️  LOG_DIR:", LOG_DIR)
+    print("🔑 GOOGLE_MAPS_API_KEY:", _show_partial_key(settings.GOOGLE_MAPS_API_KEY))
+    print("🔑 GEOCODE_API_KEY:", _show_partial_key(settings.GEOCODE_API_KEY))
+    print("🐘 DB URI:", settings.database_uri)
+    print("🛠️  SQLALCHEMY_ECHO:", settings.SQLALCHEMY_ECHO)
 

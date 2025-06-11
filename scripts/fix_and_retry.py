@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """
-Load unresolved_locations.jsonl, apply manual fixes or geocode retries,
+Load unresolved_locations.json, apply manual fixes or geocode retries,
 and update the database. Supports optional --tree filtering.
 """
 
-import sys, os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
+import sys
+import os
 import json
 import logging
 import shutil
 import argparse
 from datetime import datetime
+from pathlib import Path
 from sqlalchemy.orm import sessionmaker
 
 from backend.db import get_engine
@@ -19,51 +19,46 @@ from backend.models import location_models as models
 from backend.services.geocode import Geocode
 from backend.services.location_processor import log_unresolved_location
 from backend.utils.helpers import normalize_location
-from backend.utils.logger import get_file_logger  # ✅ this line
+from backend.utils.logger import get_file_logger
 from backend.config import DATA_DIR
 
-logger = get_file_logger("fix_and_retry")  # ✅ sets up file logging
+logger = get_file_logger("fix_and_retry")
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 
-
-# ─── Config ──────────────────────────────────────────────────────
-UNRESOLVED_LOG = DATA_DIR / "unresolved_locations.jsonl"
+# ─── Paths Config ───────────────────────────────────────────────────────────
+DATA_DIR = Path(DATA_DIR)
+DATA_DIR.mkdir(exist_ok=True, parents=True)
+UNRESOLVED_LOG = DATA_DIR / "unresolved_locations.json"
 DEFAULT_FIXES = DATA_DIR / "manual_place_fixes.json"
 
-# ─── Logger Setup ────────────────────────────────────────────────
-logger = logging.getLogger("fix_and_retry")
-logging.basicConfig(level=logging.DEBUG, format="%(asctime)s | %(levelname)s | %(message)s")
-
-# ─── Argument Parser ─────────────────────────────────────────────
+# ─── Argparse ───────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()
-parser.add_argument("--manual_fixes", type=str, default=DEFAULT_FIXES,
+parser.add_argument("--manual_fixes", type=str, default=str(DEFAULT_FIXES),
                     help="Path to manual_place_fixes.json")
 parser.add_argument("--tree", type=str,
                     help="Optional: only retry entries from this tree ID")
 args = parser.parse_args()
 
-
 def load_unresolved():
-    if not os.path.exists(UNRESOLVED_LOG):
-        logger.error("❌ unresolved_locations.jsonl not found.")
+    if not UNRESOLVED_LOG.exists():
+        logger.error(f"❌ {UNRESOLVED_LOG} not found.")
         return []
-    with open(UNRESOLVED_LOG, "r") as f:
-        lines = []
-        for i, line in enumerate(f, 1):
-            try:
-                lines.append(json.loads(line))
-            except json.JSONDecodeError as e:
-                logger.warning(f"⚠️ Skipping malformed line {i}: {e}")
-        logger.info(f"📄 Loaded {len(lines)} unresolved entries from JSONL.")
-        return lines
-
+    with open(UNRESOLVED_LOG, "r", encoding="utf-8") as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.error(f"❌ Failed to parse {UNRESOLVED_LOG}: {e}")
+            return []
+    logger.info(f"📄 Loaded {len(data)} unresolved entries from {UNRESOLVED_LOG.name}.")
+    return data
 
 def load_manual_fixes(path):
-    if not os.path.exists(path):
+    path = Path(path)
+    if not path.exists():
         logger.error(f"❌ Manual fixes file not found: {path}")
         return {}
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
-
 
 def apply_manual_fixes():
     unresolved = load_unresolved()
@@ -78,7 +73,7 @@ def apply_manual_fixes():
         logger.info(f"🌳 Tree filter: {args.tree} → {len(unresolved)} entries (of {before})")
 
     # Backup unresolved log
-    if os.path.exists(UNRESOLVED_LOG):
+    if UNRESOLVED_LOG.exists():
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_path = UNRESOLVED_LOG.with_name(UNRESOLVED_LOG.name + f".bak.{timestamp}")
         shutil.copyfile(UNRESOLVED_LOG, backup_path)
@@ -102,17 +97,16 @@ def apply_manual_fixes():
         logger.debug(f"Checking fix for '{raw}' (norm: {norm}): {fix}")
 
         if fix:
+            session = Session()
             try:
                 logger.info(f"✅ Applying fix for '{raw}' → {fix}")
-                session = Session()
-
                 if fix.get("lat") is not None and fix.get("lng") is not None:
                     loc_out = {
                         "raw_name": raw,
-                        "normalized_name": fix.get("modern_equivalent", norm),
+                        "normalized_name": fix.get("normalized_name") or fix.get("modern_equivalent") or norm,
                         "latitude": fix["lat"],
                         "longitude": fix["lng"],
-                        "confidence_score": fix.get("confidence", 1.0),
+                        "confidence_score": float(fix.get("confidence", 1.0)),
                         "confidence_label": "manual",
                         "status": "manual",
                         "source": "manual"
@@ -123,12 +117,10 @@ def apply_manual_fixes():
                         session.add(loc)
                         session.commit()
 
+                    # Log resolved status (for audit)
                     log_unresolved_location(
-                        raw_name=raw,
+                        raw,
                         reason="manual_fix_applied",
-                        status="fixed",
-                        source_tag="manual_retry",
-                        suggested_fix=f"{loc_out['latitude']},{loc_out['longitude']}",
                         tree_id=entry.get("tree_id")
                     )
                 else:
@@ -145,7 +137,5 @@ def apply_manual_fixes():
 
     logger.info(f"✅ Done. {len(unresolved) - len(still_unresolved)} fixed, {len(still_unresolved)} unresolved remain.")
 
-
-# ─── Entry Point ─────────────────────────────────────────────────
 if __name__ == "__main__":
     apply_manual_fixes()

@@ -15,7 +15,7 @@ from urllib.parse import urlencode
 
 import requests
 
-from backend.config import settings
+from backend.config import settings, DATA_DIR
 from backend.models.location_models import LocationOut
 from backend.utils.helpers import normalize_location, calculate_name_similarity
 from backend.utils.logger import get_file_logger
@@ -26,7 +26,7 @@ logger = get_file_logger("geocode")
 DEFAULT_CACHE_PATH = Path(
     os.getenv(
         "GEOCODE_CACHE_FILE",
-        Path(__file__).resolve().parent.parent / "geocode_cache.json",
+        DATA_DIR / "permanent_geocodes.json",
     )
 )
 FAIL_TTL_SECONDS = 3600  # 1 hour
