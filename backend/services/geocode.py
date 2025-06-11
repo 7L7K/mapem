@@ -93,7 +93,10 @@ class HistoricalGeocoder:
     """Lookup old place names from a historical table."""
 
     def __init__(self, data: Optional[Dict[str, Any]] = None) -> None:
-        self.data = {normalize_location(k): v for k, v in (data or {}).items()}
+        self.data = {
+            (normalize_location(k) if normalize_location(k) is not None else k): v
+            for k, v in (data or {}).items()
+        }
 
     def resolve(self, geocode: "Geocode", session, place: str) -> Optional[LocationOut]:
         key = normalize_location(place)
