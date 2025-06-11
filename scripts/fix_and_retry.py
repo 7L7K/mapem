@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Load unresolved_locations.jsonl, apply manual fixes or geocode retries,
+Load unresolved_locations.json, apply manual fixes or geocode retries,
 and update the database. Supports optional --tree filtering.
 """
 
@@ -27,7 +27,7 @@ logger = get_file_logger("fix_and_retry")  # ✅ sets up file logging
 # ─── Config ──────────────────────────────────────────────────────
 BASE = os.path.dirname(os.path.dirname(__file__))
 DATA_DIR = os.path.join(BASE, "backend", "data")
-UNRESOLVED_LOG = os.path.join(DATA_DIR, "unresolved_locations.jsonl")
+UNRESOLVED_LOG = os.path.join(DATA_DIR, "unresolved_locations.json")
 DEFAULT_FIXES = os.path.join(DATA_DIR, "manual_place_fixes.json")
 
 # ─── Logger Setup ────────────────────────────────────────────────
@@ -45,17 +45,16 @@ args = parser.parse_args()
 
 def load_unresolved():
     if not os.path.exists(UNRESOLVED_LOG):
-        logger.error("❌ unresolved_locations.jsonl not found.")
+        logger.error("❌ unresolved_locations.json not found.")
         return []
-    with open(UNRESOLVED_LOG, "r") as f:
-        lines = []
-        for i, line in enumerate(f, 1):
-            try:
-                lines.append(json.loads(line))
-            except json.JSONDecodeError as e:
-                logger.warning(f"⚠️ Skipping malformed line {i}: {e}")
-        logger.info(f"📄 Loaded {len(lines)} unresolved entries from JSONL.")
-        return lines
+    with open(UNRESOLVED_LOG, "r", encoding="utf-8") as f:
+        try:
+            data = json.load(f)
+        except json.JSONDecodeError as e:
+            logger.error("❌ Failed to parse unresolved_locations.json: %s", e)
+            return []
+    logger.info(f"📄 Loaded {len(data)} unresolved entries from JSON.")
+    return data
 
 
 def load_manual_fixes(path):

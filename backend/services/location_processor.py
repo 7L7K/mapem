@@ -33,7 +33,7 @@ logger = get_file_logger("location_processor")
 DATA_DIR            = os.path.join(os.path.dirname(__file__), "..", "data")
 MANUAL_FIXES_PATH   = os.path.join(DATA_DIR, "manual_place_fixes.json")
 FUZZY_ALIASES_PATH  = os.path.join(DATA_DIR, "fuzzy_aliases.json")
-UNRESOLVED_LOG_PATH = os.path.join(DATA_DIR, "unresolved_locations.jsonl")
+UNRESOLVED_LOG_PATH = os.path.join(DATA_DIR, "unresolved_locations.json")
 HISTORICAL_DIR      = os.path.join(DATA_DIR, "historical_places")
 
 GEOCODER = Geocode(api_key=settings.GEOCODE_API_KEY)
@@ -139,8 +139,17 @@ def _log_unresolved_once(raw: str, reason: str, tree_id: Optional[str]) -> None:
         "tree_id": tree_id,
     }
     try:
-        with open(UNRESOLVED_LOG_PATH, "a") as f:
-            f.write(json.dumps(entry) + "\n")
+        data = []
+        if os.path.exists(UNRESOLVED_LOG_PATH):
+            with open(UNRESOLVED_LOG_PATH, "r", encoding="utf-8") as f:
+                try:
+                    data = json.load(f)
+                except json.JSONDecodeError:
+                    logger.warning("⚠️ Corrupt unresolved log; starting fresh")
+                    data = []
+        data.append(entry)
+        with open(UNRESOLVED_LOG_PATH, "w", encoding="utf-8") as f:
+            json.dump(data, f, indent=2)
         logger.warning("📝 unresolved logged: %s", entry)
     except Exception as e:
         logger.error("❌ failed to write unresolved_location for '%s': %s", raw, e)
