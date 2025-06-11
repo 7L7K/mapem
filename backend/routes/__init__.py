@@ -1,30 +1,29 @@
-# backend/routes/__init__.py
 """
 Central blueprint registry.
-Adds new routes safely (skip if already registered) and logs everything.
+Adds new routes safely (skips if already registered) and logs everything.
 """
 
 from backend.utils.logger import get_file_logger
-
 logger = get_file_logger("route_registry")
 
-from .upload   import upload_routes
-from .trees    import tree_routes
-from .events   import event_routes
-from .people   import people_routes
-from .timeline import timeline_routes
-from .schema   import schema_routes
-from .debug    import debug_routes
-from backend.routes.movements import movements_routes
-from backend.routes.health    import health_routes
-from backend.routes.heatmap   import heatmap_routes
-from backend.routes.geocode_api import bp as geocode_routes  # ← NEW
-from backend.routes.geocode_dashboard import geocode_dashboard
-from backend.routes.analytics import analytics_routes
+# ─── Modular Routes ─────────────────────────────────────────────
+from .upload               import upload_routes
+from .trees                import tree_routes
+from .events               import event_routes
+from .people               import people_routes
+from .timeline             import timeline_routes
+from .schema               import schema_routes
+from .debug                import debug_routes
+from .movements            import movements_routes
+from .health               import health_routes
+from .heatmap              import heatmap_routes
+from .geocode_api          import bp as geocode_routes   # 🆕 Admin API
+from .geocode_dashboard    import geocode_dashboard      # 🆕 UI pages
+from .analytics            import analytics_routes
 
 from backend.utils.debug_routes import debug_route
 
-
+# ─── Register All Blueprints Safely ─────────────────────────────
 @debug_route
 def register_routes(app):
     """Call this once in main.py to wire every route blueprint."""
@@ -41,8 +40,8 @@ def register_routes(app):
         health_routes,
         heatmap_routes,
         analytics_routes,
-        geocode_routes,        # ← NEW
-        geocode_dashboard,
+        geocode_routes,        # 🧭 Admin geocode API endpoints
+        geocode_dashboard,     # 📊 Geocode dashboard views
     ]
 
     for bp in routes:

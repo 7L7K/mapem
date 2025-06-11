@@ -32,7 +32,7 @@ families or comparison groups:
 import PersonSelector from '@/features/map/components/PersonSelector';
 import FamilySelector from '@/features/map/components/FamilySelector';
 import GroupSelector  from '@/features/map/components/GroupSelector';
-import { useSearch } from '@/shared/context/SearchContext';
+import { useSearch } from '@shared/context/SearchContext';
 
 function MapControls() {
   const { mode } = useSearch();

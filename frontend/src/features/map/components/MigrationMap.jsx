@@ -1,4 +1,3 @@
-// frontend/src/features/map/components/MigrationMap.jsx
 import React, { useRef, useEffect, useState } from "react";
 import {
   MapContainer,
@@ -12,8 +11,6 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Default Leaflet marker icon
-// ─────────────────────────────────────────────────────────────────────────────
 const defaultIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
   iconSize: [25, 41],
@@ -21,9 +18,6 @@ const defaultIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// RecenterMap Component
-// ─────────────────────────────────────────────────────────────────────────────
 function RecenterMap({ center }) {
   const map = useMap();
   useEffect(() => {
@@ -35,17 +29,13 @@ function RecenterMap({ center }) {
   return null;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MigrationMap
-// ─────────────────────────────────────────────────────────────────────────────
 export default function MigrationMap({
   movements = [],
   onMarkerClick = () => {},
   activePersonIds = new Set(),
 }) {
   const mapRef = useRef(null);
-  console.log("🧠 [DEBUG] movements passed to MigrationMap:", movements);
-
+  if (import.meta.env.DEV) console.log("🧠 [DEBUG] movements passed to MigrationMap:", movements);
 
   // ─── 1. Invalidate Leaflet size once on mount ────────────────────────────
   useEffect(() => {
@@ -57,13 +47,30 @@ export default function MigrationMap({
     }
   }, []);
 
-  // ─── 2. Collect unique place strings ─────────────────────────────────────
-  const uniqueLocations = React.useMemo(() => {
-    const set = new Set();
+  // ─── 2. Build a map of locations that are missing lat/lng ────────────────
+  const uniqueLocationsToGeocode = React.useMemo(() => {
+    // Map location => array of movements using it
+    const locMap = new Map();
     movements.forEach((mv) => {
-      if (mv.location) set.add(String(mv.location).trim().toLowerCase());
+      if (!mv.location) return;
+      const key = String(mv.location).trim().toLowerCase();
+      if (!locMap.has(key)) locMap.set(key, []);
+      locMap.get(key).push(mv);
     });
-    return Array.from(set);
+    // Only include locations where at least one movement is missing lat/lng
+    return Array.from(locMap.entries())
+      .filter(([loc, mvs]) =>
+        mvs.some(
+          (mv) =>
+            mv.latitude === undefined ||
+            mv.longitude === undefined ||
+            mv.latitude === null ||
+            mv.longitude === null ||
+            isNaN(Number(mv.latitude)) ||
+            isNaN(Number(mv.longitude))
+        )
+      )
+      .map(([loc]) => loc);
   }, [movements]);
 
   // ─── 3. geocodedMap state { place → [lat,lng]|null } ─────────────────────
@@ -71,13 +78,13 @@ export default function MigrationMap({
 
   // ─── 4. Fetch coords via backend /api/geocode?place=... ──────────────────
   useEffect(() => {
-    if (uniqueLocations.length === 0) return;
+    if (uniqueLocationsToGeocode.length === 0) return;
     setGeocodedMap({});
 
     import.meta.env.DEV &&
-      console.log("📍 [MigrationMap] Geocoding:", uniqueLocations);
+      console.log("📍 [MigrationMap] Geocoding ONLY unresolved:", uniqueLocationsToGeocode);
 
-    uniqueLocations.forEach(async (place) => {
+    uniqueLocationsToGeocode.forEach(async (place) => {
       if (!place || place.length > 150) {
         import.meta.env.DEV && console.warn(`[Geocode 🧹] Skipping invalid place: "${place}"`);
         setGeocodedMap((prev) => ({ ...prev, [place]: null }));
@@ -111,14 +118,17 @@ export default function MigrationMap({
           console.error(`❌ [Geocode ERROR] "${place}" –`, err.message || err);
       }
     });
-  }, [uniqueLocations]);
+  }, [uniqueLocationsToGeocode]);
 
   // ─── 5. Build finalMovements with fallback override ──────────────────────
   const finalMovements = React.useMemo(() => {
     return movements.map((mv) => {
       let [lat, lng] = [mv.latitude, mv.longitude];
-      const fallback = lat === 37.8 && lng === -96;
-      if (fallback && mv.location) {
+      // If missing, try to use geocodedMap
+      if (
+        (lat === undefined || lng === undefined || lat === null || lng === null || isNaN(Number(lat)) || isNaN(Number(lng))) &&
+        mv.location
+      ) {
         const key = String(mv.location).trim().toLowerCase();
         if (Array.isArray(geocodedMap[key])) {
           [lat, lng] = geocodedMap[key];
@@ -130,14 +140,14 @@ export default function MigrationMap({
 
   // filter movements with real coords
   const validMovements = finalMovements.filter(
-    (mv) => typeof mv._markerLat === "number" && typeof mv._markerLng === "number",
+    (mv) => typeof mv._markerLat === "number" && typeof mv._markerLng === "number" && !isNaN(mv._markerLat) && !isNaN(mv._markerLng),
   );
 
   // ─── 6. Dev warn for any still-null coords ───────────────────────────────
   useEffect(() => {
     if (!import.meta.env.DEV) return;
     const missing = finalMovements.filter(
-      (mv) => typeof mv._markerLat !== "number" || typeof mv._markerLng !== "number",
+      (mv) => typeof mv._markerLat !== "number" || typeof mv._markerLng !== "number" || isNaN(mv._markerLat) || isNaN(mv._markerLng)
     );
     if (missing.length) {
       console.warn("⚠️ [MigrationMap] Missing coords:", missing);
@@ -194,11 +204,11 @@ export default function MigrationMap({
           <div>📝 movements fetched: {movements.length}</div>
           <div>📌 after fallback: {finalMovements.length}</div>
           <div>🗺️ displayed: {validMovements.length}</div>
-          <div>🔍 unique geocodes: {uniqueLocations.length}</div>
+          <div>🔍 unique geocodes needed: {uniqueLocationsToGeocode.length}</div>
           <div>
             🌍 resolved:{" "}
             {Object.values(geocodedMap).filter((v) => Array.isArray(v)).length} /{" "}
-            {uniqueLocations.length}
+            {uniqueLocationsToGeocode.length}
           </div>
         </div>
       )}

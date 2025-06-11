@@ -132,7 +132,8 @@ def _log_unresolved_once(raw: str, reason: str, tree_id: Optional[str]) -> None:
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "reason": reason,
         "status": "manual_fix_pending",
-        "tree_id": tree_id,
+        # stringify the UUID so json.dump won’t freak out
+        "tree_id": str(tree_id) if tree_id is not None else None,
     }
     try:
         data = []

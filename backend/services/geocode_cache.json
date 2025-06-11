@@ -1,0 +1,498 @@
+{
+  "spay_choctaw_mississippi_usa": [
+    33.1500096,
+    -89.2262762,
+    "Spay Road, Choctaw County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657227.325451
+  ],
+  "mississippi_usa": [
+    32.9715285,
+    -89.7348497,
+    "Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657228.23936
+  ],
+  "pheba_clay_mississippi_usa": [
+    33.584287,
+    -88.9497805,
+    "Pheba, Clay County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657229.3851268
+  ],
+  "mississippi_united_states": [
+    32.9715285,
+    -89.7348497,
+    "Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657230.2019808
+  ],
+  "beat_5_choctaw_mississippi_usa": [
+    null,
+    null,
+    "Beat 5, Choctaw, Mississippi, USA",
+    0.0,
+    "geocoder",
+    1749657294.9128351
+  ],
+  "beat_4_tallahatchie_mississippi_usa": [
+    null,
+    null,
+    "Beat 4, Tallahatchie, Mississippi, USA",
+    0.0,
+    "geocoder",
+    1749657287.0689988
+  ],
+  "beat_2_beat_2_sunflower_mississippi_usa": [
+    null,
+    null,
+    "Beat 2, Beat 2, Sunflower, Mississippi, USA",
+    0.0,
+    "geocoder",
+    1749657233.372873
+  ],
+  "chicago_cook_illinois_united_states_of_america": [
+    41.8755616,
+    -87.6244212,
+    "Chicago, Cook County, Illinois, United States",
+    0.8,
+    "nominatim",
+    1749657234.505036
+  ],
+  "beat_4_leflore_mississippi_usa": [
+    null,
+    null,
+    "Beat 4, Leflore, Mississippi, USA",
+    0.0,
+    "geocoder",
+    1749657249.666163
+  ],
+  "ruleville_sunflower_mississippi_usa": [
+    33.7259478,
+    -90.5514806,
+    "Ruleville, Sunflower County, Mississippi, 38771, United States",
+    0.8,
+    "nominatim",
+    1749657236.4491541
+  ],
+  "st_louis_missouri_usa": [
+    38.6280278,
+    -90.1910154,
+    "Saint Louis, Missouri, United States",
+    0.8,
+    "nominatim",
+    1749657238.497289
+  ],
+  "itta_bena_mississippi_usa": [
+    33.4951269,
+    -90.3229458,
+    "Itta Bena, Leflore County, Mississippi, 38941, United States",
+    0.8,
+    "nominatim",
+    1749657241.404706
+  ],
+  "greenville_washington_mississippi_usa": [
+    33.4111051,
+    -91.0635857,
+    "Greenville, Washington County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657242.291002
+  ],
+  "hillside_cook_county_illinois_united_states_of_america": [
+    41.8778084,
+    -87.9028398,
+    "Hillside, Proviso Township, Cook County, Illinois, 60162, United States",
+    0.8,
+    "nominatim",
+    1749657245.494025
+  ],
+  "chicago_cook_illinois_usa": [
+    41.8755616,
+    -87.6244212,
+    "Chicago, Cook County, Illinois, United States",
+    0.8,
+    "nominatim",
+    1749657247.318513
+  ],
+  "south_carolina_usa": [
+    33.6874388,
+    -80.4363743,
+    "South Carolina, United States",
+    0.8,
+    "nominatim",
+    1749657254.5769842
+  ],
+  "franklin_monroe_county_alabama_united_states_of_america": [
+    31.7145996,
+    -87.4113791,
+    "Franklin, Monroe County, Alabama, United States",
+    0.8,
+    "nominatim",
+    1749657255.600068
+  ],
+  "winston_mississippi": [
+    33.0603103,
+    -89.0495278,
+    "Winston County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657256.7826922
+  ],
+  "police_district_1_harrison_mississippi_usa": [
+    null,
+    null,
+    "Police District 1, Harrison, Mississippi, USA",
+    0.0,
+    "geocoder",
+    1749657258.401081
+  ],
+  "township_16_range_10_new_prospect_winston_mississippi_usa": [
+    null,
+    null,
+    "Township 16 Range 10, New Prospect, Winston, Mississippi, USA",
+    0.0,
+    "geocoder",
+    1749657261.223294
+  ],
+  "district_10_la_grange_fayette_tennessee_usa": [
+    null,
+    null,
+    "District 10, La Grange, Fayette, Tennessee, USA",
+    0.0,
+    "geocoder",
+    1749657267.347851
+  ],
+  "district_12_fayette_tennessee_usa": [
+    null,
+    null,
+    "District 12, Fayette, Tennessee, USA",
+    0.0,
+    "geocoder",
+    1749657286.076751
+  ],
+  "ackerman_mississippi": [
+    33.3101243,
+    -89.1728434,
+    "Ackerman, Choctaw County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657277.778728
+  ],
+  "ackerman_mississippi_united_states": [
+    33.3101243,
+    -89.1728434,
+    "Ackerman, Choctaw County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657278.881723
+  ],
+  "sunflower_mississippi": [
+    33.4980504,
+    -90.602067,
+    "Sunflower County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657287.872169
+  ],
+  "beat_2_sunflower_mississippi_usa": [
+    null,
+    null,
+    "Beat 2, Sunflower, Mississippi, USA",
+    0.0,
+    "geocoder",
+    1749657307.563158
+  ],
+  "louisiana_united_states": [
+    30.8703881,
+    -92.007126,
+    "Louisiana, United States",
+    0.8,
+    "nominatim",
+    1749657289.8545659
+  ],
+  "rural_sunflower_mississippi": [
+    null,
+    null,
+    "Rural, Sunflower, Mississippi",
+    0.0,
+    "geocoder",
+    1749657308.827586
+  ],
+  "choctaw_mississippi": [
+    33.3569348,
+    -89.2390212,
+    "Choctaw County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657291.688391
+  ],
+  "ackerman_choctaw_mississippi_usa": [
+    33.3101243,
+    -89.1728434,
+    "Ackerman, Choctaw County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657295.959948
+  ],
+  "greenville_west_mississippi": [
+    33.4092227,
+    -91.0665882,
+    "Key West Inn Greenville, South Walnut Street, Greenville, Washington County, Mississippi, 38704, United States",
+    0.8,
+    "nominatim",
+    1749657296.7417312
+  ],
+  "tunica_county_mississippi_usa": [
+    34.6398783,
+    -90.3623833,
+    "Tunica County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657297.78912
+  ],
+  "shaw_bolivar_mississippi": [
+    33.6023471,
+    -90.7712419,
+    "Shaw, Bolivar County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657298.661955
+  ],
+  "milwaukee_milwaukee_wisconsin_united_states_of_america": [
+    43.0775181,
+    -87.8812647,
+    "Milwaukee, 2200, East Kenwood Boulevard, Downer Woods, East Side, Milwaukee, Milwaukee County, Wisconsin, 53211, United States",
+    0.8,
+    "nominatim",
+    1749657299.9044962
+  ],
+  "dodge_wisconsin": [
+    43.413614,
+    -88.7177834,
+    "Dodge County, Wisconsin, United States",
+    0.8,
+    "nominatim",
+    1749657300.804655
+  ],
+  "sunflower_mississippi_usa": [
+    33.4980504,
+    -90.602067,
+    "Sunflower County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657301.739562
+  ],
+  "milwaukee_milwaukee_wisconsin_usa": [
+    43.0775181,
+    -87.8812647,
+    "Milwaukee, 2200, East Kenwood Boulevard, Downer Woods, East Side, Milwaukee, Milwaukee County, Wisconsin, 53211, United States",
+    0.8,
+    "nominatim",
+    1749657302.787215
+  ],
+  "sunflower_county_mississippi_usa": [
+    33.4980504,
+    -90.602067,
+    "Sunflower County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657303.778584
+  ],
+  "moorhead_sunflower_mississippi_usa": [
+    33.4503557,
+    -90.5054445,
+    "Moorhead, Sunflower County, Mississippi, 38761, United States",
+    0.8,
+    "nominatim",
+    1749657304.6850681
+  ],
+  "indianala_sunflower_mississippi": [
+    null,
+    null,
+    "Indianala, Sunflower, Mississippi",
+    0.0,
+    "geocoder",
+    1749657306.569493
+  ],
+  "collinston_louisiana": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, Morehouse Parish, Louisiana, United States",
+    0.8,
+    "nominatim",
+    1749657309.731084
+  ],
+  "chicago_cook_illinois": [
+    41.8755616,
+    -87.6244212,
+    "Chicago, Cook County, Illinois, United States",
+    0.8,
+    "nominatim",
+    1749657310.708419
+  ],
+  "collinston_morehouse_louisiana_usa": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, Morehouse Parish, Louisiana, United States",
+    0.8,
+    "nominatim",
+    1749657311.975352
+  ],
+  "leland_washington_county_mississippi_usa": [
+    33.4053949,
+    -90.8976007,
+    "Leland, Washington County, Mississippi, 38756, United States",
+    0.8,
+    "nominatim",
+    1749657312.7726889
+  ],
+  "crete_will_illinois_usa": [
+    41.4445334,
+    -87.6313829,
+    "Crete, Will County, Illinois, United States",
+    0.8,
+    "nominatim",
+    1749657313.721927
+  ],
+  "leland_washington_mississippi_usa": [
+    33.4053949,
+    -90.8976007,
+    "Leland, Washington County, Mississippi, 38756, United States",
+    0.8,
+    "nominatim",
+    1749657314.7902322
+  ],
+  "chicago_cook_illinois_united_states": [
+    41.8755616,
+    -87.6244212,
+    "Chicago, Cook County, Illinois, United States",
+    0.8,
+    "nominatim",
+    1749657315.9160168
+  ],
+  "louisiana_usa": [
+    30.8703881,
+    -92.007126,
+    "Louisiana, United States",
+    0.8,
+    "nominatim",
+    1749657317.1336472
+  ],
+  "collinston_louisiana_usa": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, Morehouse Parish, Louisiana, United States",
+    0.8,
+    "nominatim",
+    1749657317.86113
+  ],
+  "windsor_more_louisiana": [
+    null,
+    null,
+    "Windsor More, Louisiana",
+    0.0,
+    "geocoder",
+    1749657318.686958
+  ],
+  "collinston_morehouse_louisiana": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, Morehouse Parish, Louisiana, United States",
+    0.8,
+    "nominatim",
+    1749657319.80806
+  ],
+  "collinston_morehouse_louisiana_united_states": [
+    32.6909704,
+    -91.8717943,
+    "Collinston, Morehouse Parish, Louisiana, United States",
+    0.8,
+    "nominatim",
+    1749657320.818341
+  ],
+  "compton_los_angeles_california_usa": [
+    33.894927,
+    -118.226624,
+    "Compton, Los Angeles County, California, United States",
+    0.8,
+    "nominatim",
+    1749657321.681222
+  ],
+  "louisana_usa": [
+    29.9230819,
+    -94.0181218,
+    "Louisana Avenue, Port Arthur, Jefferson County, Texas, 77640, United States",
+    0.8,
+    "nominatim",
+    1749657322.839669
+  ],
+  "moorehead_miss": [
+    33.7584491,
+    -89.9567532,
+    "Moorehead Lake Dam, Grenada County, Mississippi, 38940, United States",
+    0.8,
+    "nominatim",
+    1749657323.713696
+  ],
+  "cook_illinois_united_states": [
+    41.8197385,
+    -87.756525,
+    "Cook County, Illinois, United States",
+    0.8,
+    "nominatim",
+    1749657324.717314
+  ],
+  "elwood_will_county_illinois_united_states_of_america": [
+    41.4039201,
+    -88.1117242,
+    "Elwood, Will County, Illinois, United States",
+    0.8,
+    "nominatim",
+    1749657325.813358
+  ],
+  "morehead_mississippi_usa": [
+    32.2603265,
+    -89.5870253,
+    "H W Morehead Road, Scott County, Mississippi, 39152, United States",
+    0.8,
+    "nominatim",
+    1749657326.867991
+  ],
+  "shaw_mississippi": [
+    33.6023471,
+    -90.7712419,
+    "Shaw, Bolivar County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657327.916109
+  ],
+  "fayette_tennessee_usa": [
+    35.1739357,
+    -89.4175416,
+    "Fayette County, West Tennessee, Tennessee, United States",
+    0.8,
+    "nominatim",
+    1749657328.8300211
+  ],
+  "indianola_sunflower_mississippi_usa": [
+    33.4509513,
+    -90.6550917,
+    "Indianola, Sunflower County, Mississippi, 38751, United States",
+    0.8,
+    "nominatim",
+    1749657329.692561
+  ],
+  "winston_county_mississippi_usa": [
+    33.0603103,
+    -89.0495278,
+    "Winston County, Mississippi, United States",
+    0.8,
+    "nominatim",
+    1749657330.774129
+  ]
+}

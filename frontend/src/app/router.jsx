@@ -34,6 +34,7 @@ export default function Router() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
           <Route path="dashboard" element={<Dashboard />} />
+          
           {/* NEW param-driven route */}
           <Route path="map/:treeId" element={<MapPage />} />
           {/* Legacy /map -> latest */}

@@ -25,6 +25,8 @@ class LocationStatusEnum(str, Enum):
     duplicate      = "duplicate"
     manual_override= "manual_override"      
     ok             ="ok"
+    failed         = "failed"
+
 
 class SourceTypeEnum(str, Enum):
     gedcom   = "gedcom"
