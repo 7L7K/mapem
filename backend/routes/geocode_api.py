@@ -6,13 +6,13 @@ from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app
 from backend.services.location_processor import process_location
 from backend.utils.logger import get_file_logger
+from backend.config import LOG_DIR
 
 logger = get_file_logger("geocode_route")
 
 # path for unresolved‐geocode log
-LOG_DIR = os.path.join(os.path.dirname(__file__), "..", "logs")
 os.makedirs(LOG_DIR, exist_ok=True)
-UNRESOLVED_GEO_LOG = os.path.join(LOG_DIR, "unresolved_geocodes.jsonl")
+UNRESOLVED_GEO_LOG = LOG_DIR / "unresolved_geocodes.jsonl"
 
 bp = Blueprint("geocode_route", __name__, url_prefix="/api")
 

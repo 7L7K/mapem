@@ -5,6 +5,7 @@ import os
 import json
 import logging
 from datetime import datetime
+from backend.config import DATA_DIR
 
 from sqlalchemy.orm import sessionmaker
 from backend.db import get_engine
@@ -12,7 +13,7 @@ from backend.models import Individual
 from backend.utils.helpers import split_full_name
 
 # ─── Config ──────────────────────────────────────────────────────
-LOG_PATH = "backend/data/backfill_name_log.jsonl"
+LOG_PATH = DATA_DIR / "backfill_name_log.jsonl"
 DRY_RUN = True  # ← flip to False to actually commit
 
 # ─── Logger Setup ────────────────────────────────────────────────

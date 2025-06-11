@@ -1,7 +1,10 @@
 # backend/utils/logger.py
 import logging
-import sys 
+import logging.config
+import sys
 import os
+from pathlib import Path
+from backend.config import BASE_DIR, LOG_DIR
 
 _LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
 
@@ -24,14 +27,18 @@ class ColorFormatter(logging.Formatter):
 
 
 def configure_logging(level: int = logging.DEBUG) -> None:
-    """Configure the root logger once."""
+    """Configure the root logger once using logging.conf."""
     root = logging.getLogger()
     if root.handlers:
         return
-    root.setLevel(level)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(ColorFormatter(_LOG_FORMAT))
-    root.addHandler(handler)
+    config_path = BASE_DIR / "config" / "logging.conf"
+    if config_path.exists():
+        logging.config.fileConfig(config_path)
+    else:
+        root.setLevel(level)
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(ColorFormatter(_LOG_FORMAT))
+        root.addHandler(handler)
 
 
 def get_logger(name: str = "mapem", level: int = logging.DEBUG) -> logging.Logger:
@@ -43,13 +50,12 @@ def get_logger(name: str = "mapem", level: int = logging.DEBUG) -> logging.Logge
 
 
 def get_file_logger(module_name: str):
-    log_dir = os.path.join(os.path.dirname(__file__), "..", "logs")
-    os.makedirs(log_dir, exist_ok=True)
-    file_path = os.path.join(log_dir, f"{module_name}.log")
+    os.makedirs(LOG_DIR, exist_ok=True)
+    file_path = LOG_DIR / f"{module_name}.log"
     logger = logging.getLogger(module_name)
     logger.setLevel(logging.DEBUG)
     # Prevent duplicate handlers
-    if not any(isinstance(h, logging.FileHandler) and h.baseFilename == file_path for h in logger.handlers):
+    if not any(isinstance(h, logging.FileHandler) and Path(h.baseFilename) == file_path for h in logger.handlers):
         fh = logging.FileHandler(file_path, encoding='utf-8')
         fh.setLevel(logging.DEBUG)
         formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(name)s | %(message)s')
