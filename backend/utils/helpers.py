@@ -113,12 +113,53 @@ UNRESOLVED_PATH = os.getenv(
     "UNRESOLVED_PATH",
     str(BASE_DIR / "data" / "unresolved_locations.json"),
 )
+UPLOAD_COUNT_PATH = os.getenv(
+    "UPLOAD_COUNT_PATH",
+    str(BASE_DIR / "data" / "upload_count.txt"),
+)
 
 def generate_temp_path(suffix=".ged"):
     fd, path = tempfile.mkstemp(suffix=suffix, prefix="gedcom_", text=True)
     os.close(fd)
     logger.debug("📄 Temp file generated at: %s", path)
     return path
+
+
+def _ensure_upload_count_file() -> None:
+    """Create the upload counter file if it doesn't exist."""
+    directory = os.path.dirname(UPLOAD_COUNT_PATH)
+    os.makedirs(directory, exist_ok=True)
+    if not os.path.exists(UPLOAD_COUNT_PATH):
+        with open(UPLOAD_COUNT_PATH, "w", encoding="utf-8") as fh:
+            fh.write("0")
+
+
+def read_upload_count() -> int:
+    """Return the integer stored in upload_count.txt (0 if missing)."""
+    try:
+        _ensure_upload_count_file()
+        with open(UPLOAD_COUNT_PATH, "r", encoding="utf-8") as fh:
+            return int(fh.read().strip() or 0)
+    except Exception as exc:
+        logger.warning("⚠️ Could not read upload count: %s", exc)
+        return 0
+
+
+def write_upload_count(value: int) -> None:
+    """Write the integer value to upload_count.txt."""
+    try:
+        _ensure_upload_count_file()
+        with open(UPLOAD_COUNT_PATH, "w", encoding="utf-8") as fh:
+            fh.write(str(value))
+    except Exception as exc:
+        logger.error("❌ Failed writing upload count: %s", exc)
+
+
+def increment_upload_count() -> int:
+    """Increment and persist the upload counter, returning the new value."""
+    count = read_upload_count() + 1
+    write_upload_count(count)
+    return count
 
 
 def split_full_name(full_name: str):
