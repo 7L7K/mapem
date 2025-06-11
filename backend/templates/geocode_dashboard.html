@@ -1,26 +1,88 @@
 <!doctype html>
-<html>
+<html lang="en" data-theme="dark">
 <head>
-    <title>Geocode Dashboard</title>
+  <meta charset="UTF-8" />
+  <title>Geocode Dashboard</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #f0f0f0;
+      font-family: system-ui, sans-serif;
+      padding: 2rem;
+      line-height: 1.6;
+    }
+    h1 {
+      font-size: 1.75rem;
+      margin-bottom: 1.5rem;
+    }
+    h2 {
+      margin-top: 2rem;
+      margin-bottom: 0.75rem;
+      font-size: 1.25rem;
+      border-bottom: 1px solid #333;
+      padding-bottom: 0.25rem;
+    }
+    ul {
+      padding-left: 1.5rem;
+    }
+    li {
+      margin-bottom: 0.5rem;
+    }
+    form {
+      margin-top: 1rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+    input[type="text"],
+    input[type="number"] {
+      background-color: #1f1f1f;
+      color: #f0f0f0;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 0.5rem;
+      width: 250px;
+    }
+    button {
+      margin-top: 0.75rem;
+      padding: 0.5rem 1rem;
+      background-color: #222;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+    button:hover {
+      background-color: #444;
+    }
+  </style>
 </head>
 <body>
-    <h1>Geocode Dashboard</h1>
+  <h1>Geocode Dashboard</h1>
 
-    <h2>Statistics</h2>
-    <ul>
+  <h2>Statistics</h2>
+  <ul>
     {% for status, count in stats.items() %}
-        <li>{{ status }}: {{ count }}</li>
+      <li>{{ status }}: {{ count }}</li>
     {% else %}
-        <li>No data available</li>
+      <li>No data available</li>
     {% endfor %}
-    </ul>
+  </ul>
 
-    <h2>Manual Fix</h2>
-    <form method="POST" action="{{ url_for('geocode_dashboard.manual_fix') }}">
-        <label>Location ID: <input name="id" type="number" required></label><br>
-        <label>Latitude: <input name="lat" type="text" required></label><br>
-        <label>Longitude: <input name="lng" type="text" required></label><br>
-        <button type="submit">Submit Fix</button>
-    </form>
+  <h2>Manual Fix</h2>
+  <form method="POST" action="{{ url_for('geocode_dashboard.manual_fix') }}">
+    <label>Location ID:
+      <input name="id" type="number" required>
+    </label>
+    <label>Latitude:
+      <input name="lat" type="text" required>
+    </label>
+    <label>Longitude:
+      <input name="lng" type="text" required>
+    </label>
+    <button type="submit">Submit Fix</button>
+  </form>
 </body>
 </html>

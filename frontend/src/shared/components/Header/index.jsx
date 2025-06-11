@@ -8,6 +8,8 @@ const tabs = [
   { label: "Map", path: "/map" },
   { label: "Timeline", path: "/timeline" },
   { label: "People", path: "/people" },
+    { label: "Geocode",   path: "/geocode" }, // 👈🏾 this one!
+
 ];
 
 export default function Header({ pageControls = null }) {

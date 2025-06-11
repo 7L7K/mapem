@@ -423,3 +423,19 @@
 2025-06-10 14:04:26,087 | INFO | geocode | 🟦 Cache hit (nominatim)
 2025-06-10 14:05:26,236 | INFO | geocode | 🟪 DB fuzzy match for 'dodge county, wisconsin, united states'
 2025-06-10 14:05:26,242 | INFO | geocode | 🟪 DB fuzzy match for 'milwaukee, 2200, east kenwood boulevard, downer woods, east side, milwaukee, milwaukee county, wisconsin, 53211, united states'
+2025-06-10 21:06:21,144 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:06:21,150 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:17:07,570 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:17:07,576 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:17:39,303 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:17:39,306 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:17:39,635 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:17:41,121 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:17:41,123 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:22:20,694 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:22:20,696 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:27:53,685 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:27:53,687 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:27:54,007 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:27:55,242 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
+2025-06-10 21:27:55,244 | DEBUG | geocode | 🧪 Geocoder initialized; cache_enabled=True, manual_fixes=False, historical_lookup=False
