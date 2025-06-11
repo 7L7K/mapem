@@ -82,7 +82,32 @@
     <label>Longitude:
       <input name="lng" type="text" required>
     </label>
+    <input type="hidden" name="source" value="admin_dashboard">
     <button type="submit">Submit Fix</button>
   </form>
+
+  <h2>Fix History</h2>
+  <table>
+    <tr>
+      <th>ID</th>
+      <th>Raw Name</th>
+      <th>Lat</th>
+      <th>Lng</th>
+      <th>Fixed By</th>
+      <th>Date</th>
+    </tr>
+    {% for entry in history %}
+      <tr>
+        <td>{{ entry.id }}</td>
+        <td>{{ entry.raw_name }}</td>
+        <td>{{ entry.lat }}</td>
+        <td>{{ entry.lng }}</td>
+        <td>{{ entry.fixed_by }}</td>
+        <td>{{ entry.date }}</td>
+      </tr>
+    {% else %}
+      <tr><td colspan="6">No fixes yet</td></tr>
+    {% endfor %}
+  </table>
 </body>
 </html>
