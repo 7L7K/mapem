@@ -106,3 +106,7 @@ export const getGroupMovements = (treeId, filters = {}) =>
     params: filters,
     paramsSerializer: p => qs.stringify(p, { arrayFormat: 'repeat', skipNulls: true }),
   }));
+
+// ─── analytics ─────────────────────────────────────────────────────────────
+export const getSystemSnapshot = () =>
+  ok(client.get('/api/analytics/snapshot'));
