@@ -293,8 +293,7 @@ class Geocode:
         logger.debug("🔍 geocode chain for: %s", raw)
 
         for plugin in self.plugins:
-            result = plugin.resolve(self, session, raw)
-            if result:
+            if result := plugin.resolve(self, session, raw):
                 if self.cache_enabled and not isinstance(plugin, PermanentCacheGeocoder):
                     self.cache[key] = [
                         result.latitude,
