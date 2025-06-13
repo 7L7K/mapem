@@ -1,30 +1,33 @@
-import React from "react";
+import React from 'react';
 
-/**
- * Reusable error boundary.
- * Wrap any subtree to catch React render errors.
- */
-export class ErrorBoundary extends React.Component {
+class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false, lastReqId: null };
   }
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
+  static getDerivedStateFromError() { return { hasError: true }; }
 
   componentDidCatch(error, info) {
-    console.error("💥 Caught by ErrorBoundary:", error, info);
+    const reqId = window?.lastRequestId ?? null;
+    this.setState({ lastReqId: reqId });
+    console.error('💥 ErrorBoundary caught:', { error, stack: info.componentStack, props: this.props, reqId });
   }
 
+  handleReload = () => window.location.reload();
+
   render() {
-    const { hasError, error } = this.state;
-    if (hasError) {
+    if (this.state.hasError) {
       return (
-        <div className="m-4 rounded bg-red-900/80 p-4 text-white">
-          <h2 className="text-lg font-bold">Something went wrong.</h2>
-          <pre className="mt-2 whitespace-pre-wrap text-xs">{String(error)}</pre>
+        <div className="p-6 bg-red-900/90 text-white text-center rounded-2xl shadow-lg max-w-lg mx-auto mt-12">
+          <div className="text-xl font-bold mb-2">🔥 Something went wrong, King!</div>
+          <div className="mb-4">Peep the console for more info.</div>
+          {this.state.lastReqId && (
+            <div className="mb-4 text-sm">Request ID: <code>{this.state.lastReqId}</code></div>
+          )}
+          <button className="px-4 py-2 bg-black text-white rounded shadow hover:bg-gray-800" onClick={this.handleReload}>
+            Reload Page
+          </button>
         </div>
       );
     }

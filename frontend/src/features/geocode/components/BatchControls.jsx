@@ -1,13 +1,15 @@
 // src/components/geocode/BatchControls.jsx
 import React, { useState } from 'react';
-import { retryAll, runFuzzyMatch, exportData } from '@api/geocodeApi';
 import { downloadFile } from "@shared/utils/download";
 import { toast } from 'react-toastify';
+import geoApi from '@api/geocodeApi';
+
+const { exportData, runFuzzyMatch, retryAll } = geoApi;
 
 export default function BatchControls({ onActionComplete }) {
   const [loading, setLoading] = useState(false);
 
-  const handleAction = async (actionFn, successMsg, isDestructive = false) => {
+  const handleAction  = async (actionFn, successMsg, isDestructive = false) => {
     if (isDestructive && !window.confirm('Are you sure?')) return;
     try {
       setLoading(true);

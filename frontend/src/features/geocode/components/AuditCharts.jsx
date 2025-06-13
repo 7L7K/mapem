@@ -1,4 +1,3 @@
-
 /* components/geocode/AuditCharts.jsx */
 import React from 'react';
 import PropTypes from 'prop-types';
@@ -8,11 +7,23 @@ import {
 } from 'recharts';
 
 export default function AuditCharts({ stats, onFilter }) {
+  if (!stats || !Array.isArray(stats.unresolved) || !stats.sourceBreakdown) {
+    return (
+      <div className="text-center text-sm text-muted-foreground p-4">
+        📊 Loading audit charts...
+      </div>
+    );
+  }
+
   const topUnresolved = stats.unresolved
     .sort((a, b) => b.count - a.count)
     .slice(0, 10)
     .map(item => ({ name: item.rawName, value: item.count }));
-  const sources = Object.entries(stats.sourceBreakdown).map(([key, value]) => ({ name: key, value }));
+
+  const sources = Object.entries(stats.sourceBreakdown).map(([key, value]) => ({
+    name: key,
+    value
+  }));
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -30,7 +41,13 @@ export default function AuditCharts({ stats, onFilter }) {
       <div className="w-full h-64">
         <ResponsiveContainer>
           <PieChart>
-            <Pie data={sources} dataKey="value" nameKey="name" outerRadius={80} onClick={(entry) => entry && onFilter(entry.name)}>
+            <Pie
+              data={sources}
+              dataKey="value"
+              nameKey="name"
+              outerRadius={80}
+              onClick={entry => entry && onFilter(entry.name)}
+            >
               {sources.map((entry, index) => (
                 <Cell key={`cell-${index}`} />
               ))}
@@ -46,9 +63,18 @@ export default function AuditCharts({ stats, onFilter }) {
 
 AuditCharts.propTypes = {
   stats: PropTypes.shape({
-    unresolved: PropTypes.arrayOf(PropTypes.shape({ rawName: PropTypes.string, count: PropTypes.number })),
+    unresolved: PropTypes.arrayOf(
+      PropTypes.shape({
+        rawName: PropTypes.string.isRequired,
+        count: PropTypes.number.isRequired
+      })
+    ),
     sourceBreakdown: PropTypes.objectOf(PropTypes.number)
-  }).isRequired,
+  }),
   onFilter: PropTypes.func
 };
-AuditCharts.defaultProps = { onFilter: () => {} };
+
+AuditCharts.defaultProps = {
+  stats: null,
+  onFilter: () => {}
+};

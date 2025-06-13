@@ -1,20 +1,21 @@
-/* components/geocode/FixModal.jsx */
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom';
-import PropTypes from 'prop-types';
-import axios from 'axios';
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+// frontend/src/features/geocode/components/FixModal.jsx
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
+import PropTypes from "prop-types";
+import axios from "axios";
+import { MapContainer, TileLayer, Marker } from "react-leaflet";
+import { devLog } from "@shared/utils/devLogger";
 
 export default function FixModal({ isOpen, onClose, locationId, onSuccess }) {
-  const [lat, setLat] = useState('');
-  const [lng, setLng] = useState('');
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
   const [errors, setErrors] = useState({});
   const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
-      setLat('');
-      setLng('');
+      setLat("");
+      setLng("");
       setErrors({});
       setShowPreview(false);
     }
@@ -24,10 +25,11 @@ export default function FixModal({ isOpen, onClose, locationId, onSuccess }) {
     const errs = {};
     const numLat = parseFloat(lat);
     const numLng = parseFloat(lng);
-    if (!/^[-+]?\d*\.?\d+$/.test(lat)) errs.lat = 'Invalid format';
-    else if (numLat < -90 || numLat > 90) errs.lat = 'Latitude must be between -90 and 90';
-    if (!/^[-+]?\d*\.?\d+$/.test(lng)) errs.lng = 'Invalid format';
-    else if (numLng < -180 || numLng > 180) errs.lng = 'Longitude must be between -180 and 180';
+    if (!/^[-+]?\d*\.?\d+$/.test(lat)) errs.lat = "Invalid format";
+    else if (numLat < -90 || numLat > 90) errs.lat = "Must be between -90 and 90";
+    if (!/^[-+]?\d*\.?\d+$/.test(lng)) errs.lng = "Invalid format";
+    else if (numLng < -180 || numLng > 180)
+      errs.lng = "Must be between -180 and 180";
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -38,14 +40,20 @@ export default function FixModal({ isOpen, onClose, locationId, onSuccess }) {
 
   const handleSubmit = async () => {
     if (!validate()) return;
+    const reqId = Math.random().toString(36).slice(2);
+    devLog("FixModal", `🛠️ [${reqId}] Submitting fix for ${locationId}`, {
+      lat,
+      lng,
+    });
     try {
       await axios.post(`/admin/geocode/fix/${locationId}`, { lat, lng });
-      alert('Fix submitted');
+      devLog("FixModal", `✅ [${reqId}] Fix submitted`);
+      alert(`Fix submitted (req: ${reqId})`);
       onSuccess();
       onClose();
     } catch (err) {
-      console.error(err);
-      alert('Error submitting fix');
+      devLog("FixModal", `❌ [${reqId}] Submit error`, err);
+      alert("Error submitting fix");
     }
   };
 
@@ -79,14 +87,36 @@ export default function FixModal({ isOpen, onClose, locationId, onSuccess }) {
             {errors.lng && <p className="text-red-500 text-sm">{errors.lng}</p>}
           </div>
           <div className="flex space-x-2">
-            <button onClick={handlePreview} className="px-4 py-2 bg-gray-200 rounded">Preview</button>
-            <button onClick={handleSubmit} className="px-4 py-2 bg-blue-600 text-white rounded">Submit Fix</button>
-            <button onClick={onClose} className="px-4 py-2 bg-red-600 text-white rounded">Cancel</button>
+            <button
+              onClick={handlePreview}
+              className="px-4 py-2 bg-gray-200 rounded"
+            >
+              Preview
+            </button>
+            <button
+              onClick={handleSubmit}
+              className="px-4 py-2 bg-blue-600 text-white rounded"
+            >
+              Submit Fix
+            </button>
+            <button
+              onClick={() => {
+                devLog("FixModal", "✖️ Cancel clicked");
+                onClose();
+              }}
+              className="px-4 py-2 bg-red-600 text-white rounded"
+            >
+              Cancel
+            </button>
           </div>
         </div>
         {showPreview && (
           <div className="mt-4 h-64">
-            <MapContainer center={[parseFloat(lat), parseFloat(lng)]} zoom={13} style={{ height: '100%', width: '100%' }}>
+            <MapContainer
+              center={[parseFloat(lat), parseFloat(lng)]}
+              zoom={13}
+              style={{ height: "100%", width: "100%" }}
+            >
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <Marker position={[parseFloat(lat), parseFloat(lng)]} />
             </MapContainer>

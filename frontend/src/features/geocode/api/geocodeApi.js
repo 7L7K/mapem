@@ -1,14 +1,13 @@
-/**
- * geocodeApi.js
- * Central wrapper for Geocode Dashboard API.
- * Exports all named funcs so hooks/components can import cleanly.
- * /Users/kingal/mapem/frontend/src/features/geocode/api/geocodeApi.js
- */
+// /Users/kingal/mapem/frontend/src/features/geocode/api/geocodeApi.js
 
+/**
+ * Geocode API wrapper
+ * Handles fetch calls + error tracking for admin/geocode dashboard.
+ */
 
 const API_ROOT = import.meta.env.VITE_BACKEND_URL ?? "/api/admin/geocode";
 
-/** Shared fetch + error handling */
+/** Core request wrapper with basic error handling */
 async function _request(path, opts = {}) {
   try {
     const res = await fetch(`${API_ROOT}${path}`, {
@@ -19,29 +18,41 @@ async function _request(path, opts = {}) {
     const json = await res.json();
     return { data: json, error: null };
   } catch (error) {
-    console.error("🛑 geocodeApi error:", error);
+    console.error("🛑 [geocodeApi] error:", error);
     return { data: null, error };
   }
 }
 
-// ————— TOP SUMMARY —————
+// ─────────────────────────────────────────
+// 📊 DASHBOARD METRICS
+// ─────────────────────────────────────────
+
 export function fetchStats() {
   return _request("/stats");
 }
 
-// ————— UNRESOLVED TABLE —————
+// ─────────────────────────────────────────
+// 🧩 UNRESOLVED LOCATION ENTRIES
+// ─────────────────────────────────────────
+
 export function fetchUnresolved(params = {}) {
   const q = new URLSearchParams(params).toString();
   return _request(`/unresolved?${q}`);
 }
 
-// ————— HISTORY TABLE —————
+export function retryUnresolved(id) {
+  return _request(`/retry/${id}`, { method: "POST" });
+}
+
+// ─────────────────────────────────────────
+// 📝 MANUAL FIX HISTORY + ACTIONS
+// ─────────────────────────────────────────
+
 export function fetchHistory(params = {}) {
   const q = new URLSearchParams(params).toString();
   return _request(`/history?${q}`);
 }
 
-// ————— ACTIONS —————
 export function manualFix(id, lat, lng) {
   return _request(`/fix/${id}`, {
     method: "POST",
@@ -49,11 +60,11 @@ export function manualFix(id, lat, lng) {
     body: JSON.stringify({ lat, lng }),
   });
 }
-export function retryUnresolved(id) {
-  return _request(`/retry/${id}`, { method: "POST" });
-}
 
-// Optional default export for convenience
+// ─────────────────────────────────────────
+// ✨ Optional default export for convenience
+// ─────────────────────────────────────────
+
 export default {
   fetchStats,
   fetchUnresolved,

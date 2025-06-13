@@ -14,4 +14,3 @@ export default function Tooltip({ text, children }) {
     </span>
   );
 }
-code

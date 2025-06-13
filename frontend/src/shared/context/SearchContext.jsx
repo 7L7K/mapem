@@ -1,105 +1,39 @@
-import React, {
-  createContext,
-  useContext,
-  useState,
-  useMemo,
-  useEffect,
-} from "react";
-import { useTree } from "@shared/context/TreeContext";
-import { getVisibleCounts } from "@lib/api/api";
+// frontend/src/shared/context/SearchContext.jsx
+import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { diff } from 'deep-diff';
+import { devLog } from "@shared/utils/devLogger";
 
-const defaultFilters = {
-  person: "",
-  yearRange: [null, null],
-  vague: true,
-  eventTypes: {
-    birth: true,
-    death: true,
-    marriage: true,
-    divorce: true,
-    residence: true,
-  },
-  relations: {},
-  sources: {},
-  selectedPersonId: null,
-  selectedFamilyId: null,
-  compareIds: [],
-};
+const SearchContext = createContext();
 
-const defaultCtx = {
-  filters: defaultFilters,
-  setFilters: () => {},
-  isDrawerOpen: false,
-  setIsDrawerOpen: () => {},
-  toggleFilters: () => {},
-  decade: [1900, 2020],
-  setDecade: () => {},
-  mode: "person",
-  setMode: () => {},
-  wholeTree: false,
-  toggleWholeTree: () => {},
-  clearAll: () => {},
-  visibleCounts: { people: 0, families: 0, wholeTree: 0 },
-};
-
-const SearchContext = createContext(defaultCtx);
-
-export const useSearch = () => useContext(SearchContext);
+export const useSearch = () => useContext(SearchContext); // ⬅️ Export useSearch hook here
 
 export function SearchProvider({ children }) {
-  const { treeId: activeTreeId } = useTree();
-  const [filters, setFilters] = useState(defaultFilters);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [decade, setDecade] = useState([1900, 2020]);
-  const [mode, setMode] = useState("person");
-  const [wholeTree, setWholeTree] = useState(false);
-  const toggleWholeTree = () => setWholeTree((p) => !p);
-  const toggleFilters = () => setIsDrawerOpen((p) => !p);
-
-  const [visibleCounts, setVisibleCounts] = useState({
-    people: 0,
-    families: 0,
-    wholeTree: 0,
+  const [filters, setFilters] = useState({
+    selectedPersonId: null,
+    yearRange: [1800, 2000],
+    eventTypes: [],
+    vague: false,
+    relations: {},
+    sources: [],
   });
 
+  const [mode, setMode] = useState('default');
+
+  const prevRef = useRef(filters);
+
   useEffect(() => {
-    if (!activeTreeId) return;
-
-    getVisibleCounts(activeTreeId, filters)
-      .then((d) =>
-        setVisibleCounts({
-          people: d?.individuals ?? 0,
-          families: d?.families ?? 0,
-          wholeTree: d?.events?.total ?? 0,
-        })
-      )
-      .catch((err) =>
-        console.error("❌ failed to fetch visible-counts →", err.message)
-      );
-  }, [activeTreeId, filters]);
-
-  const clearAll = () => setFilters(defaultFilters);
-
-  const ctx = useMemo(
-    () => ({
-      filters,
-      setFilters,
-      isDrawerOpen,
-      setIsDrawerOpen,
-      toggleFilters,
-      decade,
-      setDecade,
-      mode,
-      setMode,
-      wholeTree,
-      toggleWholeTree,
-      clearAll,
-      visibleCounts,
-    }),
-    [filters, isDrawerOpen, decade, mode, wholeTree, visibleCounts]
-  );
+    const prev = prevRef.current;
+    const changes = diff(prev, filters);
+    if (changes?.length) {
+      const ts = new Date().toLocaleTimeString();
+      devLog('SearchContext', `🔍 filters changed @${ts}`, changes);
+    }
+    prevRef.current = filters;
+  }, [filters]);
 
   return (
-    <SearchContext.Provider value={ctx}>{children}</SearchContext.Provider>
+    <SearchContext.Provider value={{ filters, setFilters, mode, setMode }}>
+      {children}
+    </SearchContext.Provider>
   );
 }
