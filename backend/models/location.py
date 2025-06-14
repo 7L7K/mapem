@@ -12,12 +12,12 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime
-from .base import Base, TimestampMixin, ReprMixin
+from backend.models.base import Base, UUIDMixin
 from .enums import SourceTypeEnum, LocationStatusEnum
 from sqlalchemy import Enum as SQLEnum   # give it a short alias
 from sqlalchemy import Column, String, DateTime
 
-class Location(Base, TimestampMixin, ReprMixin):
+class Location(Base, UUIDMixin):
     __tablename__ = "locations"
     __table_args__ = (
         UniqueConstraint("normalized_name", name="uq_locations_normalized"),

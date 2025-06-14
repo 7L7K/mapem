@@ -34,11 +34,16 @@ def geocode_stats():
         resolved   = db.execute(text("SELECT COUNT(*) FROM locations WHERE status='ok'")).scalar() or 0
         unresolved = db.execute(text("SELECT COUNT(*) FROM locations WHERE status='unresolved'")).scalar() or 0
         manual     = db.execute(text("SELECT COUNT(*) FROM locations WHERE status='manual_override'")).scalar() or 0
-        failed     = db.execute(text("SELECT COUNT(*) FROM locations WHERE status = CAST(:s AS location_status_enum)"), {"s": "failed"}).scalar() or 0
+        failed = db.execute(
+            text("SELECT COUNT(*) FROM locations WHERE status::text = :s"),
+            {"s": "failed"}
+        ).scalar() or 0
 
 
         last_upload = db.execute(text("SELECT MAX(updated_at) FROM locations")).scalar()
-        last_manual_fix = db.execute(text("SELECT MAX(fixed_at) FROM locations WHERE status='manual_override'")).scalar()
+        last_manual_fix = db.execute(
+    text("SELECT MAX(updated_at) FROM locations WHERE status='manual_override'")
+).scalar()
 
         # Convert datetimes to ISO strings (frontend expects string, not datetime obj)
         last_upload = last_upload.isoformat() if last_upload else None
@@ -66,13 +71,33 @@ def geocode_unresolved():
     _close_session(db)
 
     try:
-        rows = db.execute(
-            text(
-                "SELECT id, raw_name, normalized_name, confidence_score, event_count, last_seen "
-                "FROM locations WHERE status='unresolved' ORDER BY last_seen DESC"
-            )
-        ).fetchall()
-        data = [dict(r._mapping) for r in rows]
+        rows = db.execute(text("""
+        SELECT 
+            l.id,
+            l.raw_name,
+            l.normalized_name,
+            l.confidence_score,
+            COUNT(e.id) AS event_count,
+            MAX(e.date) AS last_seen
+        FROM locations l
+        LEFT JOIN events e ON e.location_id = l.id
+        WHERE l.status = 'unresolved'
+        GROUP BY l.id, l.raw_name, l.normalized_name, l.confidence_score
+        ORDER BY last_seen DESC NULLS LAST
+    """)).fetchall()
+
+
+        def serialize_unresolved(r):
+            return {
+                "id": r.id,
+                "rawName": r.raw_name,
+                "normalizedName": r.normalized_name,
+                "confidence": r.confidence_score,
+                "eventCount": r.event_count,
+                "lastSeen": r.last_seen.isoformat() if r.last_seen else None,
+            }
+
+        data = [serialize_unresolved(r) for r in rows]
         return jsonify({"data": data, "error": None})
     except Exception as e:
         logger.error("Error in /unresolved: %s", e, exc_info=True)
@@ -85,12 +110,19 @@ def geocode_history():
     _close_session(db)
 
     try:
-        rows = db.execute(
-            text(
-                "SELECT id, raw_name, normalized_name, lat AS latitude, lng AS longitude, fixed_at "
-                "FROM locations WHERE status='manual_override' ORDER BY fixed_at DESC"
-            )
-        ).fetchall()
+        rows = db.execute(text("""
+  SELECT
+    id,
+    raw_name,
+    normalized_name,
+    latitude,
+    longitude,
+    updated_at AS fixed_at
+  FROM locations
+  WHERE status='manual_override'
+  ORDER BY updated_at DESC
+""")).fetchall()
+
         data = [dict(r._mapping) for r in rows]
         return jsonify({"data": data, "error": None})
     except Exception as e:

@@ -1,4 +1,3 @@
-// /frontend/src/lib/api/api.js
 import axios from 'axios';
 import qs from 'qs';
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5050';
@@ -16,10 +15,10 @@ client.interceptors.response.use(
       url: err.config?.url,
       status: err.response?.status,
       data: err.response?.data,
-    })
-    return Promise.reject(err)
+    });
+    return Promise.reject(err);
   }
-)
+);
 
 const ok = (p) => p.then((r) => r.data);
 
@@ -30,7 +29,7 @@ export const uploadTree = (file) => {
   formData.append('tree_name', file.name);
   formData.append('uploader_name', 'King');
   return ok(
-    client.post('/api/upload/', formData, {
+    client.post('/api/upload', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
   );
@@ -38,16 +37,16 @@ export const uploadTree = (file) => {
 
 // ─── trees ──────────────────────────────────────────────────────────────────
 export const getTrees = () =>
-  client.get('/api/trees/')
+  client.get('/api/trees')
     .then(res => {
       const data = res?.data;
-      const rawTrees = Array.isArray(data?.trees) ? data.trees : [];
-
-      if (!rawTrees.length && import.meta.env.DEV) {
-        console.warn("⚠️ getTrees(): No trees returned or wrong shape:", data);
+      // Defensive: Make sure trees is actually an array, log if not
+      if (!data || !Array.isArray(data.trees)) {
+        import.meta.env.DEV && console.warn("⚠️ getTrees(): No trees returned or wrong shape:", data);
+        return [];
       }
-
-      return rawTrees.map(tree => ({
+      // Map/shape trees
+      return data.trees.map(tree => ({
         id: tree.uploaded_tree_id ?? tree.tree_id ?? tree.id ?? "unknown",
         uploaded_tree_id: tree.uploaded_tree_id ?? tree.id ?? null,
         version_number: tree.version_number ?? 1,
@@ -61,9 +60,8 @@ export const getTrees = () =>
     });
 
 export const getTree         = (id)                       => ok(client.get(`/api/trees/${id}`));
-export const getTreeCounts = (uploadedTreeId) =>
-  ok(client.get(`/api/trees/${uploadedTreeId}/uploaded-counts`));
-export const getVisibleCounts = (id, filters) =>
+export const getTreeCounts   = (uploadedTreeId)           => ok(client.get(`/api/trees/${uploadedTreeId}/uploaded-counts`));
+export const getVisibleCounts = (id, filters)             =>
   ok(client.get(`/api/trees/${id}/visible-counts`, {
     params: filters,
     paramsSerializer: p => qs.stringify(p, { arrayFormat: 'repeat', skipNulls: true }),
@@ -95,7 +93,8 @@ export const compareTrees = (newId, existingId)          =>
   ok(client.get('/api/compare_trees', { params: { new_id: newId, existing_id: existingId } }));
 
 export { AxiosError } from 'axios';
-// Add this at the end of api.js
+
+// ─── Family/group (leave these in if used) ───────────────
 export const getFamilyMovements = (treeId, filters = {}) =>
   ok(client.get(`/api/family-movements/${treeId}`, {
     params: filters,

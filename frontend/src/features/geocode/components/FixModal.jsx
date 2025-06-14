@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 import PropTypes from "prop-types";
-import axios from "axios";
+import { manualFix } from "../api/geocodeApi";
 import { MapContainer, TileLayer, Marker } from "react-leaflet";
 import { devLog } from "@shared/utils/devLogger";
 
@@ -46,7 +46,7 @@ export default function FixModal({ isOpen, onClose, locationId, onSuccess }) {
       lng,
     });
     try {
-      await axios.post(`/admin/geocode/fix/${locationId}`, { lat, lng });
+      await manualFix(locationId, parseFloat(lat), parseFloat(lng));
       devLog("FixModal", `✅ [${reqId}] Fix submitted`);
       alert(`Fix submitted (req: ${reqId})`);
       onSuccess();

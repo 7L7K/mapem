@@ -75,7 +75,7 @@ def _validate_filter_types(f: Dict[str, Any]) -> None:
 
 
 # ─── GET /api/trees/ ────────────────────────────────────────────────────────
-@tree_routes.route("/", methods=["GET"])
+@tree_routes.route("", methods=["GET"])
 @debug_route
 def list_trees():
     db = next(get_db())

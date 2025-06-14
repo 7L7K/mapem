@@ -1,18 +1,18 @@
 // frontend/src/features/geocode/components/UnresolvedTable.jsx
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
-import  Spinner  from "@shared/components/ui/spinner";
+import Spinner from "@shared/components/ui/spinner";
 import { Badge } from "@shared/components/ui/badge";
-import  Button from "@shared/components/ui/button";
+import Button from "@shared/components/ui/button";
 import { formatDateWithTime } from "@shared/utils/formatters";
 import debounce from "lodash.debounce";
-import FixModal from "./FixModal";
+import FixDrawer from "./FixDrawer";
 import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 import { saveAs } from "file-saver";
 import { ResizableBox } from "react-resizable";
 import "react-resizable/css/styles.css";
-import axios from "axios";
+import { retryUnresolved } from "../api/geocodeApi";
 import { devLog } from "@shared/utils/devLogger";
 
 const HEADERS = [
@@ -25,7 +25,12 @@ const HEADERS = [
   { key: "action", label: "Action", width: 100 },
 ];
 
-export default function UnresolvedTable({ data, loading, refresh }) {
+export default function UnresolvedTable({
+  data = [],
+  loading = false,
+  refresh,
+  onSelect,
+}) {
   const [search, setSearch] = useState("");
   const [filtered, setFiltered] = useState(data);
   const [sortKey, setSortKey] = useState("lastSeen");
@@ -34,14 +39,14 @@ export default function UnresolvedTable({ data, loading, refresh }) {
   const [colWidths, setColWidths] = useState(HEADERS.map(h => h.width));
   const containerRef = useRef();
 
-  // filter
+  // debounce filter
   const doFilter = useMemo(
     () =>
       debounce(term => {
         const t = term.toLowerCase();
         setFiltered(
           data.filter(item =>
-            item.rawName.toLowerCase().includes(t) ||
+            (item.rawName || "").toLowerCase().includes(t) ||
             (item.normalizedName || "").toLowerCase().includes(t)
           )
         );
@@ -52,14 +57,12 @@ export default function UnresolvedTable({ data, loading, refresh }) {
     doFilter(search);
   }, [search, data, doFilter]);
 
-  // sort
+  // sorting
   const sorted = useMemo(() => {
     const arr = [...filtered].sort((a, b) => {
-      let va = a[sortKey],
-        vb = b[sortKey];
+      let va = a[sortKey], vb = b[sortKey];
       if (sortKey === "lastSeen") {
-        va = new Date(va);
-        vb = new Date(vb);
+        va = new Date(va); vb = new Date(vb);
       }
       return va < vb ? (sortAsc ? -1 : 1) : va > vb ? (sortAsc ? 1 : -1) : 0;
     });
@@ -81,12 +84,11 @@ export default function UnresolvedTable({ data, loading, refresh }) {
         .map(v => `"${v}"`)
         .join(",")
     );
-    const csv = [headerRow, ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([[headerRow, ...rows].join("\n")], { type: "text/csv;charset=utf-8;" });
     saveAs(blob, "unresolved_locations.csv");
   };
 
-  // header resize
+  // column resize
   const onHeaderResize = (i, w) => {
     setColWidths(cw => {
       const copy = [...cw];
@@ -104,8 +106,8 @@ export default function UnresolvedTable({ data, loading, refresh }) {
           style={style}
           className="flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 px-2"
           tabIndex={0}
+          onClick={() => { devLog("UnresolvedTable","row select",item.id); onSelect?.(item.id); }}
           onKeyDown={e => e.key === "Enter" && setModalItem(item)}
-          onClick={() => devLog("UnresolvedTable", "👀 row click", item)}
         >
           {HEADERS.map((hdr, i) => (
             <div
@@ -115,15 +117,11 @@ export default function UnresolvedTable({ data, loading, refresh }) {
               role={hdr.key === "action" ? "button" : "cell"}
             >
               {hdr.key === "confidence" ? (
-                <Badge
-                  variant={
-                    item.confidence >= 0.8
-                      ? "success"
-                      : item.confidence >= 0.5
-                      ? "warning"
-                      : "destructive"
-                  }
-                >
+                <Badge variant={
+                  item.confidence >= 0.8 ? "success"
+                  : item.confidence >= 0.5 ? "warning"
+                  : "destructive"
+                }>
                   {Math.round(item.confidence * 100)}%
                 </Badge>
               ) : hdr.key === "action" ? (
@@ -131,7 +129,7 @@ export default function UnresolvedTable({ data, loading, refresh }) {
                   size="sm"
                   onClick={e => {
                     e.stopPropagation();
-                    devLog("UnresolvedTable", "🛠️ Fix clicked", item);
+                    devLog("UnresolvedTable","🛠️ Fix clicked",item);
                     setModalItem(item);
                   }}
                 >
@@ -143,22 +141,20 @@ export default function UnresolvedTable({ data, loading, refresh }) {
                 <button
                   onClick={e => {
                     e.stopPropagation();
-                    document
-                      .getElementById(`map-pin-${item.id}`)
-                      ?.scrollIntoView();
+                    onSelect?.(item.id);
                   }}
                 >
                   {item.id}
                 </button>
               ) : (
-                item[hdr.key] || "—"
+                item[hdr.key] ?? "—"
               )}
             </div>
           ))}
         </div>
       );
     },
-    [sorted, colWidths]
+    [sorted, colWidths, onSelect]
   );
 
   if (loading) return <Spinner />;
@@ -195,16 +191,11 @@ export default function UnresolvedTable({ data, loading, refresh }) {
               className="font-semibold cursor-pointer"
               onClick={() => {
                 if (sortKey === hdr.key) setSortAsc(!sortAsc);
-                else {
-                  setSortKey(hdr.key);
-                  setSortAsc(true);
-                }
+                else { setSortKey(hdr.key); setSortAsc(true); }
               }}
               aria-sort={
                 sortKey === hdr.key
-                  ? sortAsc
-                    ? "ascending"
-                    : "descending"
+                  ? sortAsc ? "ascending" : "descending"
                   : "none"
               }
             >
@@ -225,11 +216,12 @@ export default function UnresolvedTable({ data, loading, refresh }) {
       </div>
 
       {modalItem && (
-        <FixModal
-          isOpen={!!modalItem}
-          locationId={modalItem.id}
-          onClose={() => setModalItem(null)}
-          onSuccess={refresh}
+        <FixDrawer
+          row={modalItem}
+          onClose={(success) => {
+            setModalItem(null);
+            if (success) refresh(); // reloads the unresolved list
+          }}
         />
       )}
     </div>
@@ -240,8 +232,5 @@ UnresolvedTable.propTypes = {
   data: PropTypes.array.isRequired,
   loading: PropTypes.bool,
   refresh: PropTypes.func.isRequired,
-};
-
-UnresolvedTable.defaultProps = {
-  loading: false,
+  onSelect: PropTypes.func,
 };

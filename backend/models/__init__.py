@@ -12,6 +12,8 @@ from .source          import Source
 from .individual_source import IndividualSource
 from .event_source     import EventSource
 from .user_action      import UserAction
+from .location_version import LocationVersion  # 👈 Add this line
+
 
 import logging
 from backend.db import engine

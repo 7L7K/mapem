@@ -20,6 +20,8 @@ from .heatmap              import heatmap_routes
 from .geocode_api          import bp as geocode_routes   # 🆕 Admin API
 from .geocode_dashboard    import geocode_dashboard      # 🆕 UI pages
 from .analytics            import analytics_routes
+from backend.routes import admin_geocode  # new import
+
 
 from backend.utils.debug_routes import debug_route
 
@@ -42,6 +44,8 @@ def register_routes(app):
         analytics_routes,
         geocode_routes,        # 🧭 Admin geocode API endpoints
         geocode_dashboard,     # 📊 Geocode dashboard views
+        admin_geocode.admin_geo,  # ✅ Manual fix route for unresolved
+
     ]
 
     for bp in routes:

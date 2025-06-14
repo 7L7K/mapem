@@ -36,8 +36,10 @@ export function fetchStats() {
 // ─────────────────────────────────────────
 
 export function fetchUnresolved(params = {}) {
-  const q = new URLSearchParams(params).toString();
-  return _request(`/unresolved?${q}`);
+  const q = Object.keys(params).length
+    ? `?${new URLSearchParams(params).toString()}`
+    : "";
+  return _request(`/unresolved${q}`);
 }
 
 export function retryUnresolved(id) {
@@ -49,8 +51,10 @@ export function retryUnresolved(id) {
 // ─────────────────────────────────────────
 
 export function fetchHistory(params = {}) {
-  const q = new URLSearchParams(params).toString();
-  return _request(`/history?${q}`);
+  const q = Object.keys(params).length
+    ? `?${new URLSearchParams(params).toString()}`
+    : "";
+  return _request(`/history${q}`);
 }
 
 export function manualFix(id, lat, lng) {

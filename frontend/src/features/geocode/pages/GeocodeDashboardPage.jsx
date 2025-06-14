@@ -1,58 +1,40 @@
-// frontend/src/features/geocode/pages/GeocodeDashboardPage.jsx
-import React, { useState } from 'react';
-import StatsPanel from '../components/StatsPanel';
-import BatchControls from '../components/BatchControls';
-import AuditCharts from '../components/AuditCharts';
-import UnresolvedTable from '../components/UnresolvedTable';
-import FixModal from '../components/FixModal';
-import HistoryTable from '../components/HistoryTable';
+import React, { Suspense } from "react";
 import useGeocode from "../hooks/useGeocode";
-import { devLog } from "@shared/utils/devLogger";
+import StatsPanel from "../components/StatsPanel";
+import AuditCharts from "../components/AuditCharts";
+import UnresolvedTable from "../components/UnresolvedTable";
+import HistoryTable from "../components/HistoryTable";
 
 export default function GeocodeDashboardPage() {
   const { stats, unresolved, history, loading, refreshAll } = useGeocode();
 
-  const [selectedLocationId, setSelectedLocationId] = useState(null);
-
-  devLog("📊 Dashboard Data:", { stats, unresolved, history, loading });
-
   return (
-    <div className="p-6 space-y-8">
-      <StatsPanel 
-        apiEndpoint="/api/geocode/stats" 
-        stats={stats || null} 
-        loading={loading?.stats || false} 
+    <div className="p-4 space-y-6">
+      <StatsPanel
+        stats={stats}
+        loading={loading.stats}
+        lastUpload={stats?.lastUpload}
+        apiEndpoint="/api/admin/geocode/stats"
       />
 
-      <BatchControls onActionComplete={refreshAll} />
-
-      <AuditCharts 
-        stats={stats || null} 
-        onFilter={(key) => devLog("🔍 Filter clicked:", key)} 
+      {/* AuditCharts expects array data; pass unresolved array */}
+      <AuditCharts
+        // was data={stats.unresolved}, now pass unresolved items array
+        data={unresolved}
+        loading={loading.unresolved}
       />
 
-      <UnresolvedTable 
-        data={unresolved || []} 
-        loading={loading?.unresolved || false} 
-        refresh={refreshAll} 
-        onSelect={(id) => setSelectedLocationId(id)}
+      {/* Unresolved table */}
+      <UnresolvedTable
+        data={unresolved}
+        loading={loading.unresolved}
+        refresh={refreshAll}
       />
 
-      {selectedLocationId && (
-        <FixModal
-          isOpen={true}
-          onClose={() => setSelectedLocationId(null)}
-          locationId={selectedLocationId}
-          onSuccess={() => {
-            setSelectedLocationId(null);
-            refreshAll();
-          }}
-        />
-      )}
-
-      <HistoryTable 
-        data={history || []} 
-        loading={loading?.history || false} 
+      {/* History table */}
+      <HistoryTable
+        data={history}
+        loading={loading.history}
       />
     </div>
   );

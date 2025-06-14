@@ -26,6 +26,8 @@ class LocationStatusEnum(str, Enum):
     manual_override= "manual_override"      
     ok             ="ok"
     failed         = "failed"
+    fixed           = "fixed"  # <--- ADD THIS
+
 
 
 class SourceTypeEnum(str, Enum):

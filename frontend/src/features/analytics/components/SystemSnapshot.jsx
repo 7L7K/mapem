@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Card from '@shared/components/ui/Card';
+import {Card} from '@shared/components/ui/Card';
 import { getSystemSnapshot } from '@lib/api/api';
 
 export default function SystemSnapshot() {
