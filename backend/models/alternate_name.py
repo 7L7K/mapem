@@ -1,14 +1,17 @@
 # backend/models/alternate_name.py
-from sqlalchemy import Column, Integer, String, ForeignKey
+import uuid
+
+from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
 from .base import Base, TimestampMixin, ReprMixin
 
 class AlternateName(Base, TimestampMixin, ReprMixin):
     __tablename__ = "alternate_names"
 
-    id           = Column(Integer, primary_key=True, autoincrement=True)
-    location_id  = Column(
-        Integer,
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    location_id = Column(
+        UUID(as_uuid=True),
         ForeignKey("locations.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
