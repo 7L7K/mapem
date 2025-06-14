@@ -103,7 +103,7 @@ class ResidenceHistory(Base, TimestampMixin, ReprMixin):
         index=True,
     )
     location_id = Column(
-        Integer,
+        UUID(as_uuid=True),
         ForeignKey("locations.id", ondelete="SET NULL"),
         nullable=True,
         index=True,

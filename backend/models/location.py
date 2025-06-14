@@ -2,7 +2,6 @@
 
 from sqlalchemy import (
     Column,
-    Integer,
     String,
     Float,
     DateTime,
@@ -11,11 +10,12 @@ from sqlalchemy import (
     Enum,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
+import uuid
 from datetime import datetime
 from backend.models.base import Base, UUIDMixin
 from .enums import SourceTypeEnum, LocationStatusEnum
 from sqlalchemy import Enum as SQLEnum   # give it a short alias
-from sqlalchemy import Column, String, DateTime
 
 class Location(Base, UUIDMixin):
     __tablename__ = "locations"
@@ -25,7 +25,7 @@ class Location(Base, UUIDMixin):
         CheckConstraint("longitude BETWEEN -180 AND 180", name="chk_lng_range"),
     )
 
-    id               = Column(Integer, primary_key=True, autoincrement=True)
+    id               = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     raw_name         = Column(String, nullable=False)
     normalized_name  = Column(String, nullable=False, unique=True)
     latitude         = Column(Float, nullable=True)

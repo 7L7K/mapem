@@ -1,9 +1,9 @@
 # backend/models/alternate_name.py
 import uuid
-
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+
 from .base import Base, TimestampMixin, ReprMixin
 
 class AlternateName(Base, TimestampMixin, ReprMixin):
