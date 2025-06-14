@@ -14,7 +14,12 @@ import uuid
 event_participants = Table(
     "event_participants",
     Base.metadata,
-    Column("event_id", ForeignKey("events.id", ondelete="CASCADE"), primary_key=True),
+    Column(
+        "event_id",
+        UUID(as_uuid=True),
+        ForeignKey("events.id", ondelete="CASCADE"),
+        primary_key=True,
+    ),
     Column("individual_id", ForeignKey("individuals.id", ondelete="CASCADE"), primary_key=True),
 )
 
@@ -24,7 +29,7 @@ class Event(Base, ReprMixin):
         Index("ix_events_tree_date", "tree_id", "date"),
     )
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tree_id = Column(
         UUID(as_uuid=True),
         ForeignKey("tree_versions.id", ondelete="CASCADE"),
@@ -37,7 +42,11 @@ class Event(Base, ReprMixin):
     notes          = Column(String)
     source_tag     = Column(String)
     category       = Column(String)
-    location_id    = Column(Integer, ForeignKey("locations.id", ondelete="SET NULL"), index=True)
+    location_id    = Column(
+        UUID(as_uuid=True),
+        ForeignKey("locations.id", ondelete="SET NULL"),
+        index=True,
+    )
 
     # ─── Relationships ───────────────────────────────────
     tree           = relationship("TreeVersion", back_populates="events", lazy="joined")

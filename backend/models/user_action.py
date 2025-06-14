@@ -39,7 +39,7 @@ class UserAction(Base, TimestampMixin, ReprMixin):
         index=True,
     )
     event_id         = Column(
-        Integer,
+        UUID(as_uuid=True),
         ForeignKey("events.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
