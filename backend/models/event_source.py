@@ -6,6 +6,7 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
 )
+from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from .base import Base, TimestampMixin, ReprMixin
 
@@ -17,7 +18,7 @@ class EventSource(Base, TimestampMixin, ReprMixin):
 
     id         = Column(Integer, primary_key=True, autoincrement=True)
     event_id   = Column(
-        Integer,
+        UUID(as_uuid=True),
         ForeignKey("events.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
