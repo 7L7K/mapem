@@ -1,10 +1,7 @@
-# backend/models/user_action.py
-
 from sqlalchemy import (
     Column,
     String,
     ForeignKey,
-    Integer,
     JSON,
     Index,
 )
@@ -14,8 +11,6 @@ from sqlalchemy import Enum as SQLEnum   # give it a short alias
 from .enums import ActionTypeEnum
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
-
-
 
 class UserAction(Base, TimestampMixin, ReprMixin):
     __tablename__ = "user_actions"
@@ -33,7 +28,7 @@ class UserAction(Base, TimestampMixin, ReprMixin):
         index=True,
     )
     individual_id    = Column(
-        Integer,
+        UUID(as_uuid=True),  # 🟣 UUID FK!
         ForeignKey("individuals.id", ondelete="SET NULL"),
         nullable=True,
         index=True,

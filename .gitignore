@@ -65,3 +65,7 @@ scripts/zip_gpt/
 notes.txt
 __pycache__/
 *.pyc
+
+# Local Netlify folder
+.netlify
+.netlify/

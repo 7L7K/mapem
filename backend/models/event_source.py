@@ -9,6 +9,9 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from .base import Base, TimestampMixin, ReprMixin
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
+
 
 class EventSource(Base, TimestampMixin, ReprMixin):
     __tablename__ = "event_sources"
@@ -16,7 +19,8 @@ class EventSource(Base, TimestampMixin, ReprMixin):
         UniqueConstraint("event_id", "source_id", name="uq_event_source"),
     )
 
-    id         = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
     event_id   = Column(
         UUID(as_uuid=True),
         ForeignKey("events.id", ondelete="CASCADE"),

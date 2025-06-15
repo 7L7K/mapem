@@ -1,0 +1,314 @@
+2025-06-15 18:03:39,538 | DEBUG | geocode | 🔍 geocode chain for: Spay, Choctaw, Mississippi, USA
+2025-06-15 18:03:39,539 | INFO | geocode | 🟦 Cache hit for Spay, Choctaw, Mississippi, USA
+2025-06-15 18:39:32,334 | DEBUG | geocode | 🔍 geocode chain for: Spay, Choctaw, Mississippi, USA
+2025-06-15 18:39:32,335 | INFO | geocode | 🟦 Cache hit for Spay, Choctaw, Mississippi, USA
+2025-06-15 18:39:32,353 | DEBUG | geocode | 🔍 geocode chain for: Spay, Choctaw, Mississippi, USA
+2025-06-15 18:39:32,353 | INFO | geocode | 🟦 Cache hit for Spay, Choctaw, Mississippi, USA
+2025-06-15 18:39:32,357 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:39:32,357 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:39:32,372 | DEBUG | geocode | 🔍 geocode chain for: Pheba, Clay, Mississippi, USA
+2025-06-15 18:39:32,372 | INFO | geocode | 🟦 Cache hit for Pheba, Clay, Mississippi, USA
+2025-06-15 18:39:32,384 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, United States
+2025-06-15 18:39:32,384 | INFO | geocode | 🟦 Cache hit for Mississippi, United States
+2025-06-15 18:39:32,387 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:39:33,265 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:39:33,274 | DEBUG | geocode | 🔍 geocode chain for: Pheba, Clay, Mississippi, USA
+2025-06-15 18:39:33,274 | INFO | geocode | 🟦 Cache hit for Pheba, Clay, Mississippi, USA
+2025-06-15 18:39:33,285 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:39:34,248 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:39:34,257 | DEBUG | geocode | 🔍 geocode chain for: Beat 2, Beat 2, Sunflower, Mississippi, USA
+2025-06-15 18:39:35,464 | WARNING | geocode | ❌ Geocode miss for 'Beat 2, Beat 2, Sunflower, Mississippi, USA'
+2025-06-15 18:39:35,477 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, United States of America
+2025-06-15 18:39:35,478 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, United States of America
+2025-06-15 18:39:35,484 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Leflore, Mississippi, USA
+2025-06-15 18:39:36,269 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Leflore, Mississippi, USA'
+2025-06-15 18:39:36,285 | DEBUG | geocode | 🔍 geocode chain for: Ruleville, Sunflower, Mississippi, USA
+2025-06-15 18:39:36,286 | INFO | geocode | 🟦 Cache hit for Ruleville, Sunflower, Mississippi, USA
+2025-06-15 18:39:36,292 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Leflore, Mississippi, USA
+2025-06-15 18:39:38,339 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Leflore, Mississippi, USA'
+2025-06-15 18:39:38,350 | DEBUG | geocode | 🔍 geocode chain for: St Louis, Missouri, USA
+2025-06-15 18:39:38,350 | INFO | geocode | 🟦 Cache hit for St Louis, Missouri, USA
+2025-06-15 18:39:38,358 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Leflore, Mississippi, USA
+2025-06-15 18:39:38,971 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Leflore, Mississippi, USA'
+2025-06-15 18:39:38,986 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Leflore, Mississippi, USA
+2025-06-15 18:39:39,887 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Leflore, Mississippi, USA'
+2025-06-15 18:39:39,890 | DEBUG | geocode | 🔍 geocode chain for: Itta Bena, Mississippi, USA
+2025-06-15 18:39:39,890 | INFO | geocode | 🟦 Cache hit for Itta Bena, Mississippi, USA
+2025-06-15 18:39:39,902 | DEBUG | geocode | 🔍 geocode chain for: Greenville, Washington, Mississippi, USA
+2025-06-15 18:39:39,902 | INFO | geocode | 🟦 Cache hit for Greenville, Washington, Mississippi, USA
+2025-06-15 18:39:39,908 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Leflore, Mississippi, USA
+2025-06-15 18:39:41,072 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Leflore, Mississippi, USA'
+2025-06-15 18:39:41,084 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, United States of America
+2025-06-15 18:39:41,085 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, United States of America
+2025-06-15 18:39:41,087 | DEBUG | geocode | 🔍 geocode chain for: Hillside, Cook County, Illinois, United States of America
+2025-06-15 18:39:41,088 | INFO | geocode | 🟦 Cache hit for Hillside, Cook County, Illinois, United States of America
+2025-06-15 18:39:41,095 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:39:41,984 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:39:41,994 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:39:41,994 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:39:41,997 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Leflore, Mississippi, USA
+2025-06-15 18:39:42,985 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Leflore, Mississippi, USA'
+2025-06-15 18:39:42,998 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Leflore, Mississippi, USA
+2025-06-15 18:39:43,905 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Leflore, Mississippi, USA'
+2025-06-15 18:39:43,914 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:39:45,081 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:39:45,093 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:39:46,128 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:39:46,138 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:39:47,178 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:39:47,188 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:39:48,420 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:39:48,423 | DEBUG | geocode | 🔍 geocode chain for: South Carolina, USA
+2025-06-15 18:39:48,424 | INFO | geocode | 🟦 Cache hit for South Carolina, USA
+2025-06-15 18:39:48,437 | DEBUG | geocode | 🔍 geocode chain for: Franklin, Monroe County, Alabama, United States of America
+2025-06-15 18:39:48,438 | INFO | geocode | 🟦 Cache hit for Franklin, Monroe County, Alabama, United States of America
+2025-06-15 18:39:48,443 | DEBUG | geocode | 🔍 geocode chain for: Winston, Mississippi
+2025-06-15 18:39:48,444 | INFO | geocode | 🟦 Cache hit for Winston, Mississippi
+2025-06-15 18:39:48,449 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:39:49,799 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:39:49,802 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:39:49,803 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:39:49,809 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, United States
+2025-06-15 18:39:49,809 | INFO | geocode | 🟦 Cache hit for Mississippi, United States
+2025-06-15 18:39:49,811 | DEBUG | geocode | 🔍 geocode chain for: Winston, Mississippi
+2025-06-15 18:39:49,812 | INFO | geocode | 🟦 Cache hit for Winston, Mississippi
+2025-06-15 18:39:49,814 | DEBUG | geocode | 🔍 geocode chain for: Police District 1, Harrison, Mississippi, USA
+2025-06-15 18:39:51,563 | WARNING | geocode | ❌ Geocode miss for 'Police District 1, Harrison, Mississippi, USA'
+2025-06-15 18:39:51,578 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:39:52,284 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:39:52,294 | DEBUG | geocode | 🔍 geocode chain for: Township 16 Range 10, New Prospect, Winston, Mississippi, USA
+2025-06-15 18:39:54,187 | WARNING | geocode | ❌ Geocode miss for 'Township 16 Range 10, New Prospect, Winston, Mississippi, USA'
+2025-06-15 18:39:54,204 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:39:54,906 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:39:54,915 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:39:56,133 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:39:56,142 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:39:57,143 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:39:57,153 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:39:57,875 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:39:57,878 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:39:57,879 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:39:57,885 | DEBUG | geocode | 🔍 geocode chain for: District 10, La Grange, Fayette, Tennessee, USA
+2025-06-15 18:39:59,762 | WARNING | geocode | ❌ Geocode miss for 'District 10, La Grange, Fayette, Tennessee, USA'
+2025-06-15 18:39:59,783 | DEBUG | geocode | 🔍 geocode chain for: District 12, Fayette, Tennessee, USA
+2025-06-15 18:40:02,077 | WARNING | geocode | ❌ Geocode miss for 'District 12, Fayette, Tennessee, USA'
+2025-06-15 18:40:02,090 | DEBUG | geocode | 🔍 geocode chain for: District 12, Fayette, Tennessee, USA
+2025-06-15 18:40:03,431 | WARNING | geocode | ❌ Geocode miss for 'District 12, Fayette, Tennessee, USA'
+2025-06-15 18:40:03,434 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:03,435 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:03,441 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:04,157 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:04,166 | DEBUG | geocode | 🔍 geocode chain for: District 12, Fayette, Tennessee, USA
+2025-06-15 18:40:05,565 | WARNING | geocode | ❌ Geocode miss for 'District 12, Fayette, Tennessee, USA'
+2025-06-15 18:40:05,570 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:05,570 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:05,577 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:06,133 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:06,136 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:06,136 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:06,142 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:07,205 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:07,208 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:07,209 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:07,216 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:08,227 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:08,231 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:08,231 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:08,237 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:09,200 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:09,203 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, , Mississippi
+2025-06-15 18:40:09,203 | INFO | geocode | 🟦 Cache hit for Ackerman, , Mississippi
+2025-06-15 18:40:09,216 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, , Mississippi, United States
+2025-06-15 18:40:09,217 | INFO | geocode | 🟦 Cache hit for Ackerman, , Mississippi, United States
+2025-06-15 18:40:09,219 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:10,246 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:10,249 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:10,250 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:10,256 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:11,293 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:11,296 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:11,296 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:11,303 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:12,414 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:12,417 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:12,418 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:12,423 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:13,180 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:13,185 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:13,185 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:13,191 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:14,222 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:14,231 | DEBUG | geocode | 🔍 geocode chain for: District 12, Fayette, Tennessee, USA
+2025-06-15 18:40:16,819 | WARNING | geocode | ❌ Geocode miss for 'District 12, Fayette, Tennessee, USA'
+2025-06-15 18:40:16,828 | DEBUG | geocode | 🔍 geocode chain for: District 12, Fayette, Tennessee, USA
+2025-06-15 18:40:17,841 | WARNING | geocode | ❌ Geocode miss for 'District 12, Fayette, Tennessee, USA'
+2025-06-15 18:40:17,851 | DEBUG | geocode | 🔍 geocode chain for: Beat 4, Tallahatchie, Mississippi, USA
+2025-06-15 18:40:18,484 | WARNING | geocode | ❌ Geocode miss for 'Beat 4, Tallahatchie, Mississippi, USA'
+2025-06-15 18:40:18,493 | DEBUG | geocode | 🔍 geocode chain for: Sunflower, Mississippi
+2025-06-15 18:40:18,493 | INFO | geocode | 🟦 Cache hit for Sunflower, Mississippi
+2025-06-15 18:40:18,510 | DEBUG | geocode | 🔍 geocode chain for: Beat #2, Sunflower, Mississippi, USA
+2025-06-15 18:40:19,587 | WARNING | geocode | ❌ Geocode miss for 'Beat #2, Sunflower, Mississippi, USA'
+2025-06-15 18:40:19,603 | DEBUG | geocode | 🔍 geocode chain for: Louisiana, United States
+2025-06-15 18:40:19,603 | INFO | geocode | 🟦 Cache hit for Louisiana, United States
+2025-06-15 18:40:19,612 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:40:19,612 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:40:19,615 | DEBUG | geocode | 🔍 geocode chain for: Rural, Sunflower, Mississippi
+2025-06-15 18:40:20,405 | WARNING | geocode | ❌ Geocode miss for 'Rural, Sunflower, Mississippi'
+2025-06-15 18:40:20,414 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:20,414 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:20,420 | DEBUG | geocode | 🔍 geocode chain for: Choctaw, Mississippi
+2025-06-15 18:40:20,421 | INFO | geocode | 🟦 Cache hit for Choctaw, Mississippi
+2025-06-15 18:40:20,427 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:40:21,529 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:40:21,532 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:21,532 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:21,538 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:40:22,370 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:40:22,374 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:22,374 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:22,380 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:22,380 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:22,383 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:40:23,578 | WARNING | geocode | ❌ Geocode miss for 'Beat 5, Choctaw, Mississippi, USA'
+2025-06-15 18:40:23,587 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-06-15 18:40:23,587 | INFO | geocode | 🟦 Cache hit for Ackerman, Choctaw, Mississippi, USA
+2025-06-15 18:40:23,590 | DEBUG | geocode | 🔍 geocode chain for: Greenville West, Mississippi
+2025-06-15 18:40:23,591 | INFO | geocode | 🟦 Cache hit for Greenville West, Mississippi
+2025-06-15 18:40:23,602 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, United States of America
+2025-06-15 18:40:23,603 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, United States of America
+2025-06-15 18:40:23,608 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, United States
+2025-06-15 18:40:23,609 | INFO | geocode | 🟦 Cache hit for Mississippi, United States
+2025-06-15 18:40:23,614 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, United States of America
+2025-06-15 18:40:23,615 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, United States of America
+2025-06-15 18:40:23,627 | DEBUG | geocode | 🔍 geocode chain for: Tunica County, Mississippi, USA
+2025-06-15 18:40:23,627 | INFO | geocode | 🟦 Cache hit for Tunica County, Mississippi, USA
+2025-06-15 18:40:23,638 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:40:23,638 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:40:23,644 | DEBUG | geocode | 🔍 geocode chain for: Tunica County, Mississippi, USA
+2025-06-15 18:40:23,644 | INFO | geocode | 🟦 Cache hit for Tunica County, Mississippi, USA
+2025-06-15 18:40:23,650 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:40:23,651 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:40:23,653 | DEBUG | geocode | 🔍 geocode chain for: Shaw Bolivar, Mississippi
+2025-06-15 18:40:23,654 | INFO | geocode | 🟦 Cache hit for Shaw Bolivar, Mississippi
+2025-06-15 18:40:23,664 | DEBUG | geocode | 🔍 geocode chain for: Milwaukee, Milwaukee, Wisconsin, United States of America
+2025-06-15 18:40:23,664 | INFO | geocode | 🟦 Cache hit for Milwaukee, Milwaukee, Wisconsin, United States of America
+2025-06-15 18:40:23,670 | DEBUG | geocode | 🔍 geocode chain for: Dodge, Wisconsin
+2025-06-15 18:40:23,670 | INFO | geocode | 🟦 Cache hit for Dodge, Wisconsin
+2025-06-15 18:40:23,678 | DEBUG | geocode | 🔍 geocode chain for: , Sunflower, Mississippi, USA
+2025-06-15 18:40:23,679 | INFO | geocode | 🟦 Cache hit for , Sunflower, Mississippi, USA
+2025-06-15 18:40:23,708 | DEBUG | geocode | 🔍 geocode chain for: Milwaukee, Milwaukee, Wisconsin, USA
+2025-06-15 18:40:23,708 | INFO | geocode | 🟦 Cache hit for Milwaukee, Milwaukee, Wisconsin, USA
+2025-06-15 18:40:23,711 | DEBUG | geocode | 🔍 geocode chain for: Sunflower County, Mississippi, USA
+2025-06-15 18:40:23,711 | INFO | geocode | 🟦 Cache hit for Sunflower County, Mississippi, USA
+2025-06-15 18:40:23,717 | DEBUG | geocode | 🔍 geocode chain for: Moorhead, Sunflower, Mississippi, USA
+2025-06-15 18:40:23,717 | INFO | geocode | 🟦 Cache hit for Moorhead, Sunflower, Mississippi, USA
+2025-06-15 18:40:23,727 | DEBUG | geocode | 🔍 geocode chain for: Indianala, Sunflower, Mississippi
+2025-06-15 18:40:24,238 | WARNING | geocode | ❌ Geocode miss for 'Indianala, Sunflower, Mississippi'
+2025-06-15 18:40:24,252 | DEBUG | geocode | 🔍 geocode chain for: Indianala, Sunflower, Mississippi
+2025-06-15 18:40:25,305 | WARNING | geocode | ❌ Geocode miss for 'Indianala, Sunflower, Mississippi'
+2025-06-15 18:40:25,314 | DEBUG | geocode | 🔍 geocode chain for: Beat 2, Sunflower, Mississippi, USA
+2025-06-15 18:40:26,464 | WARNING | geocode | ❌ Geocode miss for 'Beat 2, Sunflower, Mississippi, USA'
+2025-06-15 18:40:26,475 | DEBUG | geocode | 🔍 geocode chain for: , Sunflower, Mississippi, USA
+2025-06-15 18:40:26,475 | INFO | geocode | 🟦 Cache hit for , Sunflower, Mississippi, USA
+2025-06-15 18:40:26,484 | DEBUG | geocode | 🔍 geocode chain for: , Sunflower, Mississippi, USA
+2025-06-15 18:40:26,484 | INFO | geocode | 🟦 Cache hit for , Sunflower, Mississippi, USA
+2025-06-15 18:40:26,487 | DEBUG | geocode | 🔍 geocode chain for: , Sunflower, Mississippi, USA
+2025-06-15 18:40:26,487 | INFO | geocode | 🟦 Cache hit for , Sunflower, Mississippi, USA
+2025-06-15 18:40:26,499 | DEBUG | geocode | 🔍 geocode chain for: , Sunflower, Mississippi, USA
+2025-06-15 18:40:26,499 | INFO | geocode | 🟦 Cache hit for , Sunflower, Mississippi, USA
+2025-06-15 18:40:26,511 | DEBUG | geocode | 🔍 geocode chain for: Rural, Sunflower, Mississippi
+2025-06-15 18:40:27,366 | WARNING | geocode | ❌ Geocode miss for 'Rural, Sunflower, Mississippi'
+2025-06-15 18:40:27,383 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, United States of America
+2025-06-15 18:40:27,383 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, United States of America
+2025-06-15 18:40:27,386 | DEBUG | geocode | 🔍 geocode chain for: Collinston, Louisiana
+2025-06-15 18:40:27,386 | INFO | geocode | 🟦 Cache hit for Collinston, Louisiana
+2025-06-15 18:40:27,395 | DEBUG | geocode | 🔍 geocode chain for: Collinston, Louisiana
+2025-06-15 18:40:27,396 | INFO | geocode | 🟦 Cache hit for Collinston, Louisiana
+2025-06-15 18:40:27,404 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois
+2025-06-15 18:40:27,405 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois
+2025-06-15 18:40:27,407 | DEBUG | geocode | 🔍 geocode chain for: Collinston, Morehouse, Louisiana, USA
+2025-06-15 18:40:27,407 | INFO | geocode | 🟦 Cache hit for Collinston, Morehouse, Louisiana, USA
+2025-06-15 18:40:27,413 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:27,413 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:27,416 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, United States of America
+2025-06-15 18:40:27,416 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, United States of America
+2025-06-15 18:40:27,422 | DEBUG | geocode | 🔍 geocode chain for: Milwaukee, Milwaukee, Wisconsin, United States of America
+2025-06-15 18:40:27,422 | INFO | geocode | 🟦 Cache hit for Milwaukee, Milwaukee, Wisconsin, United States of America
+2025-06-15 18:40:27,425 | DEBUG | geocode | 🔍 geocode chain for: Moorhead, Sunflower, Mississippi, USA
+2025-06-15 18:40:27,425 | INFO | geocode | 🟦 Cache hit for Moorhead, Sunflower, Mississippi, USA
+2025-06-15 18:40:27,431 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois
+2025-06-15 18:40:27,431 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois
+2025-06-15 18:40:27,444 | DEBUG | geocode | 🔍 geocode chain for: Leland, Washington County, Mississippi, USA
+2025-06-15 18:40:27,444 | INFO | geocode | 🟦 Cache hit for Leland, Washington County, Mississippi, USA
+2025-06-15 18:40:27,457 | DEBUG | geocode | 🔍 geocode chain for: Crete, Will, Illinois, USA
+2025-06-15 18:40:27,457 | INFO | geocode | 🟦 Cache hit for Crete, Will, Illinois, USA
+2025-06-15 18:40:27,470 | DEBUG | geocode | 🔍 geocode chain for: Leland, Washington, Mississippi, USA
+2025-06-15 18:40:27,471 | INFO | geocode | 🟦 Cache hit for Leland, Washington, Mississippi, USA
+2025-06-15 18:40:27,477 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, United States
+2025-06-15 18:40:27,477 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, United States
+2025-06-15 18:40:27,480 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:27,480 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:27,485 | DEBUG | geocode | 🔍 geocode chain for: Mississippi, USA
+2025-06-15 18:40:27,486 | INFO | geocode | 🟦 Cache hit for Mississippi, USA
+2025-06-15 18:40:27,488 | DEBUG | geocode | 🔍 geocode chain for: Louisiana, USA
+2025-06-15 18:40:27,489 | INFO | geocode | 🟦 Cache hit for Louisiana, USA
+2025-06-15 18:40:27,494 | DEBUG | geocode | 🔍 geocode chain for: Collinston, Louisiana, USA
+2025-06-15 18:40:27,495 | INFO | geocode | 🟦 Cache hit for Collinston, Louisiana, USA
+2025-06-15 18:40:27,506 | DEBUG | geocode | 🔍 geocode chain for: Windsor More, Louisiana
+2025-06-15 18:40:28,406 | WARNING | geocode | ❌ Geocode miss for 'Windsor More, Louisiana'
+2025-06-15 18:40:28,421 | DEBUG | geocode | 🔍 geocode chain for: Collinston, Morehouse, Louisiana
+2025-06-15 18:40:28,421 | INFO | geocode | 🟦 Cache hit for Collinston, Morehouse, Louisiana
+2025-06-15 18:40:28,423 | DEBUG | geocode | 🔍 geocode chain for: Louisiana, USA
+2025-06-15 18:40:28,424 | INFO | geocode | 🟦 Cache hit for Louisiana, USA
+2025-06-15 18:40:28,430 | DEBUG | geocode | 🔍 geocode chain for: Collinston, Morehouse, Louisiana
+2025-06-15 18:40:28,430 | INFO | geocode | 🟦 Cache hit for Collinston, Morehouse, Louisiana
+2025-06-15 18:40:28,432 | DEBUG | geocode | 🔍 geocode chain for: Collinston, Louisiana
+2025-06-15 18:40:28,433 | INFO | geocode | 🟦 Cache hit for Collinston, Louisiana
+2025-06-15 18:40:28,438 | DEBUG | geocode | 🔍 geocode chain for: Collinston, Morehouse, Louisiana, United States
+2025-06-15 18:40:28,439 | INFO | geocode | 🟦 Cache hit for Collinston, Morehouse, Louisiana, United States
+2025-06-15 18:40:28,447 | DEBUG | geocode | 🔍 geocode chain for: Compton, Los Angeles, California, USA
+2025-06-15 18:40:28,447 | INFO | geocode | 🟦 Cache hit for Compton, Los Angeles, California, USA
+2025-06-15 18:40:28,455 | DEBUG | geocode | 🔍 geocode chain for: Louisana, USA
+2025-06-15 18:40:28,455 | INFO | geocode | 🟦 Cache hit for Louisana, USA
+2025-06-15 18:40:28,483 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,483 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,485 | DEBUG | geocode | 🔍 geocode chain for: Moorehead, Miss
+2025-06-15 18:40:28,486 | INFO | geocode | 🟦 Cache hit for Moorehead, Miss
+2025-06-15 18:40:28,497 | DEBUG | geocode | 🔍 geocode chain for: Cook, Illinois, United States
+2025-06-15 18:40:28,497 | INFO | geocode | 🟦 Cache hit for Cook, Illinois, United States
+2025-06-15 18:40:28,506 | DEBUG | geocode | 🔍 geocode chain for: Elwood, Will County, Illinois, United States of America
+2025-06-15 18:40:28,506 | INFO | geocode | 🟦 Cache hit for Elwood, Will County, Illinois, United States of America
+2025-06-15 18:40:28,512 | DEBUG | geocode | 🔍 geocode chain for: Morehead, Mississippi, USA
+2025-06-15 18:40:28,512 | INFO | geocode | 🟦 Cache hit for Morehead, Mississippi, USA
+2025-06-15 18:40:28,520 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,521 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,523 | DEBUG | geocode | 🔍 geocode chain for: morehead mississippi, USA
+2025-06-15 18:40:28,524 | INFO | geocode | 🟦 Cache hit for morehead mississippi, USA
+2025-06-15 18:40:28,529 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,530 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,532 | DEBUG | geocode | 🔍 geocode chain for: Shaw, Mississippi
+2025-06-15 18:40:28,532 | INFO | geocode | 🟦 Cache hit for Shaw, Mississippi
+2025-06-15 18:40:28,538 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,539 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,541 | DEBUG | geocode | 🔍 geocode chain for: Shaw, Mississippi
+2025-06-15 18:40:28,542 | INFO | geocode | 🟦 Cache hit for Shaw, Mississippi
+2025-06-15 18:40:28,545 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,545 | INFO | geocode | 🟦 Cache hit for Chicago, Cook, Illinois, USA
+2025-06-15 18:40:28,548 | DEBUG | geocode | 🔍 geocode chain for: Fayette, Tennessee, USA
+2025-06-15 18:40:28,548 | INFO | geocode | 🟦 Cache hit for Fayette, Tennessee, USA
+2025-06-15 18:40:28,557 | DEBUG | geocode | 🔍 geocode chain for: Fayette, Tennessee, USA
+2025-06-15 18:40:28,557 | INFO | geocode | 🟦 Cache hit for Fayette, Tennessee, USA
+2025-06-15 18:40:28,560 | DEBUG | geocode | 🔍 geocode chain for: Fayette, Tennessee, USA
+2025-06-15 18:40:28,560 | INFO | geocode | 🟦 Cache hit for Fayette, Tennessee, USA
+2025-06-15 18:40:28,563 | DEBUG | geocode | 🔍 geocode chain for: Fayette, Tennessee, USA
+2025-06-15 18:40:28,563 | INFO | geocode | 🟦 Cache hit for Fayette, Tennessee, USA
+2025-06-15 18:40:28,571 | DEBUG | geocode | 🔍 geocode chain for: Indianola, Sunflower, Mississippi, USA
+2025-06-15 18:40:28,571 | INFO | geocode | 🟦 Cache hit for Indianola, Sunflower, Mississippi, USA
+2025-06-15 18:40:28,577 | DEBUG | geocode | 🔍 geocode chain for: Indianola, Sunflower, Mississippi, USA
+2025-06-15 18:40:28,577 | INFO | geocode | 🟦 Cache hit for Indianola, Sunflower, Mississippi, USA
+2025-06-15 18:40:28,580 | DEBUG | geocode | 🔍 geocode chain for: Winston County, Mississippi, USA
+2025-06-15 18:40:28,580 | INFO | geocode | 🟦 Cache hit for Winston County, Mississippi, USA
+2025-06-15 18:40:28,583 | DEBUG | geocode | 🔍 geocode chain for: Winston County, Mississippi, USA
+2025-06-15 18:40:28,583 | INFO | geocode | 🟦 Cache hit for Winston County, Mississippi, USA
+2025-06-15 18:40:29,902 | DEBUG | geocode | 🔍 geocode chain for: Beat 5, Choctaw, Mississippi, USA
+2025-06-15 18:40:29,905 | DEBUG | geocode | 🟢 DB exact match for Beat 5, Choctaw, Mississippi, USA

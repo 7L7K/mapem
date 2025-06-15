@@ -22,7 +22,7 @@ class Family(Base, TimestampMixin, ReprMixin):
         Index("ix_families_version_gedcom", "tree_id", "gedcom_id"),
     )
 
-    id              = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tree_id = Column(
         UUID(as_uuid=True),
         ForeignKey("tree_versions.id", ondelete="CASCADE"),
@@ -30,8 +30,9 @@ class Family(Base, TimestampMixin, ReprMixin):
         index=True
     )
     gedcom_id       = Column(String, nullable=True)
-    husband_id      = Column(Integer, ForeignKey("individuals.id", ondelete="SET NULL"), nullable=True)
-    wife_id         = Column(Integer, ForeignKey("individuals.id", ondelete="SET NULL"), nullable=True)
+    husband_id = Column(UUID(as_uuid=True), ForeignKey("individuals.id", ondelete="SET NULL"), nullable=True)
+    wife_id = Column(UUID(as_uuid=True), ForeignKey("individuals.id", ondelete="SET NULL"), nullable=True)
+
 
     family_type     = Column(SQLEnum(FamilyTypeEnum, name="family_type_enum"), nullable=True)
 

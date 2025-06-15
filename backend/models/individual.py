@@ -1,10 +1,8 @@
-# backend/models/individual.py
-
 import logging
+import uuid
 
 from sqlalchemy import (
     Column,
-    Integer,
     String,
     Date,
     ForeignKey,
@@ -13,12 +11,9 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from sqlalchemy import Enum as SQLEnum
 from sqlalchemy.dialects.postgresql import UUID
-import uuid
+
 from backend.models.base import SerializeMixin, Base, TimestampMixin, ReprMixin
 from backend.models.enums import GenderEnum
-
- 
-
 
 class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
     __tablename__ = "individuals"
@@ -26,7 +21,15 @@ class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
         Index("ix_individual_version_gedcom", "tree_id", "gedcom_id"),
     )
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    # 🟣 NOW UUID! (was Integer)
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False,
+    )
+
     tree_id = Column(
         UUID(as_uuid=True),
         ForeignKey("tree_versions.id", ondelete="CASCADE"),
@@ -73,7 +76,6 @@ class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
 
     def has_name(self):
         return bool(self.first_name or self.last_name)
-    
 
     @property
     def full_name(self) -> str:
@@ -81,13 +83,11 @@ class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
             return f"{self.first_name} {self.last_name}"
         return self.first_name or self.last_name or "Unknown"
 
-
     def to_debug_dict(self):
         return {k: getattr(self, k) for k in self.__table__.columns.keys()}
 
     def __repr__(self):
         return f"<Individual id={self.id} gedcom_id={self.gedcom_id} first_name={self.first_name}>"
-
 
 class ResidenceHistory(Base, TimestampMixin, ReprMixin):
     __tablename__ = "residence_history"
@@ -95,9 +95,9 @@ class ResidenceHistory(Base, TimestampMixin, ReprMixin):
         Index("ix_res_history_indiv_dates", "individual_id", "start_date", "end_date"),
     )
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     individual_id = Column(
-        Integer,
+        UUID(as_uuid=True),  # 🟣 NOW UUID!
         ForeignKey("individuals.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -126,4 +126,3 @@ class ResidenceHistory(Base, TimestampMixin, ReprMixin):
 
     def __repr__(self):
         return f"<ResidenceHistory id={self.id} individual_id={self.individual_id} notes={self.notes}>"
-

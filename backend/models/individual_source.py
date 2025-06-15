@@ -8,6 +8,9 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from .base import Base, TimestampMixin, ReprMixin
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
+
 
 class IndividualSource(Base, TimestampMixin, ReprMixin):
     __tablename__ = "individual_sources"
@@ -15,9 +18,9 @@ class IndividualSource(Base, TimestampMixin, ReprMixin):
         UniqueConstraint("individual_id", "source_id", name="uq_individual_source"),
     )
 
-    id            = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     individual_id = Column(
-        Integer,
+        UUID(as_uuid=True),
         ForeignKey("individuals.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

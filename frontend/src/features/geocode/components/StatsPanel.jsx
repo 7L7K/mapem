@@ -1,12 +1,12 @@
 import React, { useEffect } from "react";
 import PropTypes from "prop-types";
-import { Card, CardContent } from "@shared/components/ui/card";
-import Spinner from "@shared/components/ui/spinner";
-import Tooltip from "@shared/components/ui/tooltip";
+import { Card, CardContent } from "@shared/components/ui/Card";
+import Spinner from "@shared/components/ui/Spinner";
+import Tooltip from "@shared/components/ui/Tooltip";
 import { formatDateWithTime } from "@shared/utils/formatters";
 import ErrorBoundary from "@shared/components/ErrorBoundary";
 import useFetch from "@shared/hooks/useFetch";
-import Sparkline from "@shared/components/ui/sparkline";
+import Sparkline from "@shared/components/ui/Sparkline";
 import { devLog } from "@shared/utils/devLogger";
 
 // Metrics definition for cards
