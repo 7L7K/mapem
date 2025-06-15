@@ -8,14 +8,21 @@ const SearchContext = createContext();
 export const useSearch = () => useContext(SearchContext); // ⬅️ Export useSearch hook here
 
 export function SearchProvider({ children }) {
-  const [filters, setFilters] = useState({
+  const initialFilters = {
+    person: "",
     selectedPersonId: null,
+    selectedFamilyId: null,
+    compareIds: [],
     yearRange: [1800, 2000],
-    eventTypes: [],
+    eventTypes: {},
     vague: false,
     relations: {},
-    sources: [],
-  });
+    sources: {},
+  };
+
+  const [filters, setFilters] = useState(initialFilters);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const clearAll = () => setFilters(initialFilters);
 
   const [mode, setMode] = useState('default');
 
@@ -32,7 +39,17 @@ export function SearchProvider({ children }) {
   }, [filters]);
 
   return (
-    <SearchContext.Provider value={{ filters, setFilters, mode, setMode }}>
+    <SearchContext.Provider
+      value={{
+        filters,
+        setFilters,
+        mode,
+        setMode,
+        isDrawerOpen,
+        setIsDrawerOpen,
+        clearAll,
+      }}
+    >
       {children}
     </SearchContext.Provider>
   );
