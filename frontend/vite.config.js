@@ -27,4 +27,9 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      external: ['whatwg-fetch'], // 👈 Fix for Netlify build
+    },
+  },
 });
