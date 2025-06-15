@@ -1,9 +1,9 @@
 // frontend/src/features/geocode/components/UnresolvedTable.jsx
 import React, { useState, useMemo, useEffect, useCallback, useRef } from "react";
 import PropTypes from "prop-types";
-import Spinner from "@shared/components/ui/spinner";
-import { Badge } from "@shared/components/ui/badge";
-import Button from "@shared/components/ui/button";
+import Spinner from "@shared/components/ui/Spinner";
+import { Badge } from "@shared/components/ui/Badge";
+import Button from "@shared/components/ui/Button";
 import { formatDateWithTime } from "@shared/utils/formatters";
 import debounce from "lodash.debounce";
 import FixDrawer from "./FixDrawer";
