@@ -4,6 +4,7 @@ import axios from 'axios';
 import { SearchProvider } from '@shared/context/SearchContext';
 import { LegendProvider } from '@shared/context/LegendContext';
 import { UploadStatusProvider } from '@shared/context/UploadStatusContext';
+import { MapControlProvider } from '@shared/context/MapControlContext';
 
 import ErrorBoundary from '@shared/components/ErrorBoundary';
 
@@ -48,7 +49,9 @@ export default function Providers({ children }) {
       <UploadStatusProvider>
         <SearchProvider>
           <LegendProvider>
-            {children}
+            <MapControlProvider>
+              {children}
+            </MapControlProvider>
           </LegendProvider>
         </SearchProvider>
       </UploadStatusProvider>
