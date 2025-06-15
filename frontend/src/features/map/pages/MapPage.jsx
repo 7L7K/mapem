@@ -19,12 +19,11 @@ import PersonMap       from "@/features/map/components/PersonMap"
 import FamilyMap       from "@/features/map/components/FamilyMap"
 import GroupMap        from "@/features/map/components/GroupMap"
 import { log as devLog } from "@/lib/api/devLogger.js"
-import MigrationMap from "@/features/map/components/MigrationMap";
 
 
 export default function MapPage() {
   const { treeId } = useTree()
-  const { filters, visibleCounts, mode } = useSearch()
+  const { filters, mode } = useSearch()
   const { activeSection, toggleSection } = useMapControl()
 
   const [movements, setMovements] = useState([])
@@ -104,11 +103,7 @@ export default function MapPage() {
 
       {activeSection === "filters" && <AdvancedFilterDrawer />}
       <MapComponent movements={movements} loading={loading} error={error} />
-      <LegendPanel
-        movements={movements}
-        people={visibleCounts.people}
-        families={visibleCounts.families}
-      />
+      <LegendPanel />
     </div>
   )
 }
