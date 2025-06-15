@@ -103,11 +103,12 @@ class ResidenceHistory(Base, TimestampMixin, ReprMixin):
         index=True,
     )
     location_id = Column(
-        Integer,
-        ForeignKey("locations.id", ondelete="SET NULL"),
-        nullable=True,
-        index=True,
-    )
+    UUID(as_uuid=True),
+    ForeignKey("locations.id", ondelete="SET NULL"),
+    nullable=True,
+    index=True,
+)
+
     start_date = Column(Date, nullable=True)
     end_date = Column(Date, nullable=True)
     notes = Column(String, nullable=True)

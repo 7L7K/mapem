@@ -37,7 +37,8 @@ class Event(Base, ReprMixin):
     notes          = Column(String)
     source_tag     = Column(String)
     category       = Column(String)
-    location_id    = Column(Integer, ForeignKey("locations.id", ondelete="SET NULL"), index=True)
+    location_id = Column(UUID(as_uuid=True), ForeignKey("locations.id", ondelete="SET NULL"), nullable=True)
+
 
     # ─── Relationships ───────────────────────────────────
     tree           = relationship("TreeVersion", back_populates="events", lazy="joined")

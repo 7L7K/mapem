@@ -1,11 +1,10 @@
-#$HOME/mapem/scripts/run_all.sh
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 set -e  # exit on error
 
 # ─── Timing Helpers ─────────────────────────────────────────────────────
-declare -A TIMER_STARTS
-declare -A TIMER_TOTALS
+typeset -A TIMER_STARTS
+typeset -A TIMER_TOTALS
 
 start_timer() {
   TIMER_STARTS[$1]=$(date +%s.%N)
@@ -33,8 +32,6 @@ success() { echo -e "${green}${bold}✅ $1${reset}"; }
 START_TIME=$(date +%s)
 FLASK_PID=""; VITE_PID=""
 
-# Ensure proper shutdown on signals and exit
-trap 'echo -e "\n🚫 ${bold}Shutting down...${reset}"; kill $FLASK_PID $VITE_PID 2>/dev/null || true; exit' SIGINT SIGTERM EXIT
 
 # ─── Paths ───────────────────────────────────────────────────────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -102,9 +99,19 @@ else
 fi
 
 # ─── Env Vars ─────────────────────────────────────────────────────────────
-echo -e "\n📄 Loading .env…"
-[ ! -f "$PROJECT_ROOT/.env" ] && { error ".env missing"; exit 1; }
-set -o allexport; source "$PROJECT_ROOT/.env"; set +o allexport
+echo -e "\n📄 Loading .env from: $PROJECT_ROOT/.env"
+if [[ -f "$PROJECT_ROOT/.env" ]]; then
+  echo "✅ .env FOUND — previewing top of file:"
+  head -n 10 "$PROJECT_ROOT/.env"
+  set -o allexport; source "$PROJECT_ROOT/.env"; set +o allexport
+else
+  echo "❌ .env NOT FOUND at $PROJECT_ROOT/.env"
+  echo "🧪 ls -la $PROJECT_ROOT:"
+  ls -la "$PROJECT_ROOT"
+  echo "🧪 pwd from inside script: $(pwd)"
+  error ".env missing"
+  exit 1
+fi
 
 echo -e "\n🔍 Checking env vars…"
 MISSING_ENV=0

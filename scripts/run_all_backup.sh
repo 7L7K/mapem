@@ -1,10 +1,10 @@
-#!/usr/bin/env bash
+#!/usr/bin/env zsh
 
 set -e  # exit on error
 
 # ─── Timing Helpers ─────────────────────────────────────────────────────
-declare -A TIMER_STARTS
-declare -A TIMER_TOTALS
+typeset -A TIMER_STARTS
+typeset -A TIMER_TOTALS
 
 start_timer() {
   TIMER_STARTS[$1]=$(date +%s.%N)
@@ -39,6 +39,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 export PYTHONPATH="$PROJECT_ROOT"
+
+echo "🧠 Shell executing script: $SHELL"
+echo "📁 SCRIPT_DIR: $SCRIPT_DIR"
+echo "📁 PROJECT_ROOT: $PROJECT_ROOT"
+echo "📄 Looking for env file at: $PROJECT_ROOT/.env"
 
 # ─── Kill Old Processes ──────────────────────────────────────────────────
 echo -e "\n🫼 Killing old processes…"
