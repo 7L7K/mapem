@@ -123,16 +123,33 @@ class GEDCOMParser:
     def save_to_db(
         self,
         session: Session,
-        uploaded_tree_id: UUID,
+        uploaded_tree_id: Optional[UUID] = None,
         tree_version_id: Optional[UUID] = None,
         dry_run: bool = False,
+        *,
+        tree_id: Optional[UUID] = None,
     ) -> Dict[str, Any]:
         """Write normalised data.
 
-        The caller must supply an open SQLAlchemy :pyclass:`Session` that will be
-        **committed or rolled‑back here**.  If *dry_run* is ``True`` we always
-        roll back so that nothing is persisted (handy for tests).
+        Parameters
+        ----------
+        session : Session
+            Open database session (transaction handled by caller).
+        uploaded_tree_id : UUID | None
+            Identifier of :class:`UploadedTree`. ``tree_id`` may be used as an
+            alias for backward compatibility.
+        tree_version_id : UUID | None
+            Existing tree version or ``None`` to create a new one.
+        dry_run : bool
+            If ``True`` no changes will be committed.
+        tree_id : UUID | None
+            Alias for ``uploaded_tree_id`` for older callers.
         """
+        # Backwards compatibility: allow ``tree_id`` as alias
+        if tree_id is not None:
+            if uploaded_tree_id is not None and tree_id != uploaded_tree_id:
+                raise ValueError("Specify either uploaded_tree_id or tree_id, not both")
+            uploaded_tree_id = tree_id
         if not self.data:
             raise RuntimeError("parse_file() has to be called before save_to_db()")
 
@@ -266,18 +283,39 @@ class GEDCOMParser:
                 f"+Event {ev.event_type}@{ev.date} → loc={location_id} | participant_ged={evt.get('individual_gedcom_id')}"
             )
 
+            # ── Duplicate check ─────────────────────────────
+            participants_ids = {p.id for p in ev.participants}
+            duplicates = []
+            for cand in session.query(Event).filter_by(
+                tree_id=tree_version_id,
+                event_type=ev.event_type,
+                date=ev.date,
+                location_id=location_id,
+            ).all():
+                if {p.id for p in cand.participants} == participants_ids:
+                    duplicates.append(cand)
+
+            if duplicates:
+                logger.info(
+                    "↩️ Duplicate event ignored for participants %s", participants_ids
+                )
+                continue
+
             session.add(ev)
             summary["event_count"] += 1
 
-        logger.info("📝 About to commit: %s people, %s events (TreeVersion %s)", summary["people_count"], summary["event_count"], tree_version_id)
+        logger.info(
+            "📝 Finished preparing: %s people, %s events (TreeVersion %s)",
+            summary["people_count"],
+            summary["event_count"],
+            tree_version_id,
+        )
 
-        # ── Commit / rollback ------------------------------------------
         if dry_run:
             session.rollback()
             logger.info("⚙️ Dry‑run complete — rolled back transactions")
         else:
-            session.commit()
-            logger.info("✅ Committed TreeVersion %s", tree_version_id)
+            session.flush()
         return summary
 
     def _flush(self, session: Session, summary: Dict[str, Any], label: str) -> None:
@@ -294,6 +332,9 @@ class GEDCOMParser:
         """Return *Location.id* **or** ``None`` if the place cannot be resolved."""
         place = evt.get("location") or evt.get("place")
         if not place:
+            logger.warning(
+                "⚠️ Event has no place: %s on %s", evt.get("event_type"), evt.get("date")
+            )
             return None
 
         year: Optional[int] = None
@@ -307,8 +348,14 @@ class GEDCOMParser:
             source_tag=evt.get("source_tag", ""),
             tree_id=uploaded_tree_id,
         )
-        if not loc_out:
-            logger.warning("⚠️ Location not resolved: '%s' (year=%s)", place, year)
+        if not loc_out or loc_out.status == "unresolved" or not loc_out.normalized_name:
+            status = getattr(loc_out, "status", "none") if loc_out else "none"
+            logger.warning(
+                "⚠️ Location not resolved: '%s' (status=%s, year=%s)",
+                place,
+                status,
+                year,
+            )
             return None
 
         loc = session.query(Location).filter_by(normalized_name=loc_out.normalized_name).first()
