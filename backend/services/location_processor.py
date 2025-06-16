@@ -188,14 +188,16 @@ def process_location(
     # 2. manual fixes
     if norm in MANUAL_FIXES:
         fix = MANUAL_FIXES[norm]
+        normalized_name = fix.get("normalized_name", norm)
         logger.info(
-            "🟧 fallback=manual status=manual raw='%s' year=%s src=manual",
+            "🟧 fallback=manual status=manual raw='%s' year=%s src=manual normalized='%s'",
             raw_place,
             event_year,
+            normalized_name,
         )
         return LocationOut(
             raw_name=fix.get("raw_name", raw_place),
-            normalized_name=fix.get("normalized_name", norm),
+            normalized_name=normalized_name,
             latitude=fix.get("lat") or fix.get("latitude"),
             longitude=fix.get("lng") or fix.get("longitude"),
             confidence_score=float(fix.get("confidence", 1.0)),
