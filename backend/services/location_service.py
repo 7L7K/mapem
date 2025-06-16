@@ -23,6 +23,7 @@ class LocationService:
         cache_file: Optional[str] = None,
         use_cache: bool = True,
         data_dir: Optional[Path] = None,
+        mock_mode: bool | None = None,
     ):
         # Set up base data dir (guaranteed Path object)
         self.data_dir = Path(
@@ -34,7 +35,10 @@ class LocationService:
 
         # Set up geocoder instance
         self.geocoder = Geocode(
-            api_key=api_key, cache_file=cache_file, use_cache=use_cache
+            api_key=api_key,
+            cache_file=cache_file,
+            use_cache=use_cache,
+            mock_mode=mock_mode,
         )
 
         # Manual fix and history support (future expansion)

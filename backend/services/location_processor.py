@@ -20,7 +20,6 @@ import os
 from datetime import datetime, timezone
 from typing import Dict, Optional, Any
 
-from rapidfuzz import process as fuzz
 
 from backend.utils.helpers import normalize_location
 from backend.utils.logger import get_file_logger
@@ -34,7 +33,6 @@ DATA_DIR = Path(DATA_DIR)
 DATA_DIR.mkdir(exist_ok=True, parents=True)
 
 MANUAL_FIXES_PATH   = DATA_DIR / "manual_place_fixes.json"
-FUZZY_ALIASES_PATH  = DATA_DIR / "fuzzy_aliases.json"
 UNRESOLVED_LOG_PATH = DATA_DIR / "unresolved_locations.json"
 HISTORICAL_DIR      = DATA_DIR / "historical_places"
 HISTORICAL_DIR.mkdir(exist_ok=True, parents=True)
@@ -58,18 +56,11 @@ def _safe_load_json(path: Path, default: Any) -> Any:
         return default
 
 MANUAL_FIXES_RAW: Dict[str, Dict[str, Any]] = _safe_load_json(MANUAL_FIXES_PATH, {})
-FUZZY_ALIASES_RAW: Dict[str, str] = _safe_load_json(FUZZY_ALIASES_PATH, {})
 
 # All keys normalized!
 MANUAL_FIXES: Dict[str, Dict[str, Any]] = {
     normalize_location(k): v for k, v in MANUAL_FIXES_RAW.items()
 }
-FUZZY_ALIASES: Dict[str, str] = {
-    normalize_location(k): normalize_location(v) for k, v in FUZZY_ALIASES_RAW.items()
-}
-
-# Build a list of “known good” names for fuzzy search
-_KNOWN_LOCATIONS: list[str] = list(MANUAL_FIXES.keys()) + list(FUZZY_ALIASES.values())
 
 # ────── Vague state + county fallbacks ──────
 STATE_VAGUE: Dict[str, tuple[float, float]] = {
@@ -115,9 +106,6 @@ def _load_historical_places() -> None:
 
 _load_historical_places()
 
-_KNOWN_LOCATIONS.extend(list(HISTORICAL_LOOKUP.keys()))
-_KNOWN_LOCATIONS.extend(list(COUNTY_VAGUE.keys()))
-_KNOWN_LOCATIONS = list(set(_KNOWN_LOCATIONS))  # dedupe
 
 # ────── Unresolved logger helper ──────
 
@@ -200,93 +188,99 @@ def process_location(
     # 2. manual fixes
     if norm in MANUAL_FIXES:
         fix = MANUAL_FIXES[norm]
-        logger.info("🔧 manual_fix '%s' → '%s'", raw_place, norm)
+        logger.info(
+            "🟧 fallback=manual status=manual raw='%s' year=%s src=manual",
+            raw_place,
+            event_year,
+        )
         return LocationOut(
             raw_name=fix.get("raw_name", raw_place),
             normalized_name=fix.get("normalized_name", norm),
             latitude=fix.get("lat") or fix.get("latitude"),
             longitude=fix.get("lng") or fix.get("longitude"),
             confidence_score=float(fix.get("confidence", 1.0)),
-            status="manual_fix",
+            confidence_label="manual",
+            status="manual",
             source="manual",
             timestamp=now,
         )
 
-    # 3. alias table (one-step recurse)
-    if norm in FUZZY_ALIASES:
-        aliased = FUZZY_ALIASES[norm]
-        logger.info("🔁 alias_fix '%s' → '%s'", raw_place, aliased)
-        return process_location(aliased, source_tag, event_year, tree_id, db_session, geocoder)
+    # alias + fuzzy cleanup removed for strict fallback ordering
 
-    # 4. RapidFuzz auto-fix
-    if _KNOWN_LOCATIONS:
-        match, score, _ = fuzz.extractOne(norm, _KNOWN_LOCATIONS)
-        if score >= 85:
-            logger.info("✨ RapidFuzz %d%% '%s' → '%s'", score, raw_place, match)
-            return process_location(match, source_tag, event_year, tree_id, db_session, geocoder)
-
-    # 5. vague county fallback
-    if norm in COUNTY_VAGUE:
-        lat, lng = COUNTY_VAGUE[norm]
-        logger.info("🏛️ vague_county '%s' (%s,%s)", raw_place, lat, lng)
+    # 3. vague county or state fallback
+    if norm in COUNTY_VAGUE or norm in STATE_VAGUE:
+        if norm in COUNTY_VAGUE:
+            lat, lng = COUNTY_VAGUE[norm]
+        else:
+            lat, lng = STATE_VAGUE[norm]
+        logger.info(
+            "🟦 fallback=vague status=vague raw='%s' year=%s src=vague",
+            raw_place,
+            event_year,
+        )
         return LocationOut(
             raw_name=raw_place,
             normalized_name=norm,
             latitude=lat,
             longitude=lng,
-            confidence_score=0.35,
-            status="vague_county",
-            source="fallback",
+            confidence_score=0.3,
+            confidence_label="low",
+            status="vague",
+            source="vague",
             timestamp=now,
         )
 
-    # 6. vague state fallback
-    if norm in STATE_VAGUE:
-        lat, lng = STATE_VAGUE[norm]
-        logger.info("🕳️ vague_state '%s' (%s,%s)", raw_place, lat, lng)
-        return LocationOut(
-            raw_name=raw_place,
-            normalized_name=norm,
-            latitude=lat,
-            longitude=lng,
-            confidence_score=0.4,
-            status="vague_state",
-            source="fallback",
-            timestamp=now,
-        )
-
-    # 7. historical lookup
+    # 4. historical lookup
     if norm in HISTORICAL_LOOKUP:
         lat, lng, modern = HISTORICAL_LOOKUP[norm]
-        logger.info("📜 historical '%s' → '%s' (%s,%s)", raw_place, modern, lat, lng)
+        logger.info(
+            "🟨 fallback=historical status=historical raw='%s' year=%s src=historical",
+            raw_place,
+            event_year,
+        )
         return LocationOut(
             raw_name=raw_place,
             normalized_name=modern,
             latitude=lat,
             longitude=lng,
-            confidence_score=0.9,
+            confidence_score=0.85,
+            confidence_label="historical",
             status="historical",
             source="historical",
             timestamp=now,
         )
 
-    # 8. API geocode / DB fuzzy
+    # 5. API / cache geocode
     geo = geo_service.get_or_create_location(db_session, raw_place)
     if geo and geo.latitude is not None and geo.longitude is not None:
+        if geo.source == "cache":
+            logger.info(
+                "🟩 fallback=cache status=%s raw='%s' year=%s src=%s",
+                geo.status,
+                raw_place,
+                event_year,
+                geo.source,
+            )
+        else:
+            logger.info(
+                "🟩 fallback=api status=%s raw='%s' year=%s src=%s",
+                geo.status,
+                raw_place,
+                event_year,
+                geo.source,
+            )
         if (
             geo.latitude == 0.0
             and geo.longitude == 0.0
             and event_year is not None
             and event_year < 1890
         ):
-            logger.info("🟠 0,0 coords pre-1890 → vague_state_pre1890")
-            geo.status = "vague_state_pre1890"
-        else:
-            geo.status = geo.status or "ok"
+            geo.status = "vague"
+            geo.confidence_label = "low"
         geo.timestamp = now
         return geo
 
-    # 9. unresolved
+    # 6. unresolved
     logger.error("❌ unresolved '%s'", raw_place)
     _log_unresolved_once(raw_place, "api_failed", tree_id)
     return LocationOut(
@@ -295,6 +289,7 @@ def process_location(
         latitude=None,
         longitude=None,
         confidence_score=0.0,
+        confidence_label="",
         status="unresolved",
         source="api",
         timestamp=now,
