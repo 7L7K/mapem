@@ -102,7 +102,7 @@ class PermanentCacheGeocoder:
             confidence_label=label,
             status=status,
             source=src,
-        )
+         )
 
 
 class HistoricalGeocoder:
@@ -185,6 +185,9 @@ class ExternalAPIGeocoder:
         self.api_key = api_key
 
     def resolve(self, geocode: "Geocode", session, place: str) -> Optional[LocationOut]:
+        if geocode.mock_mode:
+            logger.info("🛑 Mock mode active - skipping API call for '%s'", place)
+            return None
         result = geocode._google(place) or geocode._nominatim_geocode(place)
         if not result:
             return None
@@ -213,21 +216,24 @@ class Geocode:
         manual_fixes: Optional[Dict[str, Any]] = None,
         historical_lookup: Optional[Dict[str, Any]] = None,
         unresolved_logger=None,
+        mock_mode: bool | None = None,
     ) -> None:
         self.api_key = api_key
         self.cache_file = Path(cache_file or DEFAULT_CACHE_PATH)
         self.cache_enabled = use_cache
         self.cache: Dict[str, Any] = self._load_cache() if use_cache else {}
         self.unresolved_logger = unresolved_logger
+        self.mock_mode = bool(
+            os.getenv("MAPEM_MOCK_GEOCODE", "0") == "1" if mock_mode is None else mock_mode
+        )
 
         self.manual_fixes = manual_fixes or {}
         self.historical_lookup = historical_lookup or {}
 
         self.plugins = [
             ManualOverrideGeocoder(self.manual_fixes),
-            PermanentCacheGeocoder(),
             HistoricalGeocoder(self.historical_lookup),
-            FuzzyAliasGeocoder(),
+            PermanentCacheGeocoder(),
             ExternalAPIGeocoder(api_key),
         ]
 
@@ -351,7 +357,6 @@ __all__ = [
     "ManualOverrideGeocoder",
     "PermanentCacheGeocoder",
     "HistoricalGeocoder",
-    "FuzzyAliasGeocoder",
     "ExternalAPIGeocoder",
     "LocationOut",
 ]
