@@ -210,11 +210,27 @@ def process_location(
     # alias + fuzzy cleanup removed for strict fallback ordering
 
     # 3. vague county or state fallback
-    if norm in COUNTY_VAGUE or norm in STATE_VAGUE:
-        if norm in COUNTY_VAGUE:
-            lat, lng = COUNTY_VAGUE[norm]
-        else:
-            lat, lng = STATE_VAGUE[norm]
+    if norm in COUNTY_VAGUE:
+        lat, lng = COUNTY_VAGUE[norm]
+        logger.info(
+            "🟦 fallback=vague status=vague raw='%s' year=%s src=vague",
+            raw_place,
+            event_year,
+        )
+        return LocationOut(
+            raw_name=raw_place,
+            normalized_name=norm,
+            latitude=lat,
+            longitude=lng,
+            confidence_score=0.3,
+            confidence_label="low",
+            status="vague",
+            source="vague",
+            timestamp=now,
+        )
+
+    elif norm in STATE_VAGUE:
+        lat, lng = STATE_VAGUE[norm]
         logger.info(
             "🟦 fallback=vague status=vague raw='%s' year=%s src=vague",
             raw_place,
