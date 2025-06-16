@@ -307,7 +307,7 @@ def process_location(
         latitude=None,
         longitude=None,
         confidence_score=0.0,
-        confidence_label="",
+        confidence_label="unresolved",
         status="unresolved",
         source="api",
         timestamp=now,
