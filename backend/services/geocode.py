@@ -67,11 +67,27 @@ class PermanentCacheGeocoder:
         if not entry:
             return None
         try:
-            lat, lng, norm, conf, src, ts = entry
+            if len(entry) == 4:
+                lat, lng, norm, conf = entry
+                src = "cache"
+                status = "ok"
+                label = src
+                ts = 0.0
+            elif len(entry) == 6 and isinstance(entry[5], (int, float)):
+                lat, lng, norm, conf, src, ts = entry
+                status = "ok"
+                label = src
+            elif len(entry) == 7:
+                lat, lng, norm, conf, src, status, ts = entry
+                label = src
+            elif len(entry) >= 8:
+                lat, lng, norm, conf, src, status, label, ts = entry[:8]
+            else:
+                raise ValueError("unexpected cache format")
         except Exception:
             logger.warning("🧯 Cache entry malformed for '%s': %s", key, entry)
             return None
-        if lat is None and (now - ts) > FAIL_TTL_SECONDS:
+        if lat is None and ts and (now - ts) > FAIL_TTL_SECONDS:
             del geocode.cache[key]
             return None
         if lat is None or lng is None:
@@ -83,10 +99,10 @@ class PermanentCacheGeocoder:
             latitude=lat,
             longitude=lng,
             confidence_score=float(conf or 0.0),
-            confidence_label=src,
-            status="ok",
-            source="cache",
-        )
+            confidence_label=label,
+            status=status,
+            source=src,
+         )
 
 
 class HistoricalGeocoder:
@@ -307,6 +323,8 @@ class Geocode:
                         result.normalized_name,
                         result.confidence_score,
                         result.source,
+                        getattr(result, "status", "ok"),
+                        getattr(result, "confidence_label", result.source),
                         now,
                     ]
                     self._save_cache()
@@ -314,7 +332,16 @@ class Geocode:
 
         # No result
         if self.cache_enabled:
-            self.cache[key] = [None, None, raw, 0.0, "geocoder", now]
+            self.cache[key] = [
+                None,
+                None,
+                raw,
+                0.0,
+                "geocoder",
+                "unresolved",
+                "geocoder",
+                now,
+            ]
             self._save_cache()
         if self.unresolved_logger:
             self.unresolved_logger(place=raw, reason="geocoder-miss", details={})

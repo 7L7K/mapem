@@ -115,7 +115,7 @@ def upload_tree():
                 file_obj.seek(0)
             return "0 HEAD" in start and "0 TRLR" in end
 
-        if ext == ".ged" and not is_valid_gedcom(file):
+        if ext in {".ged", ".gedcom"} and not is_valid_gedcom(file):
             return (
                 jsonify(
                     {
@@ -153,7 +153,7 @@ def upload_tree():
             len(parsed["events"]),
         )
 
-        with SessionLocal() as db:
+        with SessionLocal.begin() as db:
             try:
                 # 5️⃣ Insert UploadedTree + TreeVersion
                 uploaded_tree = UploadedTree(tree_name=tree_name)
@@ -184,10 +184,8 @@ def upload_tree():
                 )
                 logger.debug("✅ save_to_db() complete — summary: %s", summary)
 
-                # 7️⃣ Commit
-                db.commit()
                 logger.info(
-                    "✅ GEDCOM '%s' committed (tree %s, version %s)",
+                    "✅ GEDCOM '%s' processed (tree %s, version %s)",
                     file.filename,
                     uploaded_tree.id,
                     version.id,
@@ -221,7 +219,6 @@ def upload_tree():
                 )
 
             except Exception as exc:
-                db.rollback()
                 logger.error("❌ GEDCOM upload failed: %s", exc)
                 logger.error(traceback.format_exc())
                 return (
