@@ -1,11 +1,6 @@
 import os
-import json
 import tempfile
 
-from flask import Flask
-from backend.main import create_app
-from backend.db import get_engine
-from sqlalchemy.orm import sessionmaker
 from backend.models import Individual
 
 GEDCOM_SAMPLE = """0 HEAD
@@ -21,16 +16,7 @@ GEDCOM_SAMPLE = """0 HEAD
 0 TRLR
 """
 
-def test_upload_tiny_gedcom_populates_names():
-    # ─── App + Client ────────────────────────────────────────────────
-    app = create_app()
-    app.config["TESTING"] = True
-    client = app.test_client()
-
-    # ─── DB Session ─────────────────────────────────────────────────
-    engine = get_engine()
-    Session = sessionmaker(bind=engine)
-    session = Session()
+def test_upload_tiny_gedcom_populates_names(client, db_session):
 
     # ─── Create Temp GEDCOM ─────────────────────────────────────────
     with tempfile.NamedTemporaryFile(mode='w+', suffix=".ged", delete=False) as tmp:
@@ -57,7 +43,7 @@ def test_upload_tiny_gedcom_populates_names():
         assert tree_id, "❌ version_id (TreeVersion) missing in response"
 
         # ─── Check Individuals ─────────────────────────────────────
-        people = session.query(Individual).filter_by(tree_id=tree_id).all()
+        people = db_session.query(Individual).filter_by(tree_id=tree_id).all()
         assert people, "❌ No individuals found after upload"
 
         for p in people:
@@ -68,4 +54,3 @@ def test_upload_tiny_gedcom_populates_names():
 
     finally:
         os.unlink(temp_path)
-        session.close()

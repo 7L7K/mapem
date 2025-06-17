@@ -23,7 +23,6 @@ def dummy_location_service():
 
 GEDCOM_TEST_FILE = "tests/data/test_family_events.ged"
 
-print("GEDCOMParser method list:", dir(GEDCOMParser))
 
 from datetime import datetime, timezone
 
@@ -97,10 +96,3 @@ def test_missing_event_type_is_skipped(db_session, dummy_location_service):
     summary = parser.save_to_db(db_session, tree_id=tree_id)
     assert summary["event_count"] == 0
     assert any("Missing event_type" in w for w in summary["warnings"])
-print("✅ parser.py LOADED")
-
-from importlib import reload
-import backend.services.parser as parser_mod
-reload(parser_mod)
-from backend.services.parser import GEDCOMParser
-print("✅ after reload:", "save_to_db" in dir(GEDCOMParser))
