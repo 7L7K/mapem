@@ -1,6 +1,8 @@
 import logging
 import uuid
 
+"""Individuals parsed from GEDCOM files with optional residences."""
+
 from sqlalchemy import (
     Column,
     String,
@@ -117,6 +119,11 @@ class ResidenceHistory(Base, TimestampMixin, ReprMixin):
         back_populates="residences",
         lazy="noload",
     )
+    location = relationship(
+        "Location",
+        back_populates="residences",
+        lazy="joined",
+    )
 
     def __str__(self):
         return f"{self.start_date or '?'} to {self.end_date or '?'} @ loc:{self.location_id}"
@@ -126,3 +133,5 @@ class ResidenceHistory(Base, TimestampMixin, ReprMixin):
 
     def __repr__(self):
         return f"<ResidenceHistory id={self.id} individual_id={self.individual_id} notes={self.notes}>"
+
+

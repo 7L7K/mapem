@@ -1,5 +1,7 @@
 # backend/models/location.py
 
+"""SQLAlchemy model for geographic locations."""
+
 from sqlalchemy import (
     Column,
     String,
@@ -8,19 +10,21 @@ from sqlalchemy import (
     UniqueConstraint,
     CheckConstraint,
     Enum,
+    Index,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 from sqlalchemy.dialects.postgresql import UUID
 import uuid
 from datetime import datetime
 from backend.models.base import Base, UUIDMixin
-from .enums import SourceTypeEnum, LocationStatusEnum
+from .enums import LocationStatusEnum
 from sqlalchemy import Enum as SQLEnum   # give it a short alias
 
 class Location(Base, UUIDMixin):
     __tablename__ = "locations"
     __table_args__ = (
         UniqueConstraint("normalized_name", name="uq_locations_normalized"),
+        Index("ix_locations_normalized_name", "normalized_name"),
         CheckConstraint("latitude BETWEEN -90 AND 90", name="chk_lat_range"),
         CheckConstraint("longitude BETWEEN -180 AND 180", name="chk_lng_range"),
     )
@@ -43,3 +47,32 @@ class Location(Base, UUIDMixin):
         lazy="noload",
         cascade="all, delete-orphan",
     )
+    events = relationship(
+        "Event",
+        back_populates="location",
+        lazy="noload",
+        cascade="all, delete-orphan",
+    )
+    residences = relationship(
+        "ResidenceHistory",
+        back_populates="location",
+        lazy="noload",
+        cascade="all, delete-orphan",
+    )
+    versions = relationship(
+        "LocationVersion",
+        back_populates="location",
+        lazy="noload",
+        cascade="all, delete-orphan",
+    )
+
+    @validates("latitude", "longitude")
+    def _validate_coords(self, key, value):
+        if value is None:
+            return None
+        if key == "latitude" and not (-90 <= value <= 90):
+            raise ValueError("latitude must be between -90 and 90")
+        if key == "longitude" and not (-180 <= value <= 180):
+            raise ValueError("longitude must be between -180 and 180")
+        return value
+
