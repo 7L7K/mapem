@@ -1,11 +1,11 @@
 import pytest
 from sqlalchemy import text
-from backend.db import SessionLocal
+import backend.db as db
 
 @pytest.mark.db
 def test_event_type_distribution_snapshot():
     """Snapshot-style check to verify GEDCOM event coverage."""
-    session = SessionLocal()
+    session = db.SessionLocal()
     try:
         result = session.execute(
             text("SELECT event_type, COUNT(*) FROM events GROUP BY event_type ORDER BY event_type")
