@@ -1,6 +1,6 @@
 import pytest
 from backend.main import create_app
-from backend.db import get_engine, SessionLocal
+from backend.db import get_engine
 from backend.models import Base
 
 @pytest.fixture(scope="module")
@@ -41,11 +41,11 @@ def test_movements_geocoded(test_client):
         assert "confidence_score" in ev
         assert "source" in ev
 
-from backend.db import SessionLocal
 from backend.models.event import Event
 
 def test_event_types_are_normalized():
-    session = SessionLocal()
+    import backend.db as db
+    session = db.SessionLocal()
     expected = {
         "birth", "death", "burial", "residence",
         "marriage", "divorce", "separation", "adoption",
