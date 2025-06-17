@@ -1,5 +1,5 @@
 // frontend/src/shared/context/SearchContext.jsx
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useState, useRef, useEffect } from 'react';
 import { diff } from 'deep-diff';
 import { devLog } from "@shared/utils/devLogger";
 
@@ -20,9 +20,24 @@ export function SearchProvider({ children }) {
     sources: {},
   };
 
-  const [filters, setFilters] = useState(initialFilters);
+  const reducer = (state, action) => {
+    switch (action.type) {
+      case 'set':
+        if (typeof action.payload === 'function') {
+          return { ...state, ...action.payload(state) };
+        }
+        return { ...state, ...action.payload };
+      case 'reset':
+        return initialFilters;
+      default:
+        return state;
+    }
+  };
+
+  const [filters, dispatch] = useReducer(reducer, initialFilters);
+  const setFilters = payload => dispatch({ type: 'set', payload });
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const clearAll = () => setFilters(initialFilters);
+  const clearAll = () => dispatch({ type: 'reset' });
 
   const [mode, setMode] = useState('default');
 
