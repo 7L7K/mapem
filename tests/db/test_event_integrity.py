@@ -1,6 +1,19 @@
+"""Database snapshot tests.
+
+These tests require a pre-populated database snapshot and will be skipped
+unless the environment variable ``RUN_DB_SNAPSHOTS`` is set to ``1``.
+"""
+
+import os
 import pytest
 from sqlalchemy import text
 from backend.db import SessionLocal
+
+if os.environ.get("RUN_DB_SNAPSHOTS") != "1":
+    pytest.skip(
+        "Skipping DB snapshot tests; set RUN_DB_SNAPSHOTS=1 to run",
+        allow_module_level=True,
+    )
 
 TREE_ID = "ae81ce29-d64f-4600-b21c-21f93c008df3"
 
