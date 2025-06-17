@@ -1,7 +1,7 @@
 import json
 import tempfile
 from pathlib import Path
-from backend.services.geocode import Geocode
+from backend.services.geocode import Geocode, LocationOut
 from backend.utils.helpers import normalize_location
 
 
@@ -57,13 +57,14 @@ def test_apply_manual_fixes_on_mock_data(tmp_path):
     geo = Geocode(use_cache=False, manual_fixes=fixes)
     geo.cache_file = str(tmp_path / "test_cache.json")
 
-    # Inject the test fix
-    from backend.services.location_processor import load_manual_place_fixes
-    manual_fixes = load_manual_place_fixes(path=manual_fixes_path)
+    # Inject the test fix via JSON loading
+    with open(manual_fixes_path, encoding="utf-8") as f:
+        manual_fixes = json.load(f)
 
     norm_name = normalize_location("Ackerman, Choctaw, Mississippi, USA")
     assert norm_name in manual_fixes
 
     result = geo.get_or_create_location(None, "Ackerman, Choctaw, Mississippi, USA")
-    assert result["confidence_label"] == "manual"
-    assert result["latitude"] == 33.3037
+    assert isinstance(result, LocationOut)
+    assert result.confidence_label == "manual"
+    assert result.latitude == 33.3037
