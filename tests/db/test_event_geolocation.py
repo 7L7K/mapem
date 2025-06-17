@@ -1,12 +1,12 @@
 import pytest
 from sqlalchemy import text
-from backend.db import SessionLocal
+import backend.db as db
 
 @pytest.mark.db
 def test_geolocated_events_have_coordinates():
     """Ensure events have valid location data: lat/lng, or at least marked vague."""
 
-    session = SessionLocal()
+    session = db.SessionLocal()
     try:
         # ── Step 1: Get latest tree_id by created_at ──
         tree_row = session.execute(text("""

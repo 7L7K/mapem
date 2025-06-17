@@ -1,13 +1,13 @@
 import pytest
 from sqlalchemy import text
-from backend.db import SessionLocal
+import backend.db as db
 
 TREE_ID = "ae81ce29-d64f-4600-b21c-21f93c008df3"
 
 @pytest.mark.db
 def test_event_type_distribution_snapshot():
     """Snapshot check of event_type counts for Tree ID."""
-    session = SessionLocal()
+    session = db.SessionLocal()
     try:
         result = session.execute(
             text("""
@@ -43,7 +43,7 @@ def test_event_type_distribution_snapshot():
 @pytest.mark.db
 def test_total_event_count_matches_expected():
     """Verify total number of events for the tree matches upload summary."""
-    session = SessionLocal()
+    session = db.SessionLocal()
     try:
         result = session.execute(
             text("""
@@ -62,7 +62,7 @@ def test_total_event_count_matches_expected():
 @pytest.mark.db
 def test_event_types_are_valid():
     """Ensure all event types used are from known list."""
-    session = SessionLocal()
+    session = db.SessionLocal()
     try:
         result = session.execute(
             text("""
