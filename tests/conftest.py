@@ -1,6 +1,6 @@
 # test/conftest.py
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
 from backend.main import create_app
@@ -66,3 +66,15 @@ def dummy_location_service():
                 source            = "test"
             return Out()
     return Dummy()
+
+
+@pytest.fixture
+def latest_tree_version_id(db_session):
+    """Return the most recently created TreeVersion ID from the test DB."""
+    row = db_session.execute(
+        text(
+            "SELECT id FROM tree_versions ORDER BY created_at DESC LIMIT 1"
+        )
+    ).fetchone()
+    assert row is not None, "No tree_versions found in test DB"
+    return row[0]
