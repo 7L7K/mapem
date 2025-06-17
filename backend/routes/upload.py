@@ -15,10 +15,8 @@ from backend.db import SessionLocal
 from backend.models import TreeVersion, UploadedTree
 from backend.services.location_service import LocationService
 from backend.services.parser import GEDCOMParser
-from backend.utils.helpers import (
-    generate_temp_path,
-    increment_upload_count,
-)
+from backend.services.upload_service import validate_upload, save_file
+from backend.utils.helpers import increment_upload_count
 from backend.utils.debug_routes import debug_route
 from backend.utils.logger import get_file_logger
 
@@ -29,8 +27,7 @@ logger = get_file_logger("upload")
 # ──────────────────────────────
 upload_routes: Final = Blueprint("upload", __name__, url_prefix="/api/upload")
 
-MAX_FILE_SIZE_MB: Final[int] = 20
-ALLOWED_EXTENSIONS: Final[set[str]] = {".ged", ".gedcom"}
+ASYNC_THRESHOLD_MB: Final[int] = 10
 GEDCOM_FILE_KEYS: Final[tuple[str, ...]] = ("gedcom_file", "gedcom", "file")
 
 # ──────────────────────────────
@@ -68,6 +65,7 @@ def _extract_file():
 def upload_tree():
     """Handle GEDCOM upload → parse → commit to DB using context manager."""
     temp_path: str | None = None
+    async_queued = False
 
     logger.debug("📬 Headers: %s", dict(request.headers))
     logger.debug("📝 Form keys: %s", list(request.form.keys()))
@@ -77,54 +75,16 @@ def upload_tree():
     try:
         # 1️⃣ Locate and validate the file
         file, matched_key = _extract_file()
-        if not file:
-            return jsonify({"error": "Missing file"}), 400
+        ok, message, size_mb = validate_upload(file)
+        if not ok:
+            return jsonify({"error": message}), 400
 
-        logger.debug("🗂 Using file field '%s': %s", matched_key, file.filename)
-
-        file.seek(0, os.SEEK_END)
-        size_bytes = file.tell()
-        size_mb = size_bytes / (1024 * 1024)
-        file.seek(0)
-        logger.info(f"➡️ POST /api/upload — file received ({file.filename}), size {size_bytes:,} bytes ({size_mb:.2f} MB)")
-
-        if size_mb > MAX_FILE_SIZE_MB:
-            return jsonify({"error": f"File > {MAX_FILE_SIZE_MB} MB"}), 400
-
-        ext = Path(file.filename).suffix.lower()
-        if ext not in ALLOWED_EXTENSIONS:
-            return (
-                jsonify(
-                    {
-                        "error": "Invalid file type",
-                        "allowed": sorted(ALLOWED_EXTENSIONS),
-                    }
-                ),
-                400,
-            )
-        # Additional content-based GEDCOM validation
-        def is_valid_gedcom(file_obj):
-            file_obj.seek(0)
-            try:
-                start = file_obj.read(1024).decode(errors="ignore")
-                file_obj.seek(-1024, os.SEEK_END)
-                end = file_obj.read(1024).decode(errors="ignore")
-            except Exception:
-                return False
-            finally:
-                file_obj.seek(0)
-            return "0 HEAD" in start and "0 TRLR" in end
-
-        if ext in {".ged", ".gedcom"} and not is_valid_gedcom(file):
-            return (
-                jsonify(
-                    {
-                        "error": "File content is not a valid GEDCOM file",
-                        "hint": "GEDCOM files must start with '0 HEAD' and end with '0 TRLR'",
-                    }
-                ),
-                400,
-            )
+        logger.debug("🗂 Using file field '%s': %s", matched_key, getattr(file, "filename", "?"))
+        logger.info(
+            "➡️ POST /api/upload — file received (%s), size %.2f MB",
+            file.filename,
+            size_mb,
+        )
 
         # 2️⃣ Validate tree name
         tree_name = request.form.get("tree_name")
@@ -132,15 +92,29 @@ def upload_tree():
             return jsonify({"error": "Missing tree_name"}), 400
 
         # 3️⃣ Save GEDCOM to temp file
-        tmp_fname = (
-            generate_temp_path(file.filename)
-            if "generate_temp_path" in globals()
-            else f"{datetime.utcnow():%Y%m%d%H%M%S}_{file.filename}"
-        )
-        temp_path = str(Path("/tmp") / tmp_fname)
-        file.save(temp_path)
+        temp_path = save_file(file)
         logger.debug("💾 Temp GEDCOM saved to %s", temp_path)
         logger.info("📂 GEDCOM saved to %s", temp_path)
+
+        # Large files are processed asynchronously
+        if size_mb > ASYNC_THRESHOLD_MB:
+            with SessionLocal.begin() as db:
+                dup = db.query(UploadedTree).filter_by(tree_name=tree_name).first()
+                if dup:
+                    return jsonify({"error": "Tree name already exists"}), 400
+
+                uploaded_tree = UploadedTree(tree_name=tree_name)
+                db.add(uploaded_tree)
+                db.flush()
+
+            from backend.tasks.upload_tasks import process_gedcom_task
+            task = process_gedcom_task.delay(temp_path, tree_name, str(uploaded_tree.id))
+            logger.info("📤 GEDCOM queued for async processing: task=%s", task.id)
+            async_queued = True
+            return (
+                jsonify(status="queued", uploaded_tree_id=str(uploaded_tree.id), task_id=task.id),
+                202,
+            )
 
         # 4️⃣ Parse GEDCOM
         location_service = _build_location_service()
@@ -156,6 +130,10 @@ def upload_tree():
         with SessionLocal.begin() as db:
             try:
                 # 5️⃣ Insert UploadedTree + TreeVersion
+                dup = db.query(UploadedTree).filter_by(tree_name=tree_name).first()
+                if dup:
+                    return jsonify({"error": "Tree name already exists"}), 400
+
                 uploaded_tree = UploadedTree(tree_name=tree_name)
                 db.add(uploaded_tree)
                 db.flush()
@@ -182,6 +160,7 @@ def upload_tree():
                     summary.get("people_count", "NA"),
                     summary.get("event_count", "NA"),
                 )
+                logger.info("🌐 Geocoding completed")
                 logger.debug("✅ save_to_db() complete — summary: %s", summary)
 
                 logger.info(
@@ -244,7 +223,7 @@ def upload_tree():
         )
 
     finally:
-        if temp_path and os.path.exists(temp_path):
+        if temp_path and os.path.exists(temp_path) and not async_queued:
             try:
                 os.remove(temp_path)
                 logger.debug("🧹 Removed temp file %s", temp_path)
