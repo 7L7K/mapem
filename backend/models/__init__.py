@@ -1,20 +1,18 @@
-# backend/models/__init__.py
 """Convenient access to all SQLAlchemy models used by the application."""
 
-from .base            import Base
-from .uploaded_tree   import UploadedTree, TreePerson, TreeRelationship
-from .tree_version    import TreeVersion
-from .individual      import Individual, ResidenceHistory
-from .family          import Family
-from .event           import Event, event_participants
-from .location        import Location
-from .alternate_name  import AlternateName
-from .source          import Source
-from .individual_source import IndividualSource
-from .event_source     import EventSource
-from .user_action      import UserAction
-from .location_version import LocationVersion  # 👈 Add this line
-
+from .base               import Base
+from .uploaded_tree      import UploadedTree, TreePerson, TreeRelationship
+from .tree_version       import TreeVersion
+from .individual         import Individual, ResidenceHistory
+from .family             import Family
+from .event              import Event, event_participants
+from .location           import Location
+from .alternate_name     import AlternateName
+from .source             import Source
+from .individual_source  import IndividualSource
+from .event_source       import EventSource
+from .user_action        import UserAction
+from .location_version   import LocationVersion  # 👈 this line ensures your versioned locations table gets registered
 
 import logging
 from backend.db import engine

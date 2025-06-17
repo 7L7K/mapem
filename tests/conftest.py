@@ -1,6 +1,5 @@
-# test/conftest.py
 import pytest
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import sessionmaker
 
 from backend.main import create_app
@@ -9,9 +8,10 @@ import backend.db  # so we can patch SessionLocal + engine
 import os
 from pathlib import Path
 
-
 @pytest.fixture(scope="session")
 def app():
+    print("\n🔬 [conftest] Setting up in-memory SQLite engine...")
+
     # Create a test DB engine (in-memory SQLite)
     test_engine = create_engine("sqlite:///:memory:", future=True)
     TestingSessionLocal = sessionmaker(bind=test_engine, autoflush=False, autocommit=False, future=True)
@@ -24,15 +24,22 @@ def app():
     backend.db.get_engine = lambda db_uri=None: test_engine
     backend.db.get_sessionmaker = lambda db_uri=None: TestingSessionLocal
 
+    print("🔬 [conftest] Creating Flask app (should use test engine)")
     app = create_app()
     app.config.update({
         "TESTING": True
     })
 
-    # Set up schema
+    print("🔬 [conftest] Creating all tables on test engine...")
     Base.metadata.create_all(bind=test_engine)
+    insp = inspect(test_engine)
+    print(f"🗂 [conftest] Tables after creation: {insp.get_table_names()}")
+
     yield app
+
+    print("🧹 [conftest] Dropping all tables (cleanup)")
     Base.metadata.drop_all(bind=test_engine)
+    print("🗑️ [conftest] Tables dropped.")
 
 @pytest.fixture
 def client(app):
@@ -50,7 +57,6 @@ def db_session():
 def gedcom_path():
     # adjust if your test file lives somewhere else
     return Path(__file__).parent / "data/test_family_events.ged"
-
 
 @pytest.fixture
 def dummy_location_service():

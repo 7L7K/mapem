@@ -537,5 +537,47 @@
     "reason": "api_failed",
     "status": "manual_fix_pending",
     "tree_id": "9d242b54-2a8c-4398-932e-cbe75fb700f5"
+  },
+  {
+    "raw_name": "Unknownville",
+    "timestamp": "2025-06-17T21:12:23.074039+00:00",
+    "reason": "empty_after_normalise",
+    "status": "manual_fix_pending",
+    "tree_id": null
+  },
+  {
+    "raw_name": "NoApiTown",
+    "timestamp": "2025-06-17T21:12:23.084686+00:00",
+    "reason": "empty_after_normalise",
+    "status": "manual_fix_pending",
+    "tree_id": null
+  },
+  {
+    "raw_name": "Unknownville",
+    "timestamp": "2025-06-17T21:19:33.276300+00:00",
+    "reason": "empty_after_normalise",
+    "status": "manual_fix_pending",
+    "tree_id": null
+  },
+  {
+    "raw_name": "NoApiTown",
+    "timestamp": "2025-06-17T21:19:33.293203+00:00",
+    "reason": "empty_after_normalise",
+    "status": "manual_fix_pending",
+    "tree_id": null
+  },
+  {
+    "raw_name": "Unknownville",
+    "timestamp": "2025-06-17T21:27:57.129241+00:00",
+    "reason": "empty_after_normalise",
+    "status": "manual_fix_pending",
+    "tree_id": null
+  },
+  {
+    "raw_name": "NoApiTown",
+    "timestamp": "2025-06-17T21:27:57.139333+00:00",
+    "reason": "empty_after_normalise",
+    "status": "manual_fix_pending",
+    "tree_id": null
   }
 ]

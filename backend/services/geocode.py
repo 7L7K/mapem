@@ -1,3 +1,4 @@
+#/Users/kingal/mapem/backend/services/geocode.py
 """Geocoding utilities with a plugin architecture."""
 
 from __future__ import annotations
@@ -19,6 +20,16 @@ from backend.utils.helpers import calculate_name_similarity, normalize_location
 from backend.utils.logger import get_file_logger
 from backend import models
 
+def extract_and_validate_coords(entry: dict[str, Any]) -> Tuple[float, float] | None:
+    """Pull lat/lng from a dict and ensure they’re valid floats."""
+    try:
+        lat = float(entry.get("latitude") or entry.get("lat"))
+        lng = float(entry.get("longitude") or entry.get("lng"))
+        if lat is None or lng is None:
+            return None
+        return lat, lng
+    except (TypeError, ValueError):
+        return None
 
 logger = get_file_logger("geocode")
 
@@ -33,6 +44,7 @@ class GeocodeError(BaseModel):
 
     raw_name: str
     message: str
+    reason: str  # e.g. "cache‐expired", "manual‐missing", "all‐failed", etc.
 
 
 class ManualOverrideGeocoder:
@@ -50,11 +62,11 @@ class ManualOverrideGeocoder:
         hit = self.fixes.get(key)
         if not hit:
             return None
-        lat = hit.get("latitude") or hit.get("lat")
-        lng = hit.get("longitude") or hit.get("lng")
-        if lat is None or lng is None:
+        coords = extract_and_validate_coords(hit)
+        if not coords:
             logger.warning("⚠️ Manual fix missing coords for '%s'", place)
             return None
+        lat, lng = coords
         logger.info("🟧 Manual fix hit: %s", place)
         return LocationOut(
             raw_name=place,
@@ -140,11 +152,11 @@ class HistoricalGeocoder:
         hit = self.data.get(key)
         if not hit:
             return None
-        lat = hit.get("latitude") or hit.get("lat")
-        lng = hit.get("longitude") or hit.get("lng")
-        if lat is None or lng is None:
-            logger.warning("⚠️ Historical fix missing coords for '%s'", place)
+        coords = extract_and_validate_coords(hit)
+        if not coords:
+            logger.warning("⚠️ Manual fix missing coords for '%s'", place)
             return None
+        lat, lng = coords
         logger.info("🟨 Historical fix hit: %s", place)
         return LocationOut(
             raw_name=place,
@@ -373,39 +385,49 @@ class Geocode:
         now = time.time()
         logger.debug("🔍 geocode chain for: %s", raw)
 
+        # Periodic cache prune (every 5 min)
+        if self.cache_enabled and (now - getattr(self, "_last_prune", 0)) > 300:
+            self._prune_cache()
+            self._last_prune = now
+
+        # Try each geocoder plugin in sequence
         for plugin in self.plugins:
-            if result := plugin.resolve(self, session, raw):
+            result = plugin.resolve(self, session, raw)
+            if result:
+                # Cache successful lookups (unless from PermanentCacheGeocoder)
                 if self.cache_enabled and not isinstance(plugin, PermanentCacheGeocoder):
-                    self.cache[key] = [
-                        result.latitude,
-                        result.longitude,
-                        result.normalized_name,
-                        result.confidence_score,
-                        result.source,
-                        getattr(result, "status", "ok"),
-                        getattr(result, "confidence_label", result.source),
-                        now,
-                    ]
+                    self.cache[key] = {
+                        "latitude": result.latitude,
+                        "longitude": result.longitude,
+                        "normalized": result.normalized_name,
+                        "confidence": float(getattr(result, "confidence_score", 0.0)),
+                        "source": getattr(result, "source", "unknown"),
+                        "status": getattr(result, "status", "ok"),
+                        "label": getattr(result, "confidence_label", getattr(result, "source", "unknown")),
+                        "timestamp": now,
+                    }
                     self._save_cache()
                 return result
 
-        # No result
+        # No geocoder plugin found a result — cache the miss
         if self.cache_enabled:
-            self.cache[key] = [
-                None,
-                None,
-                raw,
-                0.0,
-                "geocoder",
-                "unresolved",
-                "geocoder",
-                now,
-            ]
+            self.cache[key] = {
+                "latitude": None,
+                "longitude": None,
+                "normalized": raw,
+                "confidence": 0.0,
+                "source": "geocoder",
+                "status": "unresolved",
+                "label": "geocoder",
+                "timestamp": now,
+            }
             self._save_cache()
+
         if self.unresolved_logger:
             self.unresolved_logger(place=raw, reason="geocoder-miss", details={})
         logger.warning("❌ Geocode miss for '%s'", raw)
-        return GeocodeError(raw_name=raw, message="unresolved")
+        return GeocodeError(raw_name=raw, message="unresolved", reason="geocoder-miss")
+
 
 
 GEOCODER = Geocode(api_key=settings.GOOGLE_MAPS_API_KEY)

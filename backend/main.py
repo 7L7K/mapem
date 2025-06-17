@@ -1,5 +1,3 @@
-# backend/main.py
-
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
@@ -24,6 +22,9 @@ logging.getLogger("sqlalchemy").setLevel(logging.WARNING)
 
 # ─── Flask App Factory ──────────────────────────────────────────
 def create_app():
+    engine = get_engine()  # Get the engine FIRST so we can inspect it/log it
+    print(f"🧪 USING DB URL: {engine.url}")
+
     app = Flask(__name__)
     setattr(app, "session_maker", SessionLocal)
 
@@ -34,8 +35,11 @@ def create_app():
     CORS(app, resources={r"/api/*": {"origins": [frontend_origin]}}, supports_credentials=True)
 
     # ─── DB Setup ────────────────────────────────────────────────
-    engine = get_engine()
-    Base.metadata.create_all(engine)
+    # Only create tables if not in test mode
+    if not app.config.get("TESTING", False):
+        print("🛠 Creating all tables...")
+        Base.metadata.create_all(bind=engine)
+        print("✅ Tables created.")
 
     # ─── Register Blueprints ─────────────────────────────────────
     register_routes(app)
@@ -88,5 +92,3 @@ def create_app():
     app.logger.setLevel("DEBUG")  # Flask internals
 
     return app
-
-

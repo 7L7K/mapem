@@ -7,10 +7,11 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
+from backend.utils.logger import get_file_logger
 
 from .base import Base, ReprMixin
 
-logger = logging.getLogger("event")
+logger = get_file_logger("events")
 
 # ─── Association Table: Event ↔ Individual ─────────────
 event_participants = Table(
