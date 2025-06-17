@@ -1,28 +1,36 @@
 # test/conftest.py
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 
 from backend.main import create_app
+import backend.main  # for patching get_engine & SessionLocal
 from backend.models import Base
 import backend.db  # so we can patch SessionLocal + engine
-import os
 from pathlib import Path
 
 
 @pytest.fixture(scope="session")
 def app():
     # Create a test DB engine (in-memory SQLite)
-    test_engine = create_engine("sqlite:///:memory:", future=True)
-    TestingSessionLocal = sessionmaker(bind=test_engine, autoflush=False, autocommit=False, future=True)
+    test_engine = create_engine(
+        "sqlite:///:memory:",
+        future=True,
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+
+    backend.db.SessionLocal.configure(bind=test_engine)
 
     # Patch the app-wide engine/session before app creation
     backend.db.engine = test_engine
-    backend.db.SessionLocal = TestingSessionLocal
     backend.db.get_engine.cache_clear()
     backend.db.get_sessionmaker.cache_clear()
     backend.db.get_engine = lambda db_uri=None: test_engine
-    backend.db.get_sessionmaker = lambda db_uri=None: TestingSessionLocal
+    backend.db.get_sessionmaker = lambda db_uri=None: backend.db.SessionLocal
+
+    backend.main.get_engine = backend.db.get_engine
+    backend.main.SessionLocal = backend.db.SessionLocal
 
     app = create_app()
     app.config.update({
