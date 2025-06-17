@@ -1,3 +1,4 @@
+import logging
 import pytest
 from sqlalchemy import text
 from backend.db import SessionLocal
@@ -41,16 +42,17 @@ def test_geolocated_events_have_coordinates():
 
         vague = [r for r in rows if r.status in ("vague", "vague_state_pre1890")]
 
-        # ── Step 3: Output ──
-        print(f"\n📍 Tree ID: {tree_id}")
-        print(f"📦 Total Events: {total_events}")
-        print(f"🚨 Missing Coordinates: {len(missing_coords)}")
-        print(f"🕳️ Vague Locations: {len(vague)}")
+        # ── Step 3: Output (use logging to aid debugging if needed) ──
+        logger = logging.getLogger(__name__)
+        logger.info("Tree ID: %s", tree_id)
+        logger.info("Total Events: %s", total_events)
+        logger.info("Missing Coordinates: %s", len(missing_coords))
+        logger.info("Vague Locations: %s", len(vague))
 
         if missing_coords:
-            print("\n⚠️ Events missing lat/lng (top 10 shown):")
+            logger.info("Events missing lat/lng (top 10 shown):")
             for r in missing_coords[:10]:
-                print(f" - ID: {r['event_id']}, type: {r['event_type']}, place: '{r['place']}', status: {r['status']}")
+                logger.info(" - ID: %s, type: %s, place: '%s', status: %s", r['event_id'], r['event_type'], r['place'], r['status'])
 
         # ── Step 4: Assertions ──
         assert total_events > 0, "No events found for the latest tree"

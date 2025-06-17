@@ -38,7 +38,12 @@ def tree_ids():
 def timed_get(client, url):
     start = time.time()
     res = client.get(url)
-    print(f"{url} -> {res.status_code} in {round(time.time() - start,2)} s")
+    logging.getLogger(__name__).info(
+        "%s -> %s in %.2f s",
+        url,
+        res.status_code,
+        round(time.time() - start, 2),
+    )
     return res
 
 

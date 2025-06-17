@@ -12,9 +12,6 @@ def test_event_type_distribution_snapshot():
         )
         counts = dict(result.all())
 
-        print("\n📊 Event Type Distribution:")
-        for k, v in counts.items():
-            print(f"  {k:10} → {v}")
 
         expected = {
             "birth": 643,
