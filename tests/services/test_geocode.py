@@ -1,5 +1,5 @@
 import pytest
-from backend.services.geocode import Geocode, LocationOut
+from backend.services.geocode import Geocode, LocationOut, GeocodeError
 from unittest.mock import patch
 
 @pytest.fixture
@@ -30,19 +30,21 @@ def test_manual_override_hit(geocoder):
     result = geocoder.get_or_create_location(None, "Boliver, Mississippi")
     assert isinstance(result, LocationOut)
     assert result.source == "manual"
-    assert result.status == "ok"
+    assert result.status == "manual"
 
-@patch("backend.services.geocode.Geocode._nominatim", return_value=(None, None, None, None))
+@patch("backend.services.geocode.Geocode._nominatim_geocode", return_value=(None, None, None, None, None))
 def test_vague_state_classification(mock_geo, geocoder):
     result = geocoder.get_or_create_location(None, "Mississippi")
-    assert result is None
+    assert isinstance(result, GeocodeError)
+    assert result.message == "unresolved"
 
 from unittest.mock import patch
 
-@patch("backend.services.geocode.Geocode._nominatim", return_value=(None, None, None, None))
+@patch("backend.services.geocode.Geocode._nominatim_geocode", return_value=(None, None, None, None, None))
 def test_unresolved_logged(mock_geo, geocoder):
     result = geocoder.get_or_create_location(None, "unknown place")
-    assert result is None
+    assert isinstance(result, GeocodeError)
+    assert result.message == "unresolved"
 
 def test_geocode_output_structure(geocoder):
     result = geocoder.get_or_create_location(None, "Greenwood, Mississippi")

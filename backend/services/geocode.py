@@ -7,13 +7,14 @@ import os
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 from urllib.parse import urlencode
 
 import requests
 
 from backend.config import settings
 from backend.models.location_models import LocationOut
+from pydantic import BaseModel
 from backend.utils.helpers import calculate_name_similarity, normalize_location
 from backend.utils.logger import get_file_logger
 from backend import models
@@ -25,6 +26,13 @@ DEFAULT_CACHE_PATH = Path(
     os.getenv("GEOCODE_CACHE_FILE", Path(__file__).resolve().parent / "geocode_cache.json")
 )
 FAIL_TTL_SECONDS = 3600  # 1 hour
+
+
+class GeocodeError(BaseModel):
+    """Model returned when geocoding fails."""
+
+    raw_name: str
+    message: str
 
 
 class ManualOverrideGeocoder:
@@ -42,12 +50,17 @@ class ManualOverrideGeocoder:
         hit = self.fixes.get(key)
         if not hit:
             return None
+        lat = hit.get("latitude") or hit.get("lat")
+        lng = hit.get("longitude") or hit.get("lng")
+        if lat is None or lng is None:
+            logger.warning("⚠️ Manual fix missing coords for '%s'", place)
+            return None
         logger.info("🟧 Manual fix hit: %s", place)
         return LocationOut(
             raw_name=place,
             normalized_name=hit.get("normalized_name", place),
-            latitude=hit.get("latitude") or hit.get("lat"),
-            longitude=hit.get("longitude") or hit.get("lng"),
+            latitude=lat,
+            longitude=lng,
             confidence_score=1.0,
             confidence_label="manual",
             status="manual",
@@ -65,6 +78,7 @@ class PermanentCacheGeocoder:
         now = time.time()
         entry = geocode.cache.get(key)
         if not entry:
+            logger.info("🟥 Cache miss for %s", place)
             return None
         try:
             if len(entry) == 4:
@@ -86,11 +100,14 @@ class PermanentCacheGeocoder:
                 raise ValueError("unexpected cache format")
         except Exception:
             logger.warning("🧯 Cache entry malformed for '%s': %s", key, entry)
+            del geocode.cache[key]
             return None
         if lat is None and ts and (now - ts) > FAIL_TTL_SECONDS:
+            logger.info("⏰ Cache expired for '%s'", place)
             del geocode.cache[key]
             return None
         if lat is None or lng is None:
+            logger.info("🟥 Cache hit without coords for '%s'", place)
             return None
         logger.info("🟦 Cache hit for %s", place)
         return LocationOut(
@@ -109,22 +126,31 @@ class HistoricalGeocoder:
     """Lookup old place names from a historical table."""
 
     def __init__(self, data: Optional[Dict[str, Any]] = None) -> None:
-        self.data = {
-            (normalize_location(k) if normalize_location(k) is not None else k): v
-            for k, v in (data or {}).items()
-        }
+        self.data = {}
+        for k, v in (data or {}).items():
+            norm = normalize_location(k)
+            key = (norm if norm is not None else k).lower()
+            self.data[key] = v
 
     def resolve(self, geocode: "Geocode", session, place: str) -> Optional[LocationOut]:
         key = normalize_location(place)
+        if key is None:
+            key = place
+        key = key.lower()
         hit = self.data.get(key)
         if not hit:
+            return None
+        lat = hit.get("latitude") or hit.get("lat")
+        lng = hit.get("longitude") or hit.get("lng")
+        if lat is None or lng is None:
+            logger.warning("⚠️ Historical fix missing coords for '%s'", place)
             return None
         logger.info("🟨 Historical fix hit: %s", place)
         return LocationOut(
             raw_name=place,
             normalized_name=hit.get("normalized_name", place),
-            latitude=hit.get("latitude") or hit.get("lat"),
-            longitude=hit.get("longitude") or hit.get("lng"),
+            latitude=lat,
+            longitude=lng,
             confidence_score=0.85,
             confidence_label="historical",
             status="ok",
@@ -190,8 +216,12 @@ class ExternalAPIGeocoder:
             return None
         result = geocode._google(place) or geocode._nominatim_geocode(place)
         if not result:
+            logger.info("❌ External API miss for '%s'", place)
             return None
         lat, lng, norm, conf, src = result
+        if lat is None or lng is None:
+            logger.info("❌ External API returned no coords for '%s'", place)
+            return None
         logger.info("✅ %s geocode for '%s'", src, place)
         return LocationOut(
             raw_name=place,
@@ -241,7 +271,10 @@ class Geocode:
     def _load_cache(self) -> Dict[str, Any]:
         if self.cache_file.exists():
             try:
-                return json.loads(self.cache_file.read_text())
+                cache = json.loads(self.cache_file.read_text())
+                self.cache = cache
+                self._prune_cache()
+                return cache
             except json.JSONDecodeError:
                 logger.warning("⚠️ Cache corrupted — starting fresh.")
         return {}
@@ -249,10 +282,29 @@ class Geocode:
     def _save_cache(self) -> None:
         if self.cache_enabled:
             try:
+                self._prune_cache()
                 with self.cache_file.open("w") as f:
                     json.dump(self.cache, f, indent=2)
             except Exception as e:
                 logger.error("❌ Could not save cache: %s", e)
+
+    def _prune_cache(self) -> None:
+        if not self.cache_enabled:
+            return
+        now = time.time()
+        keys_to_delete = []
+        for k, entry in list(self.cache.items()):
+            try:
+                ts = entry[5] if len(entry) >= 6 and isinstance(entry[5], (int, float)) else entry[-1]
+                lat = entry[0]
+            except Exception:
+                logger.warning("⚠️ Removing malformed cache entry '%s': %s", k, entry)
+                keys_to_delete.append(k)
+                continue
+            if lat is None and isinstance(ts, (int, float)) and (now - ts) > FAIL_TTL_SECONDS:
+                keys_to_delete.append(k)
+        for k in keys_to_delete:
+            del self.cache[k]
 
     # ─── Normalization ────────────────────────────────────────────
     @staticmethod
@@ -262,18 +314,24 @@ class Geocode:
 
     # ─── Retry helper ─────────────────────────────────────────────
     def _retry(self, fn, *args, retries=2, backoff=1, **kwargs):
-        for attempt in range(1, retries + 1):
+        last_exc = None
+        for attempt in range(retries):
             try:
                 return fn(*args, **kwargs)
             except requests.RequestException as e:
-                logger.warning("⚠️ Request fail (%d/%d): %s", attempt, retries, e)
-                time.sleep(backoff * attempt)
+                last_exc = e
+                logger.warning(
+                    "⚠️ Request fail (%d/%d): %s", attempt + 1, retries, e
+                )
+                time.sleep(backoff * (2 ** attempt))
+        logger.error("❌ Max retries exceeded: %s", last_exc)
         return None
 
     # ─── External providers ───────────────────────────────────────
     def _google(self, place: str):
         if not self.api_key:
             return None
+        logger.info("🌐 Google geocode query for '%s'", place)
         url = "https://maps.googleapis.com/maps/api/geocode/json"
         q = urlencode({"address": place, "key": self.api_key})
         resp = self._retry(requests.get, f"{url}?{q}", timeout=5)
@@ -290,6 +348,7 @@ class Geocode:
     def _nominatim_geocode(self, place: str):
         url = "https://nominatim.openstreetmap.org/search"
         params = {"q": place, "format": "json", "limit": 1}
+        logger.info("🌐 Nominatim geocode query for '%s'", place)
         resp = self._retry(
             requests.get,
             url,
@@ -308,7 +367,7 @@ class Geocode:
         return lat, lng, name, 0.8, "nominatim"
 
     # ─── Main entry ───────────────────────────────────────────────
-    def get_or_create_location(self, session, place: str) -> Optional[LocationOut]:
+    def get_or_create_location(self, session, place: str) -> Optional[LocationOut | GeocodeError]:
         raw = place.strip()
         key = self._normalize_key(raw)
         now = time.time()
@@ -346,7 +405,7 @@ class Geocode:
         if self.unresolved_logger:
             self.unresolved_logger(place=raw, reason="geocoder-miss", details={})
         logger.warning("❌ Geocode miss for '%s'", raw)
-        return None
+        return GeocodeError(raw_name=raw, message="unresolved")
 
 
 GEOCODER = Geocode(api_key=settings.GOOGLE_MAPS_API_KEY)
@@ -359,4 +418,5 @@ __all__ = [
     "HistoricalGeocoder",
     "ExternalAPIGeocoder",
     "LocationOut",
+    "GeocodeError",
 ]
