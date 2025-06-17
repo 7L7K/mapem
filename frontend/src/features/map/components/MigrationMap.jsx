@@ -2,21 +2,13 @@ import React, { useRef, useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
-  Marker,
-  Popup,
   useMap,
   ZoomControl,
 } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import MapMarkers from "./MapMarkers";
 
 // ─────────────────────────────────────────────────────────────────────────────
-const defaultIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-});
 
 function RecenterMap({ center }) {
   const map = useMap();
@@ -171,7 +163,9 @@ export default function MigrationMap({
         zoomControl={false}
         style={{ height: "100%", width: "100%", background: "#101010" }}
         whenCreated={(m) => (mapRef.current = m)}
-      >
+        tabIndex={0}
+        aria-label="Migration map"
+        >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="© OpenStreetMap contributors"
@@ -179,23 +173,7 @@ export default function MigrationMap({
         <ZoomControl position="bottomleft" />
         <RecenterMap center={dynamicCenter} />
 
-        {validMovements.map((mv, idx) => (
-          <Marker
-            key={mv.event_id ?? idx}
-            position={[mv._markerLat, mv._markerLng]}
-            icon={defaultIcon}
-            eventHandlers={{ click: () => onMarkerClick(mv.person_id) }}
-          >
-            <Popup>
-              <strong>
-                {Array.isArray(mv.names) && mv.names.length ? mv.names[0] : "Unknown"}
-              </strong>
-              <br />
-              {mv.event_type} (
-              {mv.date ? new Date(mv.date).getFullYear() || "?" : "?"})
-            </Popup>
-          </Marker>
-        ))}
+        <MapMarkers movements={validMovements} onClick={onMarkerClick} />
       </MapContainer>
 
       {/* Dev HUD */}
