@@ -1,4 +1,5 @@
 # backend/models/event.py
+"""Event records such as births, deaths or marriages."""
 import logging
 import uuid
 from sqlalchemy import (
@@ -56,7 +57,7 @@ class Event(Base, ReprMixin):
 
     # ─── Relationships ───────────────────────────────────
     tree           = relationship("TreeVersion", back_populates="events", lazy="joined")
-    location       = relationship("Location", lazy="joined")
+    location       = relationship("Location", back_populates="events", lazy="joined")
     event_sources  = relationship("EventSource", back_populates="event", cascade="all, delete-orphan", lazy="noload")
 
     participants   = relationship(
@@ -80,3 +81,4 @@ class Event(Base, ReprMixin):
         }
         logger.debug("Event.serialize → %s", data)
         return data
+
