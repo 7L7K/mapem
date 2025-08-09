@@ -242,3 +242,10 @@ def upload_tree():
         # Clean up temp file when handled synchronously
         if temp_path and not async_queued:
             cleanup_temp(temp_path)
+
+
+# Alias: POST /api/upload/gedcom → same as upload
+@upload_routes.route("/gedcom", methods=["POST"], strict_slashes=False)
+@debug_route
+def upload_tree_alias():
+    return upload_tree()

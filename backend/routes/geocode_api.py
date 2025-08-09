@@ -234,3 +234,13 @@ def geocode_retry(id):
         db.rollback()
         logger.error("Error in /retry: %s", e, exc_info=True)
         return jsonify({"data": None, "error": str(e)}), 500
+
+# ---------- PUBLIC SHORTCUT ----------
+@bp.route("/../geocode/retry", methods=["POST"])
+def public_retry_shortcut():
+    """Compat: POST /api/geocode/retry?place_id=... to match spec."""
+    place_id = request.args.get("place_id", type=int)
+    if not place_id:
+        return jsonify({"error": "place_id is required"}), 400
+    # Reuse existing handler by delegating
+    return geocode_retry(place_id)
