@@ -2,6 +2,7 @@
 import React from "react";
 import Drawer from "@shared/components/ui/Drawer";
 import PanelSection from "@shared/components/ui/PanelSection";
+import Input from "@shared/components/ui/Input";
 import { useSearch } from "@shared/context/SearchContext";
 
 export default function AdvancedFilterDrawer() {
@@ -54,18 +55,18 @@ export default function AdvancedFilterDrawer() {
 
         <PanelSection title="Years">
           <div className="flex items-center space-x-2">
-            <input
+            <Input
               type="number"
               value={filters.yearRange[0]}
               onChange={(e) => handleYearChange(0, e.target.value)}
-              className="w-20 bg-[var(--surface)] border border-white/20 rounded p-1"
+              className="w-24"
             />
             <span>—</span>
-            <input
+            <Input
               type="number"
               value={filters.yearRange[1]}
               onChange={(e) => handleYearChange(1, e.target.value)}
-              className="w-20 bg-[var(--surface)] border border-white/20 rounded p-1"
+              className="w-24"
             />
           </div>
         </PanelSection>
@@ -81,9 +82,8 @@ export default function AdvancedFilterDrawer() {
                 <button
                   key={opt}
                   onClick={() => toggleGroupValue(key, opt)}
-                  className={`filter-pill ${
-                    val ? "bg-accent text-black" : "bg-white/10 text-white"
-                  }`}
+                  className={`filter-pill ${val ? "bg-accent text-black" : "bg-white/10 text-white"
+                    }`}
                 >
                   {opt}
                 </button>

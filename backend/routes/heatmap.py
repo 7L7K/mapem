@@ -17,23 +17,34 @@ heatmap_routes = Blueprint("heatmap", __name__, url_prefix="/api/heatmap")
 # Caches for GeoJSON shapes
 SHAPES_INDEX = {}
 SHAPES_LOADED = False
-@debug_route
 
+def _shapes_base_dir() -> Path:
+    return Path(__file__).resolve().parent / ".." / "data" / "historical_places"
+
+@debug_route
 def load_shapes():
     """Load all .geojson files under historical_places/ into SHAPES_INDEX."""
     global SHAPES_LOADED, SHAPES_INDEX
     if SHAPES_LOADED:
         return
-    base = Path(__file__).resolve().parent / ".." / "data" / "historical_places"
-    base = str(base)
-    for root, _, files in os.walk(base):
+    base = _shapes_base_dir()
+    for root, _, files in os.walk(str(base)):
         for fn in files:
-            if fn.lower().endswith(".geojson"):
+            if fn.lower().endswith((".geojson", ".json")):
                 path = os.path.join(root, fn)
                 try:
                     feat = json.load(open(path))
-                    key = feat["properties"]["name"].upper()
-                    SHAPES_INDEX[key] = feat
+                    # Accept either Feature or dict name→props
+                    if feat.get("type") == "Feature":
+                        key = feat.get("properties", {}).get("name", fn).upper()
+                        SHAPES_INDEX[key] = feat
+                    elif isinstance(feat, dict):
+                        for k, v in feat.items():
+                            SHAPES_INDEX[str(k).upper()] = {
+                                "type": "Feature",
+                                "properties": {"name": k, **(v if isinstance(v, dict) else {})},
+                                "geometry": None,
+                            }
                 except Exception as e:
                     current_app.logger.error(f"Failed loading {fn}: {e}")
     SHAPES_LOADED = True
@@ -55,23 +66,23 @@ def get_heatmap():
         heat = {}
         q = db.query(Event, Location).join(Location, Event.location_id == Location.id)
         if tree_ids:
-            ids = [int(x) for x in tree_ids.split(",") if x.isdigit()]
+            ids = [x.strip() for x in tree_ids.split(",") if x.strip()]
             q = q.filter(Event.tree_id.in_(ids))
         if year:
             q = q.filter(func.extract("year", Event.date) == int(year))
         rows = q.all()
 
         for evt, loc in rows:
-            name = loc.name.upper()
+            name = (loc.normalized_name or loc.raw_name or "").upper()
             if surname:
                 ind = db.query(Individual).filter(
-                    Individual.id == evt.individual_id,
-                    func.upper(Individual.name).like(f"%{surname}%")
+                    Individual.id.in_([p.id for p in evt.participants]),
+                    func.upper((Individual.first_name + ' ' + (Individual.last_name or '')).strip()).like(f"%{surname}%")
                 ).first()
                 if not ind:
                     continue
             entry = heat.setdefault(name, {
-                "location_name": loc.name,
+                "location_name": loc.normalized_name or loc.raw_name,
                 "count": 0,
                 "tree_counts": {}
             })
@@ -80,8 +91,7 @@ def get_heatmap():
 
         # Build pins list
         pins = []
-        for e in heat.values():
-            pins.append(e)
+        pins.extend(heat.values())
 
         # Build shapes list
         load_shapes()

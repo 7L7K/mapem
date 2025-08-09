@@ -38,8 +38,8 @@ def geocode_location_task(self, location_id: int):
                 logger.info(f"[GeocodeTask] id={location_id} already geocoded, skipping.")
                 return
 
-            # 🔍 Attempt resolution
-            result = geocoder.get_or_create_location(None, loc.raw_name)
+            # 🔍 Attempt resolution (pass session to enable DB-fuzzy plugin)
+            result = geocoder.get_or_create_location(session, loc.raw_name)
             if result is None:
                 raise ValueError(f"Geocoder returned no data for '{loc.raw_name}'")
 

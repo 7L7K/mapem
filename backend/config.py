@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     GOOGLE_MAPS_API_KEY: str = ""
     GEOCODE_API_KEY: str = ""
     SQLALCHEMY_ECHO: ClassVar[bool] = True  # Can make dynamic if you want
+    ALLOW_GEOCODE_EXTERNAL: bool = True
 
     @property
     def database_uri(self) -> str:

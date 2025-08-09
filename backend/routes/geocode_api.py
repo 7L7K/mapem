@@ -139,12 +139,16 @@ def geocode_export():
     db = current_app.session_maker()
     _close_session(db)
 
-    body = request.get_json(force=True) or {}
+    body = request.get_json(silent=True) or {}
     tree_id = body.get("treeId")
     status  = body.get("status", "all")
 
     try:
-        sql = "SELECT id, raw_name, normalized_name, status, confidence_score, lat, lng, last_seen FROM locations"
+        # Columns normalized to match the model (latitude/longitude) while preserving CSV headers
+        sql = (
+            "SELECT id, raw_name, normalized_name, status, confidence_score, "
+            "latitude AS lat, longitude AS lng, updated_at AS last_seen FROM locations"
+        )
         params = {}
         where = []
 

@@ -48,9 +48,13 @@ function MapControls() {
 
 ## Backend Utility Scripts
 
-Location cleanup helpers now live under `backend/scripts`. Useful commands:
+Location cleanup helpers now live under `backend/scripts` and `scripts/`. See the full catalog and workflows in `docs/scripts_and_utilities.md`.
+
+Useful commands:
 
 ```bash
 python backend/scripts/retry_unresolved.py   # retry unresolved geocodes
 python backend/scripts/audit_unresolved.py   # inspect unresolved entries
+python scripts/fix_and_retry.py              # apply manual fixes + retry with backups
+python scripts/dispatch_unresolved_locations.py  # queue Celery jobs for unresolved
 ```

@@ -1,0 +1,1 @@
+import{j as t,c as a}from"./index-Tbe7IPkS.js";function d({children:r,className:s="",...e}){return t.jsx("div",{className:a("bg-surface text-text border border-border rounded-xl shadow p-4",s),...e,children:r})}function n({children:r,className:s="",...e}){return t.jsx("div",{className:a("p-4",s),...e,children:r})}export{d as C,n as a};

@@ -148,7 +148,7 @@ def build_event_query(session: Session, tree_id: UUID, filters: Dict[str, Any]) 
 
     return q
 
-def compute_visible_counts(tree_id: int, filters: Dict[str, Any]) -> Dict[str, int]:
+def compute_visible_counts(tree_id, filters: Dict[str, Any]) -> Dict[str, int]:
     logger.debug("🧮 compute_visible_counts tree=%s", tree_id)
     session = db.SessionLocal()
     try:

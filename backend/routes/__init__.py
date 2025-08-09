@@ -22,6 +22,69 @@ from .geocode_dashboard    import geocode_dashboard      # 🆕 UI pages
 from .analytics            import analytics_routes
 from backend.routes import admin_geocode  # new import
 
+# ─── Meta endpoints ─────────────────────────────────────────────
+from flask import Blueprint, jsonify
+from backend.config import settings
+meta_routes = Blueprint("meta", __name__, url_prefix="/api")
+
+@meta_routes.route("/version", methods=["GET"])
+def api_version():
+    return jsonify({
+        "app": "mapem-backend",
+        "version": "2025.08.09",
+        "db": str(getattr(settings, 'DB_HOST', 'unknown')),
+        "port": settings.PORT,
+    })
+
+@meta_routes.route("/openapi.json", methods=["GET"])
+def openapi_json():
+    # Minimal hand-authored OpenAPI skeleton for discoverability
+    return jsonify({
+        "openapi": "3.0.0",
+        "info": {"title": "MapEm API", "version": "2025.08.09"},
+        "paths": {
+            "/api/ping": {"get": {"summary": "Health check","responses": {"200": {}}}},
+            "/api/people/{uploaded_tree_id}": {
+                "get": {"summary": "List people","parameters": [{"name": "uploaded_tree_id","in":"path","required":True,"schema":{"type":"string","format":"uuid"}}]},
+                "post": {"summary": "Create person"}
+            },
+            "/api/people/{uploaded_tree_id}/{person_id}": {
+                "get": {"summary": "Get person"},
+                "patch": {"summary": "Update person"},
+                "delete": {"summary": "Delete person"}
+            },
+            "/api/people/{uploaded_tree_id}/export": {"get": {"summary": "Export people CSV"}},
+            "/api/analytics/snapshot": {"get": {"summary": "System snapshot"}}
+        }
+    })
+
+@meta_routes.route("/docs", methods=["GET"])
+def docs_ui():
+    # Lightweight Swagger UI via CDN using our OpenAPI JSON
+    html = f"""
+<!doctype html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <title>MapEm API Docs</title>
+    <link rel='stylesheet' href='https://unpkg.com/swagger-ui-dist@5/swagger-ui.css'>
+  </head>
+  <body>
+    <div id='swagger-ui'></div>
+    <script src='https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js' crossorigin></script>
+    <script>
+      window.ui = SwaggerUIBundle({
+        url: '/api/openapi.json',
+        dom_id: '#swagger-ui',
+        presets: [SwaggerUIBundle.presets.apis],
+        layout: 'BaseLayout',
+      });
+    </script>
+  </body>
+  </html>
+"""
+    return html, 200, {"Content-Type": "text/html; charset=utf-8"}
+
 
 from backend.utils.debug_routes import debug_route
 
@@ -45,6 +108,7 @@ def register_routes(app):
         geocode_routes,        # 🧭 Admin geocode API endpoints
         geocode_dashboard,     # 📊 Geocode dashboard views
         admin_geocode.admin_geo,  # ✅ Manual fix route for unresolved
+        meta_routes,
 
     ]
 

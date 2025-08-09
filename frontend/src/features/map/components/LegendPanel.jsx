@@ -1,5 +1,6 @@
 // src/features/map/components/LegendPanel.jsx
 import React, { useState, useEffect } from 'react';
+import { Card } from '@shared/components/ui/Card';
 import { useLegend } from '@shared/context/LegendContext';
 import { useSearch } from '@shared/context/SearchContext';
 import RelativesPopover from './RelativesPopover';
@@ -15,14 +16,9 @@ export default function LegendPanel() {
   }, [counts, filters]);
 
   return (
-    <div
-      className="legend-panel fixed left-4 bottom-4 z-40 rounded-2xl p-4 text-sm space-y-3 shadow-xl backdrop-blur-md"
-      style={{
-        width: '288px',                // override w-72 (18rem)
-        backgroundColor: 'rgba(24,24,24,0.85)',
-        maxHeight: 'none',            // ensure it's not capped
-        bottom: '1rem'                // override negative positioning if it happens
-      }}
+    <Card
+      className="legend-panel fixed left-4 bottom-4 z-40 rounded-2xl p-4 text-sm space-y-3 shadow-xl backdrop-blur-md w-72"
+      style={{ backgroundColor: 'rgba(24,24,24,0.85)' }}
     >
       <h3 className="font-semibold mb-1 text-white">Legend</h3>
 
@@ -57,6 +53,6 @@ export default function LegendPanel() {
       </button>
 
       {open && <RelativesPopover onClose={() => setOpen(false)} />}
-    </div>
+    </Card>
   );
 }

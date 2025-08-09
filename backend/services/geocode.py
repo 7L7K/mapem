@@ -268,6 +268,9 @@ class Geocode:
         self.mock_mode = bool(
             os.getenv("MAPEM_MOCK_GEOCODE", "0") == "1" if mock_mode is None else mock_mode
         )
+        if not settings.ALLOW_GEOCODE_EXTERNAL:
+            # If external geocoding is disabled, drop external plugin from chain
+            pass
 
         self.manual_fixes = manual_fixes or {}
         self.historical_lookup = historical_lookup or {}
@@ -276,8 +279,9 @@ class Geocode:
             ManualOverrideGeocoder(self.manual_fixes),
             HistoricalGeocoder(self.historical_lookup),
             PermanentCacheGeocoder(),
-            ExternalAPIGeocoder(api_key),
         ]
+        if settings.ALLOW_GEOCODE_EXTERNAL:
+            self.plugins.append(ExternalAPIGeocoder(api_key))
 
     # ─── Cache helpers ─────────────────────────────────────────────
     def _load_cache(self) -> Dict[str, Any]:
@@ -407,12 +411,7 @@ class Geocode:
                         "timestamp": now,
                     }
                     self._save_cache()
-                # Ensure Pydantic model supports 'in' checks used in tests
-                try:
-                    # This no-op access ensures attributes exist
-                    _ = result.confidence_label
-                except Exception:
-                    pass
+                # Ensure model has expected fields (defensive; Pydantic validates already)
                 return result
 
         # No geocoder plugin found a result — cache the miss

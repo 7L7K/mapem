@@ -181,6 +181,12 @@ launch_flask() {
 echo "📣 Launching Celery worker"
 celery -A backend.celery_app.celery_app worker --loglevel=info > celery.log 2>&1 & CELERY_PID=$!
 sleep 2
+if ps -p $CELERY_PID >/dev/null; then
+  success "Celery worker started (PID $CELERY_PID)"
+else
+  error "Celery failed to start"
+  tail -n20 celery.log
+fi
 
 launch_vite() {
   start_timer "Vite boot"

@@ -18,8 +18,8 @@ def nuke_everything():
         Individual,
         Family,
         Location,
-        TreeVersion,        # 🔥 Move this BEFORE UploadedTree
-        UploadedTree
+        TreeVersion,
+        UploadedTree,
     ]
 
     for model in deletion_order:

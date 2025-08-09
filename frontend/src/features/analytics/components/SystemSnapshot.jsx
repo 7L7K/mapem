@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import {Card} from '@shared/components/ui/Card';
+import { Card } from '@shared/components/ui/Card';
 import { getSystemSnapshot } from '@lib/api/api';
+import usePerformance from '@hooks/usePerformance';
 
 export default function SystemSnapshot() {
+  usePerformance('SystemSnapshot', []);
   const [stats, setStats] = useState(null);
   const [error, setError] = useState(null);
 

@@ -84,7 +84,7 @@ def apply_manual_fixes():
 
     engine = get_engine()
     Session = sessionmaker(bind=engine, autoflush=False, autocommit=False)
-    geocoder = Geocode()
+    geocoder = Geocode(api_key=os.getenv("GEOCODE_API_KEY"))
 
     for entry in unresolved:
         raw = entry.get("raw_name") or entry.get("place")

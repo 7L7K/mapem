@@ -1,10 +1,11 @@
 import React from "react";
+import { Card } from "@shared/components/ui/Card";
 
 export default function Legend({ movements = [], people = 0, families = 0, className = "" }) {
   const eventTypes = Array.from(new Set(movements.map((m) => m.event_type)));
 
   return (
-    <div className={`bg-surface text-text border border-border rounded-md shadow-md p-4 ${className}`}>
+    <Card className={`p-4 ${className}`}>
       <h3 className="text-sm font-semibold mb-2">Legend</h3>
 
       {/* 🔥 Add People/Families */}
@@ -19,6 +20,6 @@ export default function Legend({ movements = [], people = 0, families = 0, class
           <li key={type}>• {type}</li>
         ))}
       </ul>
-    </div>
+    </Card>
   );
 }

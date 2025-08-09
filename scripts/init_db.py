@@ -7,11 +7,12 @@ from backend.models.base import Base
 from backend.db import get_engine
 
 logging.basicConfig(level=logging.INFO)
- 
+logger = logging.getLogger("init_db")
+
 
 def main():
     engine = get_engine()
-    logger.info("Dropping and recreating all tables...")
+    logger.info("Dropping and recreating all tables…")
     Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     logger.info("✅ All tables created successfully.")

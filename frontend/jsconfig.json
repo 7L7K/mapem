@@ -1,15 +1,43 @@
 {
-    "compilerOptions": {
-      "baseUrl": ".",
-      "paths": {
-        "@features/*": ["src/features/*"],
-        "@shared/*": ["src/shared/*"],
-        "@lib/*": ["src/lib/*"],
-        "@app/*": ["src/app/*"],
-        "@components/*": ["src/shared/components/*"],
-        "@styles/*": ["src/styles/*"]
-      }
-    },
-    "include": ["src"]
-  }
-  
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/*"
+      ],
+      "@features/*": [
+        "src/features/*"
+      ],
+      "@shared/*": [
+        "src/shared/*"
+      ],
+      "@lib/*": [
+        "src/lib/*"
+      ],
+      "@app/*": [
+        "src/app/*"
+      ],
+      "@components/*": [
+        "src/shared/components/*"
+      ],
+      "@hooks/*": [
+        "src/shared/hooks/*"
+      ],
+      "@context/*": [
+        "src/shared/context/*"
+      ],
+      "@utils/*": [
+        "src/shared/utils/*"
+      ],
+      "@styles/*": [
+        "src/shared/styles/*"
+      ],
+      "@api/*": [
+        "src/lib/api/*"
+      ]
+    }
+  },
+  "include": [
+    "src"
+  ]
+}

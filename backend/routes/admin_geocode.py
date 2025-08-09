@@ -50,7 +50,7 @@ def fix_location():
         # Use correct field names
         loc.latitude  = float(lat)
         loc.longitude = float(lng)
-        loc.status    = "fixed"
+        loc.status    = "manual_override"
         loc.updated_at = datetime.utcnow()
 
         print(f"[Fix] {loc_id=} {loc.latitude=} {loc.longitude=} status={loc.status}")

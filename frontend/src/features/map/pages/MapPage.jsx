@@ -1,8 +1,10 @@
 // frontend/src/features/map/pages/MapPage.jsx
-import React from "react"
+import React, { useEffect, useState, useCallback } from "react"
 import { useTree } from "@shared/context/TreeContext"
 import { useSearch } from "@shared/context/SearchContext"
+import { useMapControl } from "@shared/context/MapControlContext"
 import useDebounce from "@/shared/hooks/useDebounce"
+import useUrlQuerySync from "@/shared/hooks/useUrlQuerySync"
 import useMovements from "@/shared/hooks/useMovements"
 
 import LegendPanel from "@/features/map/components/LegendPanel"
@@ -14,7 +16,8 @@ import GroupMap from "@/features/map/components/GroupMap"
 
 export default function MapPage() {
   const { treeId } = useTree()
-  const { filters, mode } = useSearch()
+  const { filters, mode, setIsDrawerOpen, clearAll, setFilters, setMode } = useSearch()
+  const { toggleSection } = useMapControl()
   const debouncedFilters = useDebounce(filters, 400)
   const { movements, loading, error } = useMovements(
     treeId,
@@ -27,12 +30,39 @@ export default function MapPage() {
 
   const isEmpty = !loading && !error && movements.length === 0
 
+  const [legendVisible, setLegendVisible] = useState(true)
+
+  // Sync filters and mode with URL query params
+  useUrlQuerySync(filters, setFilters, mode, setMode)
+
+  // keyboard shortcuts: F = filters, R = reset (clear filters), L = toggle legend
+  const handleKey = useCallback((e) => {
+    const key = e.key.toLowerCase()
+    if (key === 'l') setLegendVisible(v => !v)
+    if (key === 'f') { setIsDrawerOpen(true); toggleSection('filters') }
+    if (key === 'r') clearAll()
+  }, [setIsDrawerOpen, clearAll, toggleSection])
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKey)
+    return () => window.removeEventListener('keydown', handleKey)
+  }, [handleKey])
+
   return (
     <div className="relative w-full h-full">
       <MapFilters />
       <MapComponent movements={movements} />
       <LoadingOverlay loading={loading} error={error} empty={isEmpty} />
-      <LegendPanel />
+      {legendVisible && <LegendPanel />}
+
+      {/* Legend toggle */}
+      <button
+        onClick={() => setLegendVisible(v => !v)}
+        className="absolute right-4 bottom-4 z-50 bg-black/70 text-white text-xs px-3 py-2 rounded-md border border-white/10 hover:bg-black/80"
+        aria-pressed={legendVisible}
+      >
+        {legendVisible ? 'Hide Legend (L)' : 'Show Legend (L)'}
+      </button>
     </div>
   )
 }

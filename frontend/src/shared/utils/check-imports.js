@@ -1,4 +1,18 @@
 #!/usr/bin/env node
+// Wrapper that re-exports root-level scripts/check-imports.js with project aliases pre-set
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { spawn } from 'child_process';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const rootScript = path.resolve(__dirname, '../../../scripts/check-imports.js');
+
+const child = spawn('node', [rootScript], { stdio: 'inherit' });
+child.on('exit', (code) => process.exit(code));
+
+#!/usr/bin / env node
 // check-imports.js
 
 const fs = require('fs');

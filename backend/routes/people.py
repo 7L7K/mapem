@@ -21,8 +21,10 @@ from backend.utils.uuid_utils import parse_uuid_arg_or_400
 from backend.db import get_db
 from backend.models import Individual, TreeVersion, UploadedTree
 from backend.utils.debug_routes import debug_route
-from backend.utils.uuid_utils import parse_uuid_arg_or_400
-from backend.utils.debug_routes import debug_route
+from uuid import UUID as _UUID
+from datetime import date
+import csv
+import io
 
 
 people_routes = Blueprint("people", __name__, url_prefix="/api/people")
@@ -71,45 +73,72 @@ def get_people(uploaded_tree_id: str):
     except Exception:
         return jsonify({"error": "tree not found"}), 404
 
+    db = None
     try:
-        with next(get_db()) as db:
-            latest_tv, code = _get_latest_version(db, parsed)
-            if latest_tv is None:
-                msg = "tree not found" if code == 404 else "tree_version lookup failed"
-                return jsonify({"error": msg}), code
+        db = next(get_db())
+        latest_tv, code = _get_latest_version(db, parsed)
+        if latest_tv is None:
+            msg = "tree not found" if code == 404 else "tree_version lookup failed"
+            return jsonify({"error": msg}), code
 
-            limit, offset = _validated_pagination()
-            person_query = request.args.get("person", "").strip()
+        limit, offset = _validated_pagination()
+        person_query = request.args.get("person", "").strip()
+        sort = (request.args.get("sort") or "name_asc").lower()
+        count_only = (request.args.get("countOnly", "false").lower() == "true")
 
-            q = (db.query(Individual.id,
-                          Individual.first_name,
-                          Individual.last_name,
-                          Individual.occupation)
-                   .filter(Individual.tree_id == latest_tv.id))
+        q = (db.query(Individual.id,
+                      Individual.first_name,
+                      Individual.last_name,
+                      Individual.occupation)
+               .filter(Individual.tree_id == latest_tv.id))
 
-            if person_query:
-                term = f"%{person_query}%"
-                q = q.filter(or_(Individual.first_name.ilike(term),
-                                 Individual.last_name.ilike(term)))
+        if person_query:
+            term = f"%{person_query}%"
+            q = q.filter(or_(Individual.first_name.ilike(term),
+                             Individual.last_name.ilike(term),
+                             Individual.occupation.ilike(term)))
 
-            total = q.count()
-            rows  = (q.order_by(Individual.last_name, Individual.first_name)
-                       .limit(limit).offset(offset).all())
+        total = q.count()
 
-            results = [{
-                "id": r.id,
-                "name": f"{(r.first_name or '').strip()} {(r.last_name or '').strip()}".strip() or "Unnamed",
-                "occupation": r.occupation or None,
-            } for r in rows]
+        # Sorting
+        if sort == "name_desc":
+            q = q.order_by(Individual.last_name.desc(), Individual.first_name.desc())
+        elif sort == "created_at_asc":
+            q = q.order_by(Individual.created_at.asc())
+        elif sort == "created_at_desc":
+            q = q.order_by(Individual.created_at.desc())
+        else:
+            q = q.order_by(Individual.last_name.asc(), Individual.first_name.asc())
 
+        if count_only:
             return jsonify({
-                "total": total, "count": len(results),
+                "total": total, "count": 0,
                 "limit": limit, "offset": offset,
-                "people": results,
+                "people": [],
             }), 200
+
+        rows  = q.limit(limit).offset(offset).all()
+
+        results = [{
+            "id": str(r.id),
+            "name": f"{(r.first_name or '').strip()} {(r.last_name or '').strip()}".strip() or "Unnamed",
+            "occupation": r.occupation or None,
+        } for r in rows]
+
+        return jsonify({
+            "total": total, "count": len(results),
+            "limit": limit, "offset": offset,
+            "people": results,
+        }), 200
     except Exception:
         log.exception("❌ [GET /api/people] unexpected failure")
         return jsonify({"error": "internal"}), 500
+    finally:
+        try:
+            if db is not None:
+                db.close()
+        except Exception:
+            pass
 
 # ── POST /api/people/<uploaded_tree_id> ────────────────────────────────────
 @people_routes.route("/<string:uploaded_tree_id>", methods=["POST"])
@@ -120,25 +149,247 @@ def create_person(uploaded_tree_id: str):
         return parsed
     payload = request.get_json(silent=True) or {}
 
+    db = None
     try:
-        with next(get_db()) as db:
-            latest_tv, code = _get_latest_version(db, parsed)
-            if latest_tv is None:
-                msg = "tree not found" if code == 404 else "tree_version lookup failed"
-                return jsonify({"error": msg}), code
+        db = next(get_db())
+        latest_tv, code = _get_latest_version(db, parsed)
+        if latest_tv is None:
+            msg = "tree not found" if code == 404 else "tree_version lookup failed"
+            return jsonify({"error": msg}), code
 
-            payload["tree_id"] = latest_tv.id
-            payload.pop("id", None)
+        payload["tree_id"] = latest_tv.id
+        payload.pop("id", None)
 
-            person = Individual(**payload)
-            db.add(person); db.commit(); db.refresh(person)
+        person = Individual(**payload)
+        db.add(person)
+        db.commit()
+        db.refresh(person)
 
-            return jsonify(person.serialize()), 201
+        return jsonify(person.serialize()), 201
 
     except IntegrityError as ie:
-        db.rollback()
+        try:
+            if db is not None:
+                db.rollback()
+        except Exception:
+            pass
         return jsonify({"error": str(ie.orig)}), 400
     except Exception:
-        db.rollback()
+        try:
+            if db is not None:
+                db.rollback()
+        except Exception:
+            pass
         log.exception("❌ [POST /api/people] unexpected failure")
         return jsonify({"error": "internal"}), 500
+    finally:
+        try:
+            if db is not None:
+                db.close()
+        except Exception:
+            pass
+
+
+# ── GET / PATCH / DELETE /api/people/<uploaded_tree_id>/<person_id> ─────────
+@people_routes.route("/<string:uploaded_tree_id>/<string:person_id>", methods=["GET"])
+@debug_route
+def get_person(uploaded_tree_id: str, person_id: str):
+    # Validate UUIDs
+    parsed_tree = parse_uuid_arg_or_400("uploaded_tree_id", uploaded_tree_id)
+    if isinstance(parsed_tree, tuple):
+        return parsed_tree
+    try:
+        pid = _UUID(person_id)
+    except Exception:
+        return jsonify({"error": "person_id must be a valid UUID"}), 400
+
+    db = None
+    try:
+        db = next(get_db())
+        latest_tv, code = _get_latest_version(db, parsed_tree)
+        if latest_tv is None:
+            msg = "tree not found" if code == 404 else "tree_version lookup failed"
+            return jsonify({"error": msg}), code
+
+        person = (
+            db.query(Individual)
+              .filter(Individual.id == pid, Individual.tree_id == latest_tv.id)
+              .first()
+        )
+        if not person:
+            return jsonify({"error": "person not found"}), 404
+        return jsonify(person.serialize()), 200
+    except Exception:
+        log.exception("❌ [GET person] unexpected failure")
+        return jsonify({"error": "internal"}), 500
+    finally:
+        try:
+            if db is not None:
+                db.close()
+        except Exception:
+            pass
+
+
+# ── GET /api/people/<uploaded_tree_id>/export?format=csv ────────────────────
+@people_routes.route("/<string:uploaded_tree_id>/export", methods=["GET"])
+@debug_route
+def export_people(uploaded_tree_id: str):
+    parsed = parse_uuid_arg_or_400("uploaded_tree_id", uploaded_tree_id)
+    if isinstance(parsed, tuple):
+        return parsed
+
+    db = None
+    try:
+        db = next(get_db())
+        latest_tv, code = _get_latest_version(db, parsed)
+        if latest_tv is None:
+            msg = "tree not found" if code == 404 else "tree_version lookup failed"
+            return jsonify({"error": msg}), code
+
+        q = (db.query(Individual.id,
+                      Individual.first_name,
+                      Individual.last_name,
+                      Individual.gender,
+                      Individual.birth_date,
+                      Individual.death_date,
+                      Individual.occupation)
+               .filter(Individual.tree_id == latest_tv.id)
+               .order_by(Individual.last_name.asc(), Individual.first_name.asc()))
+
+        rows = q.all()
+
+        si = io.StringIO()
+        w = csv.writer(si)
+        w.writerow(["id","first_name","last_name","gender","birth_date","death_date","occupation"]) 
+        for r in rows:
+            w.writerow([
+                str(r.id), r.first_name or "", r.last_name or "",
+                str(r.gender) if r.gender else "",
+                r.birth_date.isoformat() if r.birth_date else "",
+                r.death_date.isoformat() if r.death_date else "",
+                r.occupation or "",
+            ])
+        out = si.getvalue().encode("utf-8")
+        return (
+            out,
+            200,
+            {
+                "Content-Type": "text/csv; charset=utf-8",
+                "Content-Disposition": "attachment; filename=people.csv",
+            },
+        )
+    except Exception:
+        log.exception("❌ [EXPORT people] unexpected failure")
+        return jsonify({"error": "internal"}), 500
+    finally:
+        try:
+            if db is not None:
+                db.close()
+        except Exception:
+            pass
+
+
+@people_routes.route("/<string:uploaded_tree_id>/<string:person_id>", methods=["PATCH"])
+@debug_route
+def update_person(uploaded_tree_id: str, person_id: str):
+    parsed_tree = parse_uuid_arg_or_400("uploaded_tree_id", uploaded_tree_id)
+    if isinstance(parsed_tree, tuple):
+        return parsed_tree
+    try:
+        pid = _UUID(person_id)
+    except Exception:
+        return jsonify({"error": "person_id must be a valid UUID"}), 400
+
+    payload = request.get_json(silent=True) or {}
+    allowed = {"first_name", "last_name", "gender", "occupation", "birth_date", "death_date"}
+    updates = {k: v for k, v in payload.items() if k in allowed}
+
+    def _parse_date(val):
+        if not val:
+            return None
+        try:
+            return date.fromisoformat(val)
+        except Exception:
+            return None
+
+    db = None
+    try:
+        db = next(get_db())
+        latest_tv, code = _get_latest_version(db, parsed_tree)
+        if latest_tv is None:
+            msg = "tree not found" if code == 404 else "tree_version lookup failed"
+            return jsonify({"error": msg}), code
+
+        person = db.query(Individual).filter(
+            Individual.id == pid, Individual.tree_id == latest_tv.id
+        ).first()
+        if not person:
+            return jsonify({"error": "person not found"}), 404
+
+        if "birth_date" in updates:
+            person.birth_date = _parse_date(updates.pop("birth_date"))
+        if "death_date" in updates:
+            person.death_date = _parse_date(updates.pop("death_date"))
+        for k, v in updates.items():
+            setattr(person, k, v)
+
+        db.commit()
+        db.refresh(person)
+        return jsonify(person.serialize()), 200
+    except Exception:
+        try:
+            if db is not None:
+                db.rollback()
+        except Exception:
+            pass
+        log.exception("❌ [PATCH person] unexpected failure")
+        return jsonify({"error": "internal"}), 500
+    finally:
+        try:
+            if db is not None:
+                db.close()
+        except Exception:
+            pass
+
+
+@people_routes.route("/<string:uploaded_tree_id>/<string:person_id>", methods=["DELETE"])
+@debug_route
+def delete_person(uploaded_tree_id: str, person_id: str):
+    parsed_tree = parse_uuid_arg_or_400("uploaded_tree_id", uploaded_tree_id)
+    if isinstance(parsed_tree, tuple):
+        return parsed_tree
+    try:
+        pid = _UUID(person_id)
+    except Exception:
+        return jsonify({"error": "person_id must be a valid UUID"}), 400
+
+    db = None
+    try:
+        db = next(get_db())
+        latest_tv, code = _get_latest_version(db, parsed_tree)
+        if latest_tv is None:
+            msg = "tree not found" if code == 404 else "tree_version lookup failed"
+            return jsonify({"error": msg}), code
+
+        person = db.query(Individual).filter(
+            Individual.id == pid, Individual.tree_id == latest_tv.id
+        ).first()
+        if not person:
+            return jsonify({"error": "person not found"}), 404
+        db.delete(person)
+        db.commit()
+        return jsonify({"status": "deleted", "id": str(pid)}), 200
+    except Exception:
+        try:
+            if db is not None:
+                db.rollback()
+        except Exception:
+            pass
+        log.exception("❌ [DELETE person] unexpected failure")
+        return jsonify({"error": "internal"}), 500
+    finally:
+        try:
+            if db is not None:
+                db.close()
+        except Exception:
+            pass

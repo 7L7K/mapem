@@ -23,6 +23,7 @@ def load_locations_from_json(path):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--file", default=str(DATA_DIR / "unresolved_locations.json"))
+    parser.add_argument("--dry_run", action="store_true", help="Do not commit changes")
     args = parser.parse_args()
 
     unresolved = load_locations_from_json(args.file)

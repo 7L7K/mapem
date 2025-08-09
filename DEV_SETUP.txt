@@ -8,3 +8,21 @@ npm i -D prettier eslint eslint-plugin-react eslint-config-prettier eslint-plugi
 npx husky install
 npm pkg set scripts.prepare="husky install"
 npm pkg set lint-staged."*.{js,jsx,ts,tsx}"="eslint --fix && prettier --write"
+
+
+Environment
+-----------
+Copy `.env.example` to `.env` and fill values:
+
+- DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
+- GOOGLE_MAPS_API_KEY (or set ALLOW_GEOCODE_EXTERNAL=0 to disable external geocoders)
+- GEOCODE_API_KEY (optional)
+- MAPEM_MOCK_GEOCODE=0|1 (disable real API calls during tests)
+- ALLOW_GEOCODE_EXTERNAL=1|0 (feature flag to enable/disable external geocoders)
+
+Useful commands
+---------------
+- scripts/run_all.sh — boots DB, Flask, Vite, Celery with health checks
+- scripts/stop_all.sh — kills dev processes
+- make all|stop|health — alternative orchestration
+- See docs/scripts_and_utilities.md for full catalog

@@ -5,6 +5,7 @@ from backend.utils.logger import get_logger
 from backend.routes import register_routes
 from backend.models import Base
 from backend.config import settings
+from backend.utils.logger import get_logger
 from backend.db import get_engine, SessionLocal
 from backend.routes.heatmap import warmup_heatmap
 
@@ -75,14 +76,10 @@ def create_app():
         logger.exception("❌ Unhandled exception")
         return jsonify({"error": str(e)}), 500
 
-    # ─── Health Check Routes ─────────────────────────────────────
-    @app.route("/api/ping")
-    def api_ping():
-        return {"status": "ok"}, 200
-
+    # Health check and index provided by blueprints (`health`) and here root only
     @app.route("/")
     def index():
-        return {"message": "MapEm API is running. Try /api/ping or /api/trees"}, 200
+        return {"message": "MapEm API is running. Try /api/analytics/snapshot or /api/upload"}, 200
 
     # ─── Heatmap Cache Warmup ────────────────────────────────────
     logger.info("🗺️ Warming up heatmap shapes...")

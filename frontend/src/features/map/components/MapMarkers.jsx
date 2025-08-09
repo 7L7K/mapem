@@ -1,6 +1,7 @@
 // frontend/src/features/map/components/MapMarkers.jsx
 import React from "react"
 import { Marker, Popup } from "react-leaflet"
+import MarkerClusterGroup from 'react-leaflet-cluster'
 import L from "leaflet"
 import { log as devLog } from "@/lib/api/devLogger.js"
 
@@ -13,9 +14,9 @@ const defaultIcon = new L.Icon({
   popupAnchor: [1, -34],
 })
 
-export default function MapMarkers({ movements = [], onClick = () => {} }) {
+export default function MapMarkers({ movements = [], onClick = () => { } }) {
   return (
-    <>
+    <MarkerClusterGroup chunkedLoading showCoverageOnHover={false} maxClusterRadius={50}>
       {movements.map((mv) => {
         const key = mv.event_id
           ? String(mv.event_id)
@@ -46,6 +47,6 @@ export default function MapMarkers({ movements = [], onClick = () => {} }) {
           </Marker>
         )
       })}
-    </>
+    </MarkerClusterGroup>
   )
 }

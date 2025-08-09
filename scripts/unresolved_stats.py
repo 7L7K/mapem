@@ -30,7 +30,11 @@ def main():
         print("❌ Unexpected format: expected a list of entries")
         return
 
-    names = [e.get("raw_name") or e.get("place") for e in data if e.get("raw_name") or e.get("place")]
+    names = [
+        (e.get("raw_name") or e.get("place") or "").strip()
+        for e in data
+        if (e.get("raw_name") or e.get("place"))
+    ]
     top_counts = Counter(names).most_common(TOP_N)
 
     if top_counts:
@@ -40,7 +44,7 @@ def main():
     else:
         print("No unresolved names found.")
 
-    sources = [e.get("source_tag", "unknown") for e in data]
+    sources = [str(e.get("source_tag") or "unknown").strip().lower() for e in data]
     source_counts = Counter(sources)
     if source_counts:
         print("\n📈 Source Breakdown:")

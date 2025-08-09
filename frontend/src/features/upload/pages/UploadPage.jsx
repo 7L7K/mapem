@@ -1,12 +1,13 @@
 // frontend/src/features/upload/pages/UploadPage.jsx
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useCallback } from "react";
 import { UploadStatusContext } from "@shared/context/UploadStatusContext";
-import  uploadTree  from "@lib/api/upload";
+import uploadTree from "@lib/api/upload";
 
 export default function UploadPage() {
   const [file, setFile] = useState(null);
   const [uploadStatus, setUploadStatus] = useState("");
   const [response, setResponse] = useState(null);
+  const [progress, setProgress] = useState(0);
   const fileInputRef = useRef(null);
 
   const { setStatus, setVisible } = useContext(UploadStatusContext);
@@ -22,6 +23,17 @@ export default function UploadPage() {
     }
   };
 
+  const onDrop = useCallback((e) => {
+    e.preventDefault();
+    const f = e.dataTransfer.files?.[0];
+    if (f && f.name.endsWith('.ged')) {
+      setFile(f);
+      setUploadStatus("");
+    } else {
+      setUploadStatus("❌ Please drop a .ged file.");
+    }
+  }, []);
+
   const handleUpload = async () => {
     if (!file || !file.name.endsWith(".ged")) {
       setUploadStatus("❌ Please select a `.ged` file first.");
@@ -33,7 +45,12 @@ export default function UploadPage() {
     setStatus("📤 Uploading GEDCOM file...");
 
     try {
-      const res = await uploadTree(file);
+      const res = await uploadTree(file, (evt) => {
+        if (!evt) return;
+        const total = evt.total || evt.loaded;
+        if (!total) return;
+        setProgress(Math.round((evt.loaded / total) * 100));
+      });
 
       setStatus("🧬 Parsing & saving tree...");
       await new Promise((r) => setTimeout(r, 1000));
@@ -74,7 +91,13 @@ export default function UploadPage() {
         Select a `.ged` file to start mapping your family’s journey.
       </p>
 
-      <div className="w-full bg-surface rounded-xl border border-border p-6 shadow-md">
+      <div
+        className="w-full bg-surface rounded-xl border border-border p-6 shadow-md"
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={onDrop}
+        role="region"
+        aria-label="Upload area"
+      >
         <div className="flex flex-col items-center gap-4 w-full">
           <button
             onClick={() => fileInputRef.current.click()}
@@ -94,18 +117,27 @@ export default function UploadPage() {
           <button
             onClick={handleUpload}
             className="w-full max-w-xs px-4 py-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-black text-sm font-bold tracking-wide transition-all shadow-md"
+            disabled={!file}
           >
             Upload
           </button>
         </div>
 
+        {progress > 0 && progress < 100 && (
+          <div className="mt-6 w-full max-w-xs mx-auto">
+            <div className="h-2 w-full bg-white/10 rounded">
+              <div className="h-2 bg-yellow-400 rounded" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="mt-1 text-xs text-center text-dim">{progress}%</div>
+          </div>
+        )}
+
         {uploadStatus && (
           <div
             className={`mt-6 text-sm px-4 py-3 rounded-md flex items-center gap-2
-              ${
-                uploadStatus.startsWith("✅")
-                  ? "bg-green-800 text-green-200"
-                  : uploadStatus.startsWith("❌")
+              ${uploadStatus.startsWith("✅")
+                ? "bg-green-800 text-green-200"
+                : uploadStatus.startsWith("❌")
                   ? "bg-red-800 text-red-300"
                   : "bg-zinc-800 text-white"
               }`}

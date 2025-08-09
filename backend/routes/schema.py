@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from sqlalchemy import inspect
-from backend.utils.helpers import get_engine
+from backend.db import get_engine
 from backend.utils.uuid_utils import parse_uuid_arg_or_400
 from backend.utils.debug_routes import debug_route
 

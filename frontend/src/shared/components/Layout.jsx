@@ -13,8 +13,8 @@ import FilterHeader from "@shared/components/Header/FilterHeader";
 export default function Layout() {
   const { pathname } = useLocation();
 
-  // only on /map
-  const headerControls = pathname === "/map" ? <FilterHeader /> : null;
+  // no pageControls by default; Map page renders its own floating controls
+  const headerControls = null;
 
   return (
     <div className="h-screen flex flex-col bg-background text-white">

@@ -6,8 +6,12 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:analyze": "vite build --mode analyze",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --fix",
+    "imports:check": "node src/shared/utils/check-imports.js",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@babel/parser": "^7.27.5",
@@ -36,6 +40,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-leaflet": "^4.2.1",
+    "react-leaflet-cluster": "^3.1.0",
     "react-resizable": "^3.0.5",
     "react-router-dom": "^6.30.0",
     "react-toastify": "^11.0.5",
@@ -48,6 +53,9 @@
     "@eslint/js": "^9.21.0",
     "@tailwindcss/cli": "^4.1.4",
     "@tailwindcss/postcss": "^4.1.4",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@types/react-router-dom": "^5.3.3",
@@ -58,10 +66,15 @@
     "eslint-plugin-react-refresh": "^0.4.19",
     "fast-glob": "^3.3.3",
     "globals": "^15.15.0",
+    "jsdom": "^25.0.1",
     "postcss": "^8.5.3",
+    "rollup-plugin-visualizer": "^5.12.0",
     "tailwindcss": "^4.1.4",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
-    "vite": "^4.5.14"
+    "vite": "^5.4.11",
+    "vite-plugin-pwa": "^0.21.1",
+    "vitest": "^2.1.8",
+    "workbox-window": "^7.3.0"
   }
 }

@@ -23,7 +23,7 @@ def main():
         .filter(Location.latitude.is_(None))
         .filter(not_(Location.status.in_(resolved_statuses)))
         .all()
-)
+    )
 
 
     print(f"📦 Queuing {len(unresolved)} unresolved locations...")

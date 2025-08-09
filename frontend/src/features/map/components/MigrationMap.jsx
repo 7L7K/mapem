@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -23,7 +23,7 @@ function RecenterMap({ center }) {
 
 export default function MigrationMap({
   movements = [],
-  onMarkerClick = () => {},
+  onMarkerClick = () => { },
   activePersonIds = new Set(),
 }) {
   const mapRef = useRef(null);
@@ -153,6 +153,11 @@ export default function MigrationMap({
       ? [validMovements[0]._markerLat, validMovements[0]._markerLng]
       : [37.8, -96];
 
+  const resetView = useCallback(() => {
+    if (!mapRef.current) return;
+    mapRef.current.setView(dynamicCenter, 4);
+  }, [dynamicCenter]);
+
   return (
     <div className="relative h-full w-full">
       <MapContainer
@@ -165,7 +170,7 @@ export default function MigrationMap({
         whenCreated={(m) => (mapRef.current = m)}
         tabIndex={0}
         aria-label="Migration map"
-        >
+      >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="© OpenStreetMap contributors"
@@ -190,6 +195,15 @@ export default function MigrationMap({
           </div>
         </div>
       )}
+
+      {/* Reset View button */}
+      <button
+        onClick={resetView}
+        className="absolute right-4 top-4 z-50 bg-black/70 text-white text-xs px-3 py-2 rounded-md border border-white/10 hover:bg-black/80"
+        aria-label="Reset map view"
+      >
+        Reset View
+      </button>
     </div>
   );
 }

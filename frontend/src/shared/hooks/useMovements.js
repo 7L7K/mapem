@@ -1,5 +1,5 @@
 // frontend/src/shared/hooks/useMovements.js
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import {
   getMovements,
   getFamilyMovements,
@@ -14,6 +14,8 @@ export default function useMovements(treeId, filters, mode) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
 
+  const abortRef = useRef(null)
+
   const fetchMovements = useCallback(() => {
     if (!treeId) return
     setLoading(true)
@@ -25,11 +27,16 @@ export default function useMovements(treeId, filters, mode) {
       mode === "family"
         ? getFamilyMovements(treeId, selectedFamilyId, baseFilters)
         : mode === "compare"
-        ? getGroupMovements(treeId, compareIds, baseFilters)
-        : getMovements(treeId, baseFilters)
+          ? getGroupMovements(treeId, compareIds, baseFilters)
+          : getMovements(treeId, baseFilters)
+
+    if (abortRef.current) abortRef.current.abort()
+    const controller = new AbortController()
+    abortRef.current = controller
 
     fetcher
       .then((data) => {
+        if (controller.signal.aborted) return
         let segments = []
         if (Array.isArray(data) && data.length && data[0].event_type) {
           segments = data
@@ -45,11 +52,13 @@ export default function useMovements(treeId, filters, mode) {
         setMovements(segments)
       })
       .catch((err) => {
+        if (controller.signal.aborted) return
         console.error("❌ movement fetch failed", err)
         DEBUG && devLog("useMovements", "❌ error", err)
         setError("Failed to load movements.")
       })
       .finally(() => {
+        if (controller.signal.aborted) return
         setLoading(false)
         DEBUG && devLog("useMovements", "✅ done")
       })
@@ -57,6 +66,9 @@ export default function useMovements(treeId, filters, mode) {
 
   useEffect(() => {
     fetchMovements()
+    return () => {
+      if (abortRef.current) abortRef.current.abort()
+    }
   }, [fetchMovements])
 
   return { movements, loading, error }
