@@ -14,6 +14,10 @@
 .DS_Store
 __MACOSX
 .vscode/
+.idea/
+*.iml
+.cursor/
+Thumbs.db
 
 # ─── Python & Flask ─────────────────────────────
 __pycache__/
@@ -28,11 +32,19 @@ __pycache__/
 *.swp
 *.zip
 *.jsonl.bak
+.venv/
+venv/
+env/
+.pytest_cache/
 
 # ─── Project Data & Cache ───────────────────────
 /geocode_cache.json
+geocode_cache.json
 /flask.log
 /startup.log
+movements.json
+temp.txt
+tmp.json
 /frontend/archive/
 /frontend_archive/
 /backend/mapem.db
