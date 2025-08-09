@@ -1,5 +1,6 @@
 import logging
 from typing import Any, Dict, Iterable, Set, List
+from uuid import UUID
 
 from sqlalchemy import extract, func, or_, select
 from sqlalchemy.orm import Query, Session
@@ -73,8 +74,8 @@ def _apply_confidence_filter(q: Query, filters: Dict[str, Any]) -> Query:
             Location.confidence_score >= thresh)
     )
 
-def _expand_related_ids(session: Session, pid: int, rels: Dict[str, bool]) -> Set[int]:
-    ids = {pid}
+def _expand_related_ids(session: Session, pid: UUID, rels: Dict[str, bool]) -> Set[UUID]:
+    ids: Set[UUID] = {pid}
     if rels.get("siblings"):
         sibs = {
             r.id
@@ -113,7 +114,7 @@ def _apply_person_filter(session: Session, q: Query, filters: Dict[str, Any]) ->
     if not pid_raw:
         return q
     try:
-        pid = int(pid_raw)
+        pid = UUID(str(pid_raw))
     except (ValueError, TypeError):
         logger.warning("⚠️ Invalid person id %r — skipping", pid_raw)
         return q
@@ -127,7 +128,7 @@ def _apply_person_filter(session: Session, q: Query, filters: Dict[str, Any]) ->
     return q
 
 # ─── Main query builder & visible counts ──────────────────────
-def build_event_query(session: Session, tree_id: int, filters: Dict[str, Any]) -> Query:
+def build_event_query(session: Session, tree_id: UUID, filters: Dict[str, Any]) -> Query:
     logger.debug("⚙️ build_event_query tree_id=%s filters=%s", tree_id, filters)
     q = (session.query(Event)
          .outerjoin(Location)

@@ -2,7 +2,7 @@
 import uuid
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 
 from .base import Base, TimestampMixin, ReprMixin
 import uuid
@@ -10,9 +10,9 @@ import uuid
 class AlternateName(Base, TimestampMixin, ReprMixin):
     __tablename__ = "alternate_names"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     location_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("locations.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

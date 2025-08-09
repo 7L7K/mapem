@@ -136,20 +136,37 @@ class GEDCOMParser:
         session : Session
             Open database session (transaction handled by caller).
         uploaded_tree_id : UUID | None
-            Identifier of :class:`UploadedTree`. ``tree_id`` may be used as an
-            alias for backward compatibility.
+            Identifier of :class:`UploadedTree`.
         tree_version_id : UUID | None
             Existing tree version or ``None`` to create a new one.
         dry_run : bool
             If ``True`` no changes will be committed.
         tree_id : UUID | None
-            Alias for ``uploaded_tree_id`` for older callers.
+            Back-compat parameter. If this matches an existing TreeVersion.id,
+            it will be treated as ``tree_version_id``. Otherwise it's treated
+            as an ``uploaded_tree_id``.
         """
-        # Backwards compatibility: allow ``tree_id`` as alias
+        # Backwards compatibility: "tree_id" may refer to TreeVersion.id or UploadedTree.id
         if tree_id is not None:
-            if uploaded_tree_id is not None and tree_id != uploaded_tree_id:
-                raise ValueError("Specify either uploaded_tree_id or tree_id, not both")
-            uploaded_tree_id = tree_id
+            # If explicit uploaded_tree_id is also provided and conflicts, bail
+            if uploaded_tree_id is not None and tree_version_id is None:
+                # If both provided, prefer explicit tree_version_id; else they must agree
+                try:
+                    # best-effort compare to existing version's upload id
+                    existing_version = session.get(TreeVersion, tree_id)
+                    if existing_version and existing_version.uploaded_tree_id != uploaded_tree_id:
+                        raise ValueError("Conflicting tree identifiers provided")
+                except Exception:
+                    # If not a valid UUID or not found, fall through
+                    pass
+            # Try treat as TreeVersion first
+            existing = session.get(TreeVersion, tree_id)
+            if existing is not None:
+                tree_version_id = existing.id
+                uploaded_tree_id = existing.uploaded_tree_id
+            else:
+                # Treat as uploaded tree id
+                uploaded_tree_id = tree_id
         if not self.data:
             raise RuntimeError("parse_file() has to be called before save_to_db()")
 
@@ -158,7 +175,15 @@ class GEDCOMParser:
 
         # ── TreeVersion --------------------------------------------------
         if not tree_version_id:
-            tree_version = TreeVersion(uploaded_tree_id=uploaded_tree_id, version_number=1)
+            # Determine next version number for this uploaded tree
+            last = (
+                session.query(TreeVersion.version_number)
+                .filter(TreeVersion.uploaded_tree_id == uploaded_tree_id)
+                .order_by(TreeVersion.version_number.desc())
+                .first()
+            )
+            next_version = (last[0] + 1) if last else 1
+            tree_version = TreeVersion(uploaded_tree_id=uploaded_tree_id, version_number=next_version)
             session.add(tree_version)
             session.flush()
             tree_version_id = tree_version.id

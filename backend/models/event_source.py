@@ -6,11 +6,11 @@ from sqlalchemy import (
     ForeignKey,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 from sqlalchemy.orm import relationship
 from .base import Base, TimestampMixin, ReprMixin
 import uuid
-from sqlalchemy.dialects.postgresql import UUID
+# from sqlalchemy.dialects.postgresql import UUID  # not used; using GUID for cross-dialect
 
 
 class EventSource(Base, TimestampMixin, ReprMixin):
@@ -19,10 +19,10 @@ class EventSource(Base, TimestampMixin, ReprMixin):
         UniqueConstraint("event_id", "source_id", name="uq_event_source"),
     )
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
 
     event_id   = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("events.id", ondelete="CASCADE"),
         nullable=False,
         index=True,

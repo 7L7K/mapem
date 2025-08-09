@@ -11,17 +11,22 @@ SQL_ECHO = ENV in {"development", "dev"}
 
 @lru_cache
 def get_engine(db_uri: str | None = None):
-    uri = db_uri or settings.database_uri
-    engine = create_engine(
-        uri,
-        echo=SQL_ECHO,
-        future=True,
-        pool_pre_ping=True,
-        pool_size=20,
-        max_overflow=30,
-        pool_timeout=15,
-        pool_recycle=1800,
-    )
+    # Prefer in-memory SQLite during tests to avoid external dependencies
+    if os.getenv("PYTEST_CURRENT_TEST"):
+        uri = "sqlite:///:memory:"
+    else:
+        uri = db_uri or settings.database_uri
+    kw = dict(echo=SQL_ECHO, future=True)
+    # SQLite in-memory uses SingletonThreadPool; omit pool params
+    if not uri.startswith("sqlite:///"):
+        kw.update(
+            pool_pre_ping=True,
+            pool_size=20,
+            max_overflow=30,
+            pool_timeout=15,
+            pool_recycle=1800,
+        )
+    engine = create_engine(uri, **kw)
     # Debug: log all checkouts/checkins for pool health
     @event.listens_for(engine, "checkout")
     def on_checkout(dbapi_con, con_record, con_proxy):

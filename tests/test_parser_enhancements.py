@@ -1,6 +1,7 @@
 import uuid
 from backend.services.parser import GEDCOMParser
 from backend.models import Event, Location
+from backend.models.enums import LocationStatusEnum
 
 class DummyLocSvc:
     def __init__(self, status="ok"):
@@ -42,9 +43,11 @@ def test_unresolved_location_skipped(db_session):
         "families": [],
         "events": [{"event_type": "birth", "location": "Atlantis", "date": "1 JAN 1900"}]
     }
+    before = db_session.query(Location).count()
     parser.save_to_db(db_session, tree_id=tree_id)
-    # location should not be created
-    assert db_session.query(Location).count() == 0
+    # location should not be created for unresolved case
+    after = db_session.query(Location).count()
+    assert after == before
     evt = db_session.query(Event).first()
     assert evt and evt.location_id is None
 

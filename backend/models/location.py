@@ -13,7 +13,7 @@ from sqlalchemy import (
     Index,
 )
 from sqlalchemy.orm import relationship, validates
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 import uuid
 from datetime import datetime
 from backend.models.base import Base, UUIDMixin
@@ -29,7 +29,7 @@ class Location(Base, UUIDMixin):
         CheckConstraint("longitude BETWEEN -180 AND 180", name="chk_lng_range"),
     )
 
-    id               = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id               = Column(GUID(), primary_key=True, default=uuid.uuid4)
     raw_name         = Column(String, nullable=False)
     normalized_name  = Column(String, nullable=False, unique=True)
     latitude         = Column(Float, nullable=True)
@@ -38,6 +38,7 @@ class Location(Base, UUIDMixin):
     source           = Column(String(50), default="none", nullable=False)
     status           = Column(SQLEnum(LocationStatusEnum, name="location_status_enum"), default=LocationStatusEnum.valid, nullable=False)
     created_at       = Column(DateTime, default=datetime.utcnow)
+    updated_at       = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     geocoded_at      = Column(DateTime)
     geocoded_by      = Column(String)
 

@@ -1,0 +1,68 @@
+Metadata-Version: 2.4
+Name: ged4py
+Version: 0.5.2
+Summary: GEDCOM tools for Python
+Author-email: Andy Salnikov <ged4py@py-dev.com>
+Maintainer-email: Andy Salnikov <ged4py@py-dev.com>
+License: MIT license
+Project-URL: bugs, https://github.com/andy-z/ged4py/issues
+Project-URL: homepage, https://ged4py.readthedocs.io/
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Topic :: Sociology :: Genealogy
+Requires-Python: >=3.11.0
+Description-Content-Type: text/x-rst
+License-File: LICENSE
+Requires-Dist: ansel
+Requires-Dist: convertdate
+Provides-Extra: dev
+Requires-Dist: coverage; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Dynamic: license-file
+
+========================
+GEDCOM parser for Python
+========================
+
+
+.. image:: https://img.shields.io/pypi/v/ged4py.svg
+        :target: https://pypi.python.org/pypi/ged4py
+
+.. image:: https://img.shields.io/travis/andy-z/ged4py.svg
+        :target: https://travis-ci.org/andy-z/ged4py
+
+.. image:: https://readthedocs.org/projects/ged4py/badge/?version=latest
+        :target: https://ged4py.readthedocs.io/en/latest/?badge=latest
+        :alt: Documentation Status
+
+Implementation of the GEDCOM parser in Python
+
+
+* Free software: MIT license
+* Documentation: https://ged4py.readthedocs.io.
+
+
+Features
+--------
+
+* Parsing of GEDCOM files as defined by 5.5.1 version of GEDCOM standard
+* Supported file encodings are UTF-8 (with or without BOM), ASCII or ANSEL
+* Designed to parse large files efficiently
+* Supports Python 3.6+
+
+Credits
+---------
+
+This package was created with Cookiecutter_ and the `audreyr/cookiecutter-pypackage`_ project template.
+
+.. _Cookiecutter: https://github.com/audreyr/cookiecutter
+.. _`audreyr/cookiecutter-pypackage`: https://github.com/audreyr/cookiecutter-pypackage

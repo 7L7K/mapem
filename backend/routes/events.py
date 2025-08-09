@@ -2,6 +2,7 @@
 from flask import Blueprint, jsonify, request
 import logging
 from uuid import UUID
+from backend.utils.logger import get_file_logger
 
 from flask_cors import cross_origin
 from backend.db import get_db
@@ -9,6 +10,7 @@ from backend.models import Event, TreeVersion
 from backend.utils.debug_routes import debug_route
 
 event_routes = Blueprint("events", __name__, url_prefix="/api/events")
+logger = get_file_logger("events_route")
  
 
 @event_routes.route("/", methods=["GET"], strict_slashes=False)
@@ -18,9 +20,17 @@ def get_events():
     db = next(get_db())
     logger.debug(f"➡️ GET /api/events | args={dict(request.args)}")
     try:
-        version_id = request.args.get("version_id", type=int)
+        # version_id is a UUID in our schema, but we also support numeric strings from older clients
+        version_id_raw = request.args.get("version_id")
+        version_id = None
+        if version_id_raw:
+            try:
+                version_id = UUID(version_id_raw)
+            except ValueError:
+                logger.warning(f"⚠️ Invalid version_id: {version_id_raw}")
+                return jsonify({"error": "Invalid version_id"}), 400
 
-        uploaded_id_raw = request.args.get("uploaded_tree_id")
+        uploaded_id_raw = request.args.get("uploaded_tree_id") or request.args.get("tree_id")
         uploaded_id = None
         if uploaded_id_raw:
             try:

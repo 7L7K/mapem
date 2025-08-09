@@ -3,7 +3,7 @@ from datetime import datetime
 from uuid import uuid4
 
 from sqlalchemy import Column, DateTime, Integer
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import inspect
 
@@ -25,7 +25,7 @@ class ReprMixin:
 
 
 class UUIDMixin:
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid4)
 
 class SerializeMixin:
     """Adds a generic .to_dict() so legacy routes don’t blow up."""

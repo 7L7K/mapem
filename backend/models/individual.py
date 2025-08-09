@@ -12,7 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy import Enum as SQLEnum
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 
 from backend.models.base import SerializeMixin, Base, TimestampMixin, ReprMixin
 from backend.models.enums import GenderEnum
@@ -25,7 +25,7 @@ class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
 
     # 🟣 NOW UUID! (was Integer)
     id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         primary_key=True,
         default=uuid.uuid4,
         unique=True,
@@ -33,7 +33,7 @@ class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
     )
 
     tree_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tree_versions.id", ondelete="CASCADE"),
         index=True,
         nullable=False,
@@ -97,15 +97,15 @@ class ResidenceHistory(Base, TimestampMixin, ReprMixin):
         Index("ix_res_history_indiv_dates", "individual_id", "start_date", "end_date"),
     )
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     individual_id = Column(
-        UUID(as_uuid=True),  # 🟣 NOW UUID!
+        GUID(),  # 🟣 NOW UUID!
         ForeignKey("individuals.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
     location_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("locations.id", ondelete="SET NULL"),
         nullable=True,
         index=True,

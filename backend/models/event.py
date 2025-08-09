@@ -6,7 +6,7 @@ from sqlalchemy import (
     Column, ForeignKey, Date, String, Index, Table
 )
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 from backend.utils.logger import get_file_logger
 
 from .base import Base, ReprMixin
@@ -19,13 +19,13 @@ event_participants = Table(
     Base.metadata,
     Column(
         "event_id",
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("events.id", ondelete="CASCADE"),
         primary_key=True,
     ),
     Column(
         "individual_id",
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("individuals.id", ondelete="CASCADE"),
         primary_key=True,
     ),
@@ -37,9 +37,9 @@ class Event(Base, ReprMixin):
         Index("ix_events_tree_date", "tree_id", "date"),
     )
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     tree_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("tree_versions.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -51,7 +51,7 @@ class Event(Base, ReprMixin):
     source_tag     = Column(String)
     category       = Column(String)
     location_id    = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("locations.id", ondelete="SET NULL"),
         index=True,
     )

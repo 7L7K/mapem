@@ -366,3 +366,173 @@
 2025-06-17 17:27:57,644 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
 2025-06-17 17:27:57,647 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
 2025-06-17 17:27:57,647 | INFO | geocode | 🟨 Historical fix hit: Beat 2
+2025-08-09 02:36:09,928 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 02:36:09,929 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 02:36:09,929 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 02:36:10,936 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 02:36:10,937 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754721369.9280431}
+2025-08-09 02:36:13,218 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:36:13,218 | INFO | geocode | 🟧 Manual fix hit: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:36:13,293 | DEBUG | geocode | 🔍 geocode chain for: Boliver, Mississippi
+2025-08-09 02:36:13,293 | INFO | geocode | 🟧 Manual fix hit: Boliver, Mississippi
+2025-08-09 02:36:13,298 | DEBUG | geocode | 🔍 geocode chain for: Mississippi
+2025-08-09 02:36:13,298 | INFO | geocode | ❌ External API returned no coords for 'Mississippi'
+2025-08-09 02:36:13,299 | WARNING | geocode | ❌ Geocode miss for 'Mississippi'
+2025-08-09 02:36:13,302 | DEBUG | geocode | 🔍 geocode chain for: unknown place
+2025-08-09 02:36:13,302 | INFO | geocode | ❌ External API returned no coords for 'unknown place'
+2025-08-09 02:36:13,303 | WARNING | geocode | ❌ Geocode miss for 'unknown place'
+2025-08-09 02:36:13,306 | DEBUG | geocode | 🔍 geocode chain for: Greenwood, Mississippi
+2025-08-09 02:36:13,307 | INFO | geocode | 🌐 Nominatim geocode query for 'Greenwood, Mississippi'
+2025-08-09 02:36:13,848 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
+2025-08-09 02:36:13,850 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
+2025-08-09 02:36:13,851 | INFO | geocode | 🟨 Historical fix hit: Beat 2
+2025-08-09 02:44:32,165 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 02:44:32,166 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 02:44:32,166 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 02:44:32,846 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 02:44:32,848 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754721872.1654248}
+2025-08-09 02:44:34,240 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:44:34,240 | INFO | geocode | 🟧 Manual fix hit: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:44:34,325 | DEBUG | geocode | 🔍 geocode chain for: Boliver, Mississippi
+2025-08-09 02:44:34,325 | INFO | geocode | 🟧 Manual fix hit: Boliver, Mississippi
+2025-08-09 02:44:34,329 | DEBUG | geocode | 🔍 geocode chain for: Mississippi
+2025-08-09 02:44:34,330 | INFO | geocode | ❌ External API returned no coords for 'Mississippi'
+2025-08-09 02:44:34,330 | WARNING | geocode | ❌ Geocode miss for 'Mississippi'
+2025-08-09 02:44:34,334 | DEBUG | geocode | 🔍 geocode chain for: unknown place
+2025-08-09 02:44:34,334 | INFO | geocode | ❌ External API returned no coords for 'unknown place'
+2025-08-09 02:44:34,334 | WARNING | geocode | ❌ Geocode miss for 'unknown place'
+2025-08-09 02:44:34,338 | DEBUG | geocode | 🔍 geocode chain for: Greenwood, Mississippi
+2025-08-09 02:44:34,339 | INFO | geocode | 🌐 Nominatim geocode query for 'Greenwood, Mississippi'
+2025-08-09 02:44:34,879 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
+2025-08-09 02:44:34,881 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
+2025-08-09 02:44:34,881 | INFO | geocode | 🟨 Historical fix hit: Beat 2
+2025-08-09 02:50:52,147 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 02:50:52,148 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 02:50:52,149 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 02:50:52,827 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 02:50:52,829 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754722252.147396}
+2025-08-09 02:51:44,834 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 02:51:44,835 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 02:51:44,835 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 02:51:45,504 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 02:51:45,505 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754722304.834699}
+2025-08-09 02:51:57,224 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 02:51:57,225 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 02:51:57,225 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 02:51:57,831 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 02:51:57,832 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754722317.2240598}
+2025-08-09 02:51:58,915 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:51:58,915 | INFO | geocode | 🟧 Manual fix hit: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:51:58,957 | DEBUG | geocode | 🔍 geocode chain for: Boliver, Mississippi
+2025-08-09 02:51:58,957 | INFO | geocode | 🟧 Manual fix hit: Boliver, Mississippi
+2025-08-09 02:51:58,960 | DEBUG | geocode | 🔍 geocode chain for: Mississippi
+2025-08-09 02:51:58,961 | INFO | geocode | ❌ External API returned no coords for 'Mississippi'
+2025-08-09 02:51:58,961 | WARNING | geocode | ❌ Geocode miss for 'Mississippi'
+2025-08-09 02:51:58,963 | DEBUG | geocode | 🔍 geocode chain for: unknown place
+2025-08-09 02:51:58,964 | INFO | geocode | ❌ External API returned no coords for 'unknown place'
+2025-08-09 02:51:58,964 | WARNING | geocode | ❌ Geocode miss for 'unknown place'
+2025-08-09 02:51:58,966 | DEBUG | geocode | 🔍 geocode chain for: Greenwood, Mississippi
+2025-08-09 02:51:58,966 | INFO | geocode | 🌐 Nominatim geocode query for 'Greenwood, Mississippi'
+2025-08-09 02:51:59,698 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
+2025-08-09 02:51:59,700 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
+2025-08-09 02:51:59,701 | INFO | geocode | 🟨 Historical fix hit: Beat 2
+2025-08-09 02:55:36,097 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 02:55:36,099 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 02:55:36,099 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 02:55:36,757 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 02:55:36,758 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754722536.0976372}
+2025-08-09 02:55:39,265 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:55:39,265 | INFO | geocode | 🟧 Manual fix hit: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:55:39,361 | DEBUG | geocode | 🔍 geocode chain for: Boliver, Mississippi
+2025-08-09 02:55:39,361 | INFO | geocode | 🟧 Manual fix hit: Boliver, Mississippi
+2025-08-09 02:55:39,366 | DEBUG | geocode | 🔍 geocode chain for: Mississippi
+2025-08-09 02:55:39,367 | INFO | geocode | ❌ External API returned no coords for 'Mississippi'
+2025-08-09 02:55:39,367 | WARNING | geocode | ❌ Geocode miss for 'Mississippi'
+2025-08-09 02:55:39,371 | DEBUG | geocode | 🔍 geocode chain for: unknown place
+2025-08-09 02:55:39,372 | INFO | geocode | ❌ External API returned no coords for 'unknown place'
+2025-08-09 02:55:39,372 | WARNING | geocode | ❌ Geocode miss for 'unknown place'
+2025-08-09 02:55:39,376 | DEBUG | geocode | 🔍 geocode chain for: Greenwood, Mississippi
+2025-08-09 02:55:39,376 | INFO | geocode | 🌐 Nominatim geocode query for 'Greenwood, Mississippi'
+2025-08-09 02:55:39,915 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
+2025-08-09 02:55:39,919 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
+2025-08-09 02:55:39,920 | INFO | geocode | 🟨 Historical fix hit: Beat 2
+2025-08-09 02:58:08,421 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 02:58:08,423 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 02:58:08,423 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 02:58:09,187 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 02:58:09,189 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754722688.421737}
+2025-08-09 02:58:10,728 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:58:10,728 | INFO | geocode | 🟧 Manual fix hit: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 02:58:10,819 | DEBUG | geocode | 🔍 geocode chain for: Boliver, Mississippi
+2025-08-09 02:58:10,820 | INFO | geocode | 🟧 Manual fix hit: Boliver, Mississippi
+2025-08-09 02:58:10,824 | DEBUG | geocode | 🔍 geocode chain for: Mississippi
+2025-08-09 02:58:10,824 | INFO | geocode | ❌ External API returned no coords for 'Mississippi'
+2025-08-09 02:58:10,825 | WARNING | geocode | ❌ Geocode miss for 'Mississippi'
+2025-08-09 02:58:10,828 | DEBUG | geocode | 🔍 geocode chain for: unknown place
+2025-08-09 02:58:10,829 | INFO | geocode | ❌ External API returned no coords for 'unknown place'
+2025-08-09 02:58:10,829 | WARNING | geocode | ❌ Geocode miss for 'unknown place'
+2025-08-09 02:58:10,832 | DEBUG | geocode | 🔍 geocode chain for: Greenwood, Mississippi
+2025-08-09 02:58:10,833 | INFO | geocode | 🌐 Nominatim geocode query for 'Greenwood, Mississippi'
+2025-08-09 02:58:11,401 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
+2025-08-09 02:58:11,407 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
+2025-08-09 02:58:11,407 | INFO | geocode | 🟨 Historical fix hit: Beat 2
+2025-08-09 03:01:00,508 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 03:01:00,511 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 03:01:00,511 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 03:01:01,327 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 03:01:01,328 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754722860.508966}
+2025-08-09 03:01:02,513 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 03:01:02,514 | INFO | geocode | 🟧 Manual fix hit: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 03:01:02,619 | DEBUG | geocode | 🔍 geocode chain for: Boliver, Mississippi
+2025-08-09 03:01:02,620 | INFO | geocode | 🟧 Manual fix hit: Boliver, Mississippi
+2025-08-09 03:01:02,626 | DEBUG | geocode | 🔍 geocode chain for: Mississippi
+2025-08-09 03:01:02,627 | INFO | geocode | ❌ External API returned no coords for 'Mississippi'
+2025-08-09 03:01:02,627 | WARNING | geocode | ❌ Geocode miss for 'Mississippi'
+2025-08-09 03:01:02,633 | DEBUG | geocode | 🔍 geocode chain for: unknown place
+2025-08-09 03:01:02,635 | INFO | geocode | ❌ External API returned no coords for 'unknown place'
+2025-08-09 03:01:02,635 | WARNING | geocode | ❌ Geocode miss for 'unknown place'
+2025-08-09 03:01:02,640 | DEBUG | geocode | 🔍 geocode chain for: Greenwood, Mississippi
+2025-08-09 03:01:02,641 | INFO | geocode | 🌐 Nominatim geocode query for 'Greenwood, Mississippi'
+2025-08-09 03:01:03,296 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
+2025-08-09 03:01:03,300 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
+2025-08-09 03:01:03,302 | INFO | geocode | 🟨 Historical fix hit: Beat 2
+2025-08-09 03:02:58,556 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 03:02:58,562 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 03:02:58,563 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 03:02:59,345 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 03:02:59,346 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754722978.5566442}
+2025-08-09 03:03:00,655 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 03:03:00,656 | INFO | geocode | 🟧 Manual fix hit: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 03:03:00,867 | DEBUG | geocode | 🔍 geocode chain for: Boliver, Mississippi
+2025-08-09 03:03:00,869 | INFO | geocode | 🟧 Manual fix hit: Boliver, Mississippi
+2025-08-09 03:03:00,877 | DEBUG | geocode | 🔍 geocode chain for: Mississippi
+2025-08-09 03:03:00,879 | INFO | geocode | ❌ External API returned no coords for 'Mississippi'
+2025-08-09 03:03:00,879 | WARNING | geocode | ❌ Geocode miss for 'Mississippi'
+2025-08-09 03:03:00,887 | DEBUG | geocode | 🔍 geocode chain for: unknown place
+2025-08-09 03:03:00,890 | INFO | geocode | ❌ External API returned no coords for 'unknown place'
+2025-08-09 03:03:00,890 | WARNING | geocode | ❌ Geocode miss for 'unknown place'
+2025-08-09 03:03:00,898 | DEBUG | geocode | 🔍 geocode chain for: Greenwood, Mississippi
+2025-08-09 03:03:00,901 | INFO | geocode | 🌐 Nominatim geocode query for 'Greenwood, Mississippi'
+2025-08-09 03:03:01,645 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
+2025-08-09 03:03:01,654 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
+2025-08-09 03:03:01,656 | INFO | geocode | 🟨 Historical fix hit: Beat 2
+2025-08-09 03:04:36,122 | DEBUG | geocode | 🔍 geocode chain for: Chicago, Illinois, USA
+2025-08-09 03:04:36,126 | INFO | geocode | 🟥 Cache miss for Chicago, Illinois, USA
+2025-08-09 03:04:36,127 | INFO | geocode | 🌐 Nominatim geocode query for 'Chicago, Illinois, USA'
+2025-08-09 03:04:36,857 | INFO | geocode | ✅ nominatim geocode for 'Chicago, Illinois, USA'
+2025-08-09 03:04:36,860 | WARNING | geocode | ⚠️ Removing malformed cache entry 'chicago_illinois_usa': {'latitude': 41.8755616, 'longitude': -87.6244212, 'normalized': 'Chicago, Cook County, Illinois, United States', 'confidence': 0.8, 'source': 'nominatim', 'status': 'ok', 'label': 'nominatim', 'timestamp': 1754723076.122422}
+2025-08-09 03:04:38,108 | DEBUG | geocode | 🔍 geocode chain for: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 03:04:38,109 | INFO | geocode | 🟧 Manual fix hit: Ackerman, Choctaw, Mississippi, USA
+2025-08-09 03:04:38,282 | DEBUG | geocode | 🔍 geocode chain for: Boliver, Mississippi
+2025-08-09 03:04:38,283 | INFO | geocode | 🟧 Manual fix hit: Boliver, Mississippi
+2025-08-09 03:04:38,288 | DEBUG | geocode | 🔍 geocode chain for: Mississippi
+2025-08-09 03:04:38,289 | INFO | geocode | ❌ External API returned no coords for 'Mississippi'
+2025-08-09 03:04:38,289 | WARNING | geocode | ❌ Geocode miss for 'Mississippi'
+2025-08-09 03:04:38,300 | DEBUG | geocode | 🔍 geocode chain for: unknown place
+2025-08-09 03:04:38,301 | INFO | geocode | ❌ External API returned no coords for 'unknown place'
+2025-08-09 03:04:38,301 | WARNING | geocode | ❌ Geocode miss for 'unknown place'
+2025-08-09 03:04:38,306 | DEBUG | geocode | 🔍 geocode chain for: Greenwood, Mississippi
+2025-08-09 03:04:38,309 | INFO | geocode | 🌐 Nominatim geocode query for 'Greenwood, Mississippi'
+2025-08-09 03:04:38,968 | INFO | geocode | ✅ nominatim geocode for 'Greenwood, Mississippi'
+2025-08-09 03:04:38,973 | DEBUG | geocode | 🔍 geocode chain for: Beat 2
+2025-08-09 03:04:38,974 | INFO | geocode | 🟨 Historical fix hit: Beat 2

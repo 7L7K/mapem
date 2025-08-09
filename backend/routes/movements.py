@@ -9,6 +9,7 @@ from sqlalchemy.orm import joinedload
 
 from backend.db import SessionLocal
 from backend.models import UploadedTree, TreeVersion, Event
+from uuid import UUID
 from backend.services.query_builders import build_event_query
 from backend.utils.logger import get_file_logger
 
@@ -20,13 +21,18 @@ def get_movements(uploaded_tree_id: str):
     db = SessionLocal()
     try:
         # 1) Validate tree + version
-        tree = db.query(UploadedTree).get(uploaded_tree_id)
+        try:
+            uploaded_uuid = UUID(uploaded_tree_id)
+        except ValueError:
+            abort(400, description="Invalid uploaded_tree_id")
+
+        tree = db.get(UploadedTree, uploaded_uuid)
         if not tree:
             abort(404, description="UploadedTree not found")
 
         version = (
             db.query(TreeVersion)
-            .filter(TreeVersion.uploaded_tree_id == uploaded_tree_id)
+            .filter(TreeVersion.uploaded_tree_id == uploaded_uuid)
             .order_by(TreeVersion.version_number.desc())
             .first()
         )
@@ -122,6 +128,9 @@ def get_movements(uploaded_tree_id: str):
             abort(400, description=f"Unknown mode '{mode}', use flat or segments")
 
     except Exception as exc:
+        # Pass through 404s from abort, map others to 500
+        if hasattr(exc, "code") and getattr(exc, "code", None) == 404:
+            return jsonify({"error": str(exc)}), 404
         logger.exception("❌ Failed to fetch movements – %s", exc)
         return jsonify({"error": str(exc)}), 500
 

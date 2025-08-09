@@ -11,7 +11,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 from sqlalchemy.orm import relationship, synonym
 
 from backend.models.base import Base
@@ -28,10 +28,10 @@ class TreeVersion(Base):
 
     __tablename__ = "tree_versions"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
 
     uploaded_tree_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("uploaded_trees.id"),
         nullable=False,
         index=True,

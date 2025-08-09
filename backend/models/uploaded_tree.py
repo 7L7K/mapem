@@ -3,14 +3,14 @@ import uuid
 
 from sqlalchemy import Column, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 
 from .base import Base, TimestampMixin, ReprMixin
 
 class UploadedTree(Base, TimestampMixin, ReprMixin):
     __tablename__ = "uploaded_trees"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
     tree_name = Column(String, nullable=False)
     uploader_name = Column(String)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
@@ -27,11 +27,11 @@ class UploadedTree(Base, TimestampMixin, ReprMixin):
 class TreePerson(Base, TimestampMixin, ReprMixin):
     __tablename__ = "tree_persons"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    uploaded_tree_id = Column(UUID(as_uuid=True), ForeignKey("uploaded_trees.id", ondelete="CASCADE"), nullable=False, index=True)
-    tree_version_id = Column(UUID(as_uuid=True), ForeignKey("tree_versions.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    uploaded_tree_id = Column(GUID(), ForeignKey("uploaded_trees.id", ondelete="CASCADE"), nullable=False, index=True)
+    tree_version_id = Column(GUID(), ForeignKey("tree_versions.id", ondelete="CASCADE"), nullable=False, index=True)
     individual_id = Column(
-        UUID(as_uuid=True),  # 🟣 UUID FK!
+        GUID(),  # 🟣 UUID FK!
         ForeignKey("individuals.id", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -48,10 +48,10 @@ class TreePerson(Base, TimestampMixin, ReprMixin):
 class TreeRelationship(Base, TimestampMixin, ReprMixin):
     __tablename__ = "tree_relationships"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    tree_id = Column(UUID(as_uuid=True), ForeignKey("uploaded_trees.id", ondelete="CASCADE"), nullable=False, index=True)
-    person_id = Column(UUID(as_uuid=True), ForeignKey("individuals.id", ondelete="CASCADE"), nullable=False, index=True)
-    related_person_id = Column(UUID(as_uuid=True), ForeignKey("individuals.id", ondelete="CASCADE"), nullable=False, index=True)
+    id = Column(GUID(), primary_key=True, default=uuid.uuid4)
+    tree_id = Column(GUID(), ForeignKey("uploaded_trees.id", ondelete="CASCADE"), nullable=False, index=True)
+    person_id = Column(GUID(), ForeignKey("individuals.id", ondelete="CASCADE"), nullable=False, index=True)
+    related_person_id = Column(GUID(), ForeignKey("individuals.id", ondelete="CASCADE"), nullable=False, index=True)
     relationship_type = Column(String, nullable=False)
     notes = Column(String)
 

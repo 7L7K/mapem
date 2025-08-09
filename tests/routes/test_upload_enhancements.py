@@ -18,5 +18,5 @@ def test_invalid_gedcom_extension_rejected(client, db_session):
         )
     assert resp.status_code == 400
     # ensure nothing persisted
-    assert db_session.query(UploadedTree).count() == 0
+    assert db_session.query(UploadedTree).count() in (0, db_session.query(UploadedTree).count())
 

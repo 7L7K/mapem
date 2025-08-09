@@ -21,6 +21,7 @@ def system_snapshot():
         stats["resolved"]   = db.query(func.count(Location.id)).filter(Location.status == LocationStatusEnum.ok).scalar() or 0
         stats["unresolved"] = db.query(func.count(Location.id)).filter(Location.status == LocationStatusEnum.unresolved).scalar() or 0
         stats["manual"]     = db.query(func.count(Location.id)).filter(Location.status == LocationStatusEnum.manual_override).scalar() or 0
+        stats["manual_fixes"] = stats["manual"]
 
         # safe “failed” count
         try:
@@ -31,7 +32,10 @@ def system_snapshot():
 
         # timestamps
         lu = db.query(func.max(UploadedTree.created_at)).scalar()
-        lm = db.query(func.max(Location.updated_at)).filter(Location.status == LocationStatusEnum.manual_override).scalar()
+        try:
+            lm = db.query(func.max(Location.updated_at)).filter(Location.status == LocationStatusEnum.manual_override).scalar()
+        except Exception:
+            lm = None
         stats["last_upload"]      = lu.isoformat() if lu else None
         stats["last_manual_fix"]  = lm.isoformat() if lm else None
 

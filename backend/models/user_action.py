@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 from .base import Base, TimestampMixin, ReprMixin
 from sqlalchemy import Enum as SQLEnum   # give it a short alias
 from .enums import ActionTypeEnum
-from sqlalchemy.dialects.postgresql import UUID
+from backend.models.types import GUID
 import uuid
 
 class UserAction(Base, TimestampMixin, ReprMixin):
@@ -20,21 +20,21 @@ class UserAction(Base, TimestampMixin, ReprMixin):
         Index("ix_user_actions_event", "event_id"),
     )
 
-    id               = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id               = Column(GUID(), primary_key=True, default=uuid.uuid4)
     uploaded_tree_id = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("uploaded_trees.id", ondelete="CASCADE"),
         nullable=True,
         index=True,
     )
     individual_id    = Column(
-        UUID(as_uuid=True),  # 🟣 UUID FK!
+        GUID(),  # 🟣 UUID FK!
         ForeignKey("individuals.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
     )
     event_id         = Column(
-        UUID(as_uuid=True),
+        GUID(),
         ForeignKey("events.id", ondelete="SET NULL"),
         nullable=True,
         index=True,
