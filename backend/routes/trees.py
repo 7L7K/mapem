@@ -14,7 +14,7 @@ import json
 import logging
 from typing import Any, Dict
 
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, jsonify, request, make_response
 from sqlalchemy import func
 
 from backend.db import get_db
@@ -25,6 +25,10 @@ from backend.services.query_builders import build_event_query
 from backend.utils.debug_routes import debug_route
 from backend.models.event import event_participants   # ⬅️ NEW
 from backend.utils.uuid_utils import parse_uuid_arg_or_400
+from uuid import UUID as _UUID
+from backend.utils.cache import ttl_cache_get, ttl_cache_set
+import secrets
+import time
 
 log = logging.getLogger("mapem")
 
@@ -78,6 +82,13 @@ def _validate_filter_types(f: Dict[str, Any]) -> None:
 @tree_routes.route("/", methods=["GET"])
 @debug_route
 def list_trees():
+    cached = ttl_cache_get("trees:list")
+    if cached is not None:
+        resp = make_response({"trees": cached}, 200)
+        resp.headers["Cache-Control"] = "public, max-age=30"
+        resp.headers["ETag"] = 'W/"trees-list"'
+        return resp
+
     db = next(get_db())
     subq = (
         db.query(
@@ -101,15 +112,20 @@ def list_trees():
 
     payload = [
         {
-            "tree_id":          tv.id,
-            "uploaded_tree_id": tv.uploaded_tree_id,
+            "id":               str(tv.id),
+            "uploaded_tree_id": str(tv.uploaded_tree_id),
             "tree_name":        name,
+            "name":             name,
             "version_number":   tv.version_number,
             "created_at":       tv.created_at.isoformat(),
         }
         for tv, name in rows
     ]
-    return jsonify({"trees": payload}), 200
+    ttl_cache_set("trees:list", payload, 30)
+    resp = make_response({"trees": payload}, 200)
+    resp.headers["Cache-Control"] = "public, max-age=30"
+    resp.headers["ETag"] = 'W/"trees-list"'
+    return resp
 
 
 # ─── GET /api/trees/<tree_id>/counts ────────────────────────────────────────
@@ -280,5 +296,124 @@ def visible_counts(uploaded_tree_id: str):
         log.exception("❌ Counting failed")
         return jsonify({"error": "Internal server error"}), 500
 
+    finally:
+        db.close()
+
+
+# ─── Shareable Views (tokenized read-only links) ─────────────────────────────
+_SHARE_TOKENS: dict[str, dict] = {}
+
+@tree_routes.route("/<string:uploaded_tree_id>/share", methods=["POST"])
+@debug_route
+def create_share(uploaded_tree_id: str):
+    parsed = parse_uuid_arg_or_400("uploaded_tree_id", uploaded_tree_id)
+    if isinstance(parsed, tuple):
+        return parsed
+    body = request.get_json(silent=True) or {}
+    # Expect filters (same shape accepted by visible-counts), and an optional ttl
+    filters = body.get("filters") or {}
+    ttl = int(body.get("ttlSeconds", 60 * 60 * 24 * 7))  # 7 days default
+    token = secrets.token_urlsafe(22)
+    _SHARE_TOKENS[token] = {
+        "uploaded_tree_id": str(parsed),
+        "filters": filters,
+        "expires_at": time.time() + max(60, ttl),
+    }
+    return jsonify({"token": token, "expiresAt": _SHARE_TOKENS[token]["expires_at"]}), 201
+
+
+@tree_routes.route("/share/<string:token>", methods=["GET"])
+@debug_route
+def resolve_share(token: str):
+    entry = _SHARE_TOKENS.get(token)
+    if not entry or entry.get("expires_at", 0) < time.time():
+        return jsonify({"error": "invalid_or_expired"}), 404
+    return jsonify(entry), 200
+
+
+# ─── GET /api/trees/<version_id>/diff/<other_version_id> ─────────────────────
+@tree_routes.route("/<string:version_id>/diff/<string:other_id>", methods=["GET"])
+@debug_route
+def diff_versions(version_id: str, other_id: str):
+    db = next(get_db())
+    try:
+        try:
+            v1 = _UUID(version_id)
+            v2 = _UUID(other_id)
+        except Exception:
+            return jsonify({"error": "version ids must be UUIDs"}), 400
+
+        a = db.query(Individual).filter(Individual.tree_id == v1).all()
+        b = db.query(Individual).filter(Individual.tree_id == v2).all()
+
+        def key(i):
+            return ((i.gedcom_id or '').strip().lower(), (i.first_name or '').strip().lower(), (i.last_name or '').strip().lower())
+
+        a_keys = {key(i): i for i in a}
+        b_keys = {key(i): i for i in b}
+
+        added = [i.serialize() for k, i in b_keys.items() if k not in a_keys]
+        removed = [i.serialize() for k, i in a_keys.items() if k not in b_keys]
+
+        modified = []
+        shared = set(a_keys.keys()) & set(b_keys.keys())
+        for k in shared:
+            i1, i2 = a_keys[k], b_keys[k]
+            if (i1.first_name != i2.first_name or
+                i1.last_name  != i2.last_name or
+                (i1.occupation or '') != (i2.occupation or '')):
+                modified.append({
+                    "before": i1.serialize(),
+                    "after":  i2.serialize(),
+                })
+
+        return jsonify({
+            "added": added,
+            "removed": removed,
+            "modified": modified,
+            "counts": {"v1": len(a), "v2": len(b)}
+        }), 200
+    except Exception:
+        log.exception("❌ diff_versions failed")
+        return jsonify({"error": "internal"}), 500
+    finally:
+        db.close()
+
+
+# ─── GET /api/trees/<version_id>/diff-events/<other_version_id> ─────────────
+@tree_routes.route("/<string:version_id>/diff-events/<string:other_id>", methods=["GET"])
+@debug_route
+def diff_events(version_id: str, other_id: str):
+    db = next(get_db())
+    try:
+        try:
+            v1 = _UUID(version_id)
+            v2 = _UUID(other_id)
+        except Exception:
+            return jsonify({"error": "version ids must be UUIDs"}), 400
+
+        a = db.query(Event).filter(Event.tree_id == v1).all()
+        b = db.query(Event).filter(Event.tree_id == v2).all()
+
+        def key(e):
+            return (e.event_type or '', str(e.date or ''), str(e.location_id or ''))
+
+        a_keys = {key(e): e for e in a}
+        b_keys = {key(e): e for e in b}
+
+        added = [e.serialize() for k, e in b_keys.items() if k not in a_keys]
+        removed = [e.serialize() for k, e in a_keys.items() if k not in b_keys]
+        shared = set(a_keys.keys()) & set(b_keys.keys())
+        modified = []
+        for k in shared:
+            e1, e2 = a_keys[k], b_keys[k]
+            if (e1.notes or '') != (e2.notes or ''):
+                modified.append({"before": e1.serialize(), "after": e2.serialize()})
+
+        return jsonify({"added": added, "removed": removed, "modified": modified,
+                        "counts": {"v1": len(a), "v2": len(b)}}), 200
+    except Exception:
+        log.exception("❌ diff_events failed")
+        return jsonify({"error": "internal"}), 500
     finally:
         db.close()

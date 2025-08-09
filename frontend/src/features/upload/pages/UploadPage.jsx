@@ -8,6 +8,7 @@ export default function UploadPage() {
   const [uploadStatus, setUploadStatus] = useState("");
   const [response, setResponse] = useState(null);
   const [progress, setProgress] = useState(0);
+  const [simulateOnly, setSimulateOnly] = useState(true);
   const fileInputRef = useRef(null);
 
   const { setStatus, setVisible } = useContext(UploadStatusContext);
@@ -50,12 +51,12 @@ export default function UploadPage() {
         const total = evt.total || evt.loaded;
         if (!total) return;
         setProgress(Math.round((evt.loaded / total) * 100));
-      });
+      }, { simulate: simulateOnly });
 
-      setStatus("🧬 Parsing & saving tree...");
+      setStatus(simulateOnly ? "🧪 Simulating parse (no DB writes)..." : "🧬 Parsing & saving tree...");
       await new Promise((r) => setTimeout(r, 1000));
 
-      setStatus("🌍 Geocoding locations...");
+      setStatus(simulateOnly ? "👀 Estimating geocodes..." : "🌍 Geocoding locations...");
       await new Promise((r) => setTimeout(r, 1000));
 
       setStatus("✅ Upload complete!");
@@ -99,6 +100,15 @@ export default function UploadPage() {
         aria-label="Upload area"
       >
         <div className="flex flex-col items-center gap-4 w-full">
+          {/* Toggle simulate-only */}
+          <label className="flex items-center gap-2 self-start text-sm text-dim">
+            <input
+              type="checkbox"
+              checked={simulateOnly}
+              onChange={() => setSimulateOnly(v => !v)}
+            />
+            Simulate only (no DB writes)
+          </label>
           <button
             onClick={() => fileInputRef.current.click()}
             className="w-full max-w-xs px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-semibold tracking-wide transition-all backdrop-blur border border-white/20 shadow-md"

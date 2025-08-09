@@ -269,7 +269,13 @@ def process_location(
         )
 
     # 5. API / cache geocode
-    geo = geo_service.get_or_create_location(db_session, raw_place)
+    geo = geo_service.get_or_create_location(
+        db_session,
+        raw_place,
+        event_year=event_year,
+        admin_hint=None,
+        family_coords=None,
+    )
     if geo and geo.latitude is not None and geo.longitude is not None:
         if geo.source == "cache":
             logger.info(

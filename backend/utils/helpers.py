@@ -23,7 +23,13 @@ from backend.config import settings
 
 
 logger = get_logger(__name__)
-from typing import Optional
+from typing import Optional, Tuple
+
+# Optional phonetic lib (Double Metaphone). Keep optional to avoid hard dep.
+try:
+    from metaphone import doublemetaphone as _double_metaphone
+except Exception:  # pragma: no cover - optional dependency
+    _double_metaphone = None
 
 
 
@@ -171,6 +177,44 @@ def split_full_name(full_name: str):
 
 
 # backend/utils/helpers.py
+
+def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Great-circle distance between two points (in km). Returns 0.0 if any value missing."""
+    try:
+        from math import radians, sin, cos, asin, sqrt
+        if None in (lat1, lon1, lat2, lon2):
+            return 0.0
+        rlat1, rlon1, rlat2, rlon2 = map(radians, [float(lat1), float(lon1), float(lat2), float(lon2)])
+        dlat = rlat2 - rlat1
+        dlon = rlon2 - rlon1
+        a = sin(dlat / 2) ** 2 + cos(rlat1) * cos(rlat2) * sin(dlon / 2) ** 2
+        c = 2 * asin(sqrt(a))
+        R = 6371.0
+        return float(R * c)
+    except Exception:
+        return 0.0
+
+
+def phonetic_keys(name: str) -> Tuple[str, str]:
+    """
+    Return Double Metaphone primary/secondary keys for a name.
+    If the `metaphone` package is unavailable, fall back to a naive key.
+    """
+    if not name:
+        return ("", "")
+    if _double_metaphone:
+        try:
+            p, s = _double_metaphone(str(name))
+            return (p or "", s or "")
+        except Exception:
+            pass
+    # Fallback: consonant-only uppercase + truncate
+    import re as _re
+    base = _re.sub(r"[^A-Za-z]", "", str(name)).upper()
+    base = _re.sub(r"[AEIOUY]", "", base)  # strip vowels
+    if not base:
+        base = str(name).upper()[:4]
+    return (base[:6], base[:6])
 
 def parse_date_flexible(value: str):
     """

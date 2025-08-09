@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 
 // KingMode: use window.DEBUG_FETCH = true to go ultra verbose in dev!
+// Deprecated: prefer React Query
 export function useFetch(url, options = {}, { verbose } = {}) {
   const isMounted = useRef(true);
   const [data, setData] = useState(null);

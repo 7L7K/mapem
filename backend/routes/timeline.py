@@ -10,9 +10,9 @@ from backend.utils.debug_routes import debug_route
 timeline_routes = Blueprint("timeline", __name__, url_prefix="/api/timeline")
 logger = get_logger(__name__)
 
-@timeline_routes.route("/<int:tree_id>", methods=["GET"], strict_slashes=False)
+@timeline_routes.route("/<string:version_id>", methods=["GET"], strict_slashes=False)
 @debug_route
-def get_timeline(tree_id: int):
+def get_timeline(version_id: str):
     """
     Returns an ordered list of year → label pairs for a given tree.
     Optional ?event_type=<type> filter.
@@ -23,7 +23,7 @@ def get_timeline(tree_id: int):
 
         query = (
             db.query(Event)
-            .filter(Event.tree_id == tree_id)
+            .filter(Event.tree_id == version_id)
             .order_by(Event.date)
         )
         if event_type:
@@ -43,7 +43,7 @@ def get_timeline(tree_id: int):
         return jsonify(timeline), 200
 
     except Exception as e:
-        logger.exception("🔥 timeline failed for tree %s", tree_id)
+        logger.exception("🔥 timeline failed for version %s", version_id)
         return jsonify({"error": str(e)}), 500
 
     finally:

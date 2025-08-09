@@ -20,7 +20,7 @@ export default function MapMarkers({ movements = [], onClick = () => { } }) {
       {movements.map((mv) => {
         const key = mv.event_id
           ? String(mv.event_id)
-          : `${mv.person_id}_${mv.event_type}_${mv.date}`
+          : `${mv.person_id || mv.person_ids?.[0]}_${mv.event_type}_${mv.date || mv.to?.date}`
 
         return (
           <Marker
@@ -42,7 +42,13 @@ export default function MapMarkers({ movements = [], onClick = () => { } }) {
               </strong>
               <br />
               {mv.event_type} (
-              {mv.date ? new Date(mv.date).getFullYear() || "?" : "?"})
+              {mv.date ? new Date(mv.date).getFullYear() || "?" : (mv.to?.date ? new Date(mv.to.date).getFullYear() || "?" : "?")})
+              {typeof mv.speed_km_per_year === 'number' && (
+                <>
+                  <br />
+                  Speed: {mv.speed_km_per_year.toFixed(0)} km/yr
+                </>
+              )}
             </Popup>
           </Marker>
         )

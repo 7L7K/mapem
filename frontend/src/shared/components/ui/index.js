@@ -9,7 +9,7 @@ export { default as SegmentedNav } from './SegmentedNav';
 
 // Display Components
 export { default as Badge } from './Badge';
-export { default as Card } from './Card';
+export { Card } from './Card';
 export { default as Loader } from './Loader';
 export { default as Spinner } from './Spinner';
 export { default as StatusBox } from './StatusBox';

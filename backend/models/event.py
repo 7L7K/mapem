@@ -8,6 +8,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship
 from backend.models.types import GUID
 from backend.utils.logger import get_file_logger
+from geoalchemy2 import Geometry
 
 from .base import Base, ReprMixin
 
@@ -35,6 +36,7 @@ class Event(Base, ReprMixin):
     __tablename__ = "events"
     __table_args__ = (
         Index("ix_events_tree_date", "tree_id", "date"),
+        # Geometry index created in Alembic migration using GiST
     )
 
     id = Column(GUID(), primary_key=True, default=uuid.uuid4)
@@ -55,6 +57,9 @@ class Event(Base, ReprMixin):
         ForeignKey("locations.id", ondelete="SET NULL"),
         index=True,
     )
+
+    # Optional denormalized geometry for fast spatial queries (copied from Location)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
 
     # ─── Relationships ───────────────────────────────────
     tree           = relationship("TreeVersion", back_populates="events", lazy="joined")

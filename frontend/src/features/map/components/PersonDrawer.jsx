@@ -22,7 +22,7 @@ const Drawer = ({ children, onClose }) => (
   </motion.div>
 );
 
-const PersonDrawer = ({ personId, personName, movements, onClose }) => (
+const PersonDrawer = ({ personId, personName, movements, onClose, onReresolve }) => (
   <AnimatePresence>
     {personId && (
       <Drawer onClose={onClose}>
@@ -42,6 +42,15 @@ const PersonDrawer = ({ personId, personName, movements, onClose }) => (
                 </li>
               ))}
             </ul>
+          </div>
+
+          <div className="pt-3 border-t border-neutral-800">
+            <button
+              onClick={onReresolve}
+              className="px-3 py-2 bg-yellow-400 text-black rounded font-semibold hover:bg-yellow-300"
+            >
+              Re-resolve place
+            </button>
           </div>
         </div>
       </Drawer>

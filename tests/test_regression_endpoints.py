@@ -67,8 +67,8 @@ def test_movements(client, tree_ids):
 
 
 def test_events(client, tree_ids):
-    uploaded_tree_id = tree_ids["uploaded_tree_id"]
-    res = timed_get(client, f"/api/events/?tree_id={uploaded_tree_id}")
+    version_id = tree_ids["tree_version_id"]
+    res = timed_get(client, f"/api/events/?version_id={version_id}")
     data = res.get_json()
     assert res.status_code == 200
     assert isinstance(data, list)

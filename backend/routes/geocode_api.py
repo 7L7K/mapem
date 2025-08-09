@@ -6,6 +6,9 @@ import io
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app, after_this_request, Response, send_file
 from sqlalchemy import text  # <--- PATCH: Import text!
+from sqlalchemy import func
+from geoalchemy2.shape import from_shape
+from shapely.geometry import Point
 from backend.services.location_processor import process_location
 from backend.utils.logger import get_file_logger
 from backend.config import LOG_DIR
@@ -193,26 +196,40 @@ def geocode_export():
         return jsonify({"data": None, "error": str(e)}), 500
 
 # ---------- MANUAL FIX ----------
-@bp.route("/fix/<int:id>", methods=["POST"])
-def geocode_fix(id):
+@bp.route("/fix", methods=["POST"])
+def geocode_fix():
     db = current_app.session_maker()
     _close_session(db)
 
     body = request.get_json(force=True)
+    loc_id = body.get("id")
     lat, lng = body.get("lat"), body.get("lng")
     if lat is None or lng is None:
         return jsonify({"data": None, "error": "Missing lat/lng"}), 400
 
     try:
+        # Update numeric columns
         db.execute(
             text(
-                "UPDATE locations SET lat = :lat, lng = :lng, status = 'manual_override', fixed_at = :now "
+                "UPDATE locations SET latitude = :lat, longitude = :lng, status = 'manual_override', updated_at = :now "
                 "WHERE id = :id"
             ),
-            {"lat": lat, "lng": lng, "now": datetime.utcnow(), "id": id}
+            {"lat": lat, "lng": lng, "now": datetime.utcnow(), "id": loc_id}
         )
+        # Also set geometry
+        try:
+            db.execute(
+                text("""
+                    UPDATE locations
+                    SET geom = ST_SetSRID(ST_Point(:lng, :lat), 4326)
+                    WHERE id = :id
+                """),
+                {"lat": lat, "lng": lng, "id": loc_id}
+            )
+        except Exception:
+            pass
         db.commit()
-        return jsonify({"data": {"id": id, "lat": lat, "lng": lng}, "error": None})
+        return jsonify({"data": {"id": loc_id, "lat": lat, "lng": lng}, "error": None})
     except Exception as e:
         db.rollback()
         logger.error("Error in /fix: %s", e, exc_info=True)

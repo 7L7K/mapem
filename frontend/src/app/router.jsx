@@ -23,6 +23,9 @@ function MapAutoRedirect() {
   useEffect(() => {
     if (allTrees.length) {
       navigate(`/map/${allTrees[0].uploaded_tree_id}`, { replace: true });
+    } else {
+      // No trees yet → send to upload page to get started
+      navigate('/upload', { replace: true });
     }
   }, [allTrees, navigate]);
 

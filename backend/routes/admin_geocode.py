@@ -4,6 +4,7 @@ from sqlalchemy import func
 
 from backend.db import SessionLocal
 from backend.models import Location, event_participants, Event
+from sqlalchemy import text
 from backend.services.suggestions import suggest_coordinates as suggest_for_location
 
 admin_geo = Blueprint("admin_geo", __name__, url_prefix="/api/admin/geocode")
@@ -47,11 +48,18 @@ def fix_location():
         if not loc:
             abort(404, f"Location {loc_id} not found")
 
-        # Use correct field names
+        # Use correct field names and set PostGIS geom
         loc.latitude  = float(lat)
         loc.longitude = float(lng)
         loc.status    = "manual_override"
         loc.updated_at = datetime.utcnow()
+        try:
+            session.execute(
+                text("UPDATE locations SET geom = ST_SetSRID(ST_Point(:lng,:lat),4326) WHERE id=:id"),
+                {"lat": float(lat), "lng": float(lng), "id": loc_id}
+            )
+        except Exception:
+            pass
 
         print(f"[Fix] {loc_id=} {loc.latitude=} {loc.longitude=} status={loc.status}")
         session.commit()

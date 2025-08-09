@@ -6,6 +6,7 @@ from backend.utils.logger import get_file_logger
 
 from flask_cors import cross_origin
 from backend.db import get_db
+from sqlalchemy import text
 from backend.models import Event, TreeVersion
 from backend.utils.debug_routes import debug_route
 
@@ -49,11 +50,12 @@ def get_events():
             version_id = version.id if version else None
             logger.debug(f"🔍 Resolved version_id={version_id} from uploaded_tree_id={uploaded_id}")
 
-        q = db.query(Event)
-        if version_id:
-            q = q.filter(Event.tree_id == version_id)
-            logger.debug(f"🔍 Filtering on tree_id={version_id}")
-            logger.debug(f"▶️ Filtering {q.count()} events total for version_id={version_id}")
+        # Respect strict versioning: require version_id
+        if not version_id:
+            return jsonify({"error": "version_id required"}), 400
+        q = db.query(Event).filter(Event.tree_id == version_id)
+        logger.debug(f"🔍 Filtering on tree_id={version_id}")
+        logger.debug(f"▶️ Filtering {q.count()} events total for version_id={version_id}")
 
         results = q.order_by(Event.date).all()
         logger.debug(f"✅ Fetched {len(results)} events")

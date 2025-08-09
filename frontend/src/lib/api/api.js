@@ -68,10 +68,10 @@ export const getVisibleCounts = (id, filters)             =>
   }));
 
 // ─── people / events ────────────────────────────────────────────────────────
-export const getPeople   = (treeId, limit = 100, offset = 0) =>
-  ok(client.get(`/api/people/${treeId}`, { params: { limit, offset } }));
-export const getEvents   = (treeId, limit = 100, offset = 0) =>
-  ok(client.get(`/api/events/${treeId}`, { params: { limit, offset } }));
+export const getPeople   = (uploadedTreeId, limit = 100, offset = 0) =>
+  ok(client.get(`/api/people/${uploadedTreeId}`, { params: { limit, offset } }));
+export const getEvents   = (versionId, limit = 100, offset = 0) =>
+  ok(client.get(`/api/events/`, { params: { version_id: versionId, limit, offset } }));
 export const searchPeople = (q)                            => ok(client.get('/api/people/search', { params: { q } }));
 export const getRelatives = (personId, types)              =>
   ok(client.get(`/api/people/${personId}/relatives`, { params: { types: types.join(',') } }));
@@ -86,6 +86,11 @@ export const getMovements = (treeId, filters = {}) =>
   }));
 export const getTimeline  = (treeId)  => ok(client.get(`/api/timeline/${treeId}`));
 export const getSchema    = ()        => ok(client.get('/api/schema'));
+
+// ─── shareable views ─────────────────────────────────────────────────────────
+export const createShareLink = (uploadedTreeId, filters = {}, ttlSeconds = 604800) =>
+  ok(client.post(`/api/trees/${uploadedTreeId}/share`, { filters, ttlSeconds }));
+export const resolveShareLink = (token) => ok(client.get(`/api/trees/share/${token}`));
 
 // ─── misc search / compare ──────────────────────────────────────────────────
 export const search       = (q)                          => ok(client.get('/api/search', { params: { q } }));

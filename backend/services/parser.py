@@ -23,6 +23,8 @@ from ..models import (
     TreeVersion,
 )
 from backend.services.location_service import LocationService
+from geoalchemy2.shape import from_shape
+from shapely.geometry import Point
 from backend.utils.helpers import split_full_name
 
  
@@ -297,6 +299,15 @@ class GEDCOMParser:
                 location_id=location_id,
                 tree_id=tree_version_id,
             )
+
+            # set geometry if location has lat/lng
+            if location_id:
+                loc = session.get(Location, location_id)
+                if loc and loc.latitude is not None and loc.longitude is not None:
+                    try:
+                        ev.geom = from_shape(Point(loc.longitude, loc.latitude), srid=4326)
+                    except Exception:
+                        pass
 
             if (ind_ged := evt.get("individual_gedcom_id")) and (ind_db := ged2db.get(ind_ged)):
                 person = session.get(Individual, ind_db)

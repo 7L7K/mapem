@@ -45,6 +45,14 @@ export default function LegendPanel() {
           </div>
         ))}
 
+      <div className="h-px bg-white/10 my-1" />
+      <div className="space-y-1 text-white/80">
+        <div className="flex items-center gap-2"><span className="inline-block w-4 h-[2px] bg-[#4fb4ff]" /> Movement</div>
+        <div className="flex items-center gap-2"><span className="inline-block w-4 h-[2px] bg-[#ff4d4f]" /> Suspicious speed</div>
+        <div className="flex items-center gap-2"><span className="inline-block w-4 h-[2px] bg-[#9aa0a6]" /> Impossible</div>
+        <div className="flex items-center gap-2"><span className="inline-block w-3 h-3 bg-[#888] rounded-sm" /> Historical border</div>
+      </div>
+
       <button
         onClick={() => setOpen(!open)}
         className="w-full bg-accent/20 hover:bg-accent/40 rounded-lg py-1 text-sm transition text-white"

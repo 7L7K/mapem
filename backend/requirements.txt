@@ -28,6 +28,9 @@ python-Levenshtein==0.27.1
 RapidFuzz==3.13.0
 requests==2.31.0
 SQLAlchemy==2.0.40
+geoalchemy2==0.15.2
+alembic==1.13.3
+shapely==2.0.5
 typing-inspection==0.4.0
 typing_extensions==4.13.2
 urllib3==2.4.0

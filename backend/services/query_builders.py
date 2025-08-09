@@ -139,6 +139,7 @@ def build_event_query(session: Session, tree_id: UUID, filters: Dict[str, Any]) 
     q = _apply_confidence_filter(q,    filters)
     q = _apply_source_filter(q,        filters)
     q = _apply_person_filter(session,  q, filters)
+    # For year-bounded borders, we already filter events by year; borders are fetched separately
 
     try:
         logger.debug("🧾 final SQL:\n%s",

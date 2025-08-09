@@ -20,7 +20,11 @@ from .heatmap              import heatmap_routes
 from .geocode_api          import bp as geocode_routes   # 🆕 Admin API
 from .geocode_dashboard    import geocode_dashboard      # 🆕 UI pages
 from .analytics            import analytics_routes
+from .media                import media_routes
 from backend.routes import admin_geocode  # new import
+from .admin_metrics        import admin_metrics_routes
+from .jobs                 import jobs_routes
+from .people_merge         import merge_routes
 
 # ─── Meta endpoints ─────────────────────────────────────────────
 from flask import Blueprint, jsonify
@@ -54,7 +58,10 @@ def openapi_json():
                 "delete": {"summary": "Delete person"}
             },
             "/api/people/{uploaded_tree_id}/export": {"get": {"summary": "Export people CSV"}},
-            "/api/analytics/snapshot": {"get": {"summary": "System snapshot"}}
+            "/api/analytics/snapshot": {"get": {"summary": "System snapshot"}},
+            "/api/analytics/surname-heatmap": {"get": {"summary": "Surname heatmap by era"}},
+            "/api/analytics/cohort-flow": {"get": {"summary": "Sankey cohort flow"}},
+            "/api/analytics/outliers": {"get": {"summary": "Outlier detection"}}
         }
     })
 
@@ -108,6 +115,10 @@ def register_routes(app):
         geocode_routes,        # 🧭 Admin geocode API endpoints
         geocode_dashboard,     # 📊 Geocode dashboard views
         admin_geocode.admin_geo,  # ✅ Manual fix route for unresolved
+        admin_metrics_routes,
+        jobs_routes,
+        merge_routes,
+        media_routes,
         meta_routes,
 
     ]

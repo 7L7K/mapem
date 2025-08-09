@@ -11,11 +11,13 @@ from sqlalchemy import (
     Index,
 )
 from sqlalchemy.orm import relationship
+from geoalchemy2 import Geometry
 from sqlalchemy import Enum as SQLEnum
 from backend.models.types import GUID
 
 from backend.models.base import SerializeMixin, Base, TimestampMixin, ReprMixin
 from backend.models.enums import GenderEnum
+from sqlalchemy import Table
 
 class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
     __tablename__ = "individuals"
@@ -45,6 +47,9 @@ class Individual(Base, TimestampMixin, ReprMixin, SerializeMixin):
     birth_date = Column(Date, nullable=True)
     death_date = Column(Date, nullable=True)
     occupation = Column(String, nullable=True, default="")
+    tags = Column(String, nullable=True, default="")  # comma-separated tags
+    resolved_place_id = Column(GUID(), ForeignKey("locations.id", ondelete="SET NULL"), nullable=True)
+    uncertainty_score = Column(String, nullable=True)
 
     tree = relationship(
         "TreeVersion",
@@ -113,6 +118,9 @@ class ResidenceHistory(Base, TimestampMixin, ReprMixin):
     start_date = Column(Date, nullable=True)
     end_date = Column(Date, nullable=True)
     notes = Column(String, nullable=True)
+    geom = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+    # Optional geometry for residence point
+    # Stored only when we have explicit coordinates from a linked Location
 
     individual = relationship(
         "Individual",

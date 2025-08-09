@@ -13,6 +13,9 @@ from .individual_source  import IndividualSource
 from .event_source       import EventSource
 from .user_action        import UserAction
 from .location_version   import LocationVersion  # 👈 this line ensures your versioned locations table gets registered
+from .gazetteer_entry    import GazetteerEntry
+from .geocode_debug      import GeocodeAttempt
+from .job                import Job
 
 import logging
 from backend.db import engine

@@ -1,9 +1,10 @@
 import { client } from './api';
 
-export default async function uploadTree(file, onProgress = null) {
+export default async function uploadTree(file, onProgress = null, options = {}) {
   const formData = new FormData();
   formData.append('gedcom_file', file);
   formData.append('tree_name', file.name);
+  if (options?.simulate) formData.append('simulate', 'true');
 
   if (import.meta.env.DEV) {
     console.log('📤 Uploading GEDCOM:', file.name, `${(file.size / 1024).toFixed(1)} KB`);

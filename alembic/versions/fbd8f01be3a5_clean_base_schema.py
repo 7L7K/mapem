@@ -10,6 +10,7 @@ from typing import Sequence, Union
 from alembic import op
 import sqlalchemy as sa
 from sqlalchemy.dialects import postgresql
+from geoalchemy2.types import Geometry
 
 # revision identifiers, used by Alembic.
 revision: str = 'fbd8f01be3a5'
@@ -33,6 +34,7 @@ def upgrade() -> None:
     sa.Column('created_at', sa.DateTime(), nullable=True),
     sa.Column('geocoded_at', sa.DateTime(), nullable=True),
     sa.Column('geocoded_by', sa.String(), nullable=True),
+    sa.Column('geom', Geometry(geometry_type='POINT', srid=4326), nullable=True),
     sa.CheckConstraint('latitude BETWEEN -90 AND 90', name='chk_lat_range'),
     sa.CheckConstraint('longitude BETWEEN -180 AND 180', name='chk_lng_range'),
     sa.PrimaryKeyConstraint('id'),
@@ -106,6 +108,7 @@ def upgrade() -> None:
     sa.Column('source_tag', sa.String(), nullable=True),
     sa.Column('category', sa.String(), nullable=True),
     sa.Column('location_id', sa.UUID(), nullable=True),
+    sa.Column('geom', Geometry(geometry_type='POINT', srid=4326), nullable=True),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ondelete='SET NULL'),
     sa.ForeignKeyConstraint(['tree_id'], ['tree_versions.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
@@ -192,6 +195,7 @@ def upgrade() -> None:
     sa.Column('notes', sa.String(), nullable=True),
     sa.Column('created_at', sa.DateTime(), nullable=False),
     sa.Column('updated_at', sa.DateTime(), nullable=False),
+    sa.Column('geom', Geometry(geometry_type='POINT', srid=4326), nullable=True),
     sa.ForeignKeyConstraint(['individual_id'], ['individuals.id'], ondelete='CASCADE'),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ondelete='SET NULL'),
     sa.PrimaryKeyConstraint('id'),
@@ -253,6 +257,26 @@ def upgrade() -> None:
     op.create_index(op.f('ix_user_actions_individual_id'), 'user_actions', ['individual_id'], unique=False)
     op.create_index('ix_user_actions_upload', 'user_actions', ['uploaded_tree_id'], unique=False)
     op.create_index(op.f('ix_user_actions_uploaded_tree_id'), 'user_actions', ['uploaded_tree_id'], unique=False)
+    # Spatial indexes (GiST) for PostGIS geometries
+    op.execute("CREATE EXTENSION IF NOT EXISTS postgis")
+    op.create_index('ix_locations_geom', 'locations', ['geom'], unique=False, postgresql_using='gist')
+    op.create_index('ix_events_geom', 'events', ['geom'], unique=False, postgresql_using='gist')
+    op.create_index('ix_residence_history_geom', 'residence_history', ['geom'], unique=False, postgresql_using='gist')
+    # Jobs table for background task tracking
+    op.create_table('jobs',
+        sa.Column('id', sa.UUID(), nullable=False),
+        sa.Column('task_id', sa.String(), nullable=False),
+        sa.Column('job_type', sa.String(length=50), nullable=False),
+        sa.Column('status', sa.Enum('queued', 'started', 'progress', 'success', 'failure', name='job_status_enum'), nullable=False),
+        sa.Column('progress', sa.Integer(), nullable=False),
+        sa.Column('params', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column('result', postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column('error', sa.String(), nullable=True),
+        sa.Column('created_at', sa.DateTime(), nullable=False),
+        sa.Column('updated_at', sa.DateTime(), nullable=False),
+        sa.PrimaryKeyConstraint('id')
+    )
+    op.create_index('ix_jobs_type_status', 'jobs', ['job_type', 'status'], unique=False)
     # ### end Alembic commands ###
 
 

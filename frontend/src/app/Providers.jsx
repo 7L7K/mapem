@@ -1,5 +1,6 @@
 // frontend/src/app/Providers.jsx
 import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios from 'axios';
 import { client as apiClient } from '@lib/api/api';
 import { SearchProvider } from '@shared/context/SearchContext';
@@ -12,6 +13,17 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 let interceptorsSetup = false;
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+      retry: 2,
+      refetchOnWindowFocus: false,
+    }
+  }
+});
 
 export default function Providers({ children }) {
   React.useEffect(() => {
@@ -73,15 +85,17 @@ export default function Providers({ children }) {
 
   return (
     <ErrorBoundary>
-      <UploadStatusProvider>
-        <SearchProvider>
-          <LegendProvider>
-            <MapControlProvider>
-              {children}
-            </MapControlProvider>
-          </LegendProvider>
-        </SearchProvider>
-      </UploadStatusProvider>
+      <QueryClientProvider client={queryClient}>
+        <UploadStatusProvider>
+          <SearchProvider>
+            <LegendProvider>
+              <MapControlProvider>
+                {children}
+              </MapControlProvider>
+            </LegendProvider>
+          </SearchProvider>
+        </UploadStatusProvider>
+      </QueryClientProvider>
     </ErrorBoundary>
   );
 }

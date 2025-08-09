@@ -13,6 +13,7 @@ from sqlalchemy import (
     Index,
 )
 from sqlalchemy.orm import relationship, validates
+from geoalchemy2 import Geometry
 from backend.models.types import GUID
 import uuid
 from datetime import datetime
@@ -42,8 +43,17 @@ class Location(Base, UUIDMixin):
     geocoded_at      = Column(DateTime)
     geocoded_by      = Column(String)
 
+    # PostGIS point geometry (WGS84)
+    geom             = Column(Geometry(geometry_type="POINT", srid=4326), nullable=True)
+
     alternate_names = relationship(
         "AlternateName",
+        back_populates="location",
+        lazy="noload",
+        cascade="all, delete-orphan",
+    )
+    versions = relationship(
+        "LocationVersion",
         back_populates="location",
         lazy="noload",
         cascade="all, delete-orphan",

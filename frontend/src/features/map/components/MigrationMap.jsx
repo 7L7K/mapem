@@ -1,47 +1,25 @@
-import React, { useRef, useEffect, useState, useCallback } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  useMap,
-  ZoomControl,
-} from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import MapMarkers from "./MapMarkers";
+import React, { useEffect, useState } from "react";
+import DeckMigrationMap from "./DeckMigrationMap";
+import MapWarnings from "@shared/components/MapHUD/MapWarnings";
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-function RecenterMap({ center }) {
-  const map = useMap();
-  useEffect(() => {
-    if (center && Array.isArray(center)) {
-      map.setView(center, map.getZoom());
-      import.meta.env.DEV && console.log("🧭 [MigrationMap] Re-centering map to:", center);
-    }
-  }, [center, map]);
-  return null;
-}
+// Deck version does its own view management
 
 export default function MigrationMap({
   movements = [],
   onMarkerClick = () => { },
   activePersonIds = new Set(),
+  year,
+  onSelect,
 }) {
-  const mapRef = useRef(null);
   if (import.meta.env.DEV) console.log("🧠 [DEBUG] movements passed to MigrationMap:", movements);
 
-  // ─── 1. Invalidate Leaflet size once on mount ────────────────────────────
-  useEffect(() => {
-    if (mapRef.current) {
-      setTimeout(() => {
-        mapRef.current.invalidateSize();
-        import.meta.env.DEV && console.log("🔁 [MigrationMap] invalidateSize()");
-      }, 200);
-    }
-  }, []);
+  const isSegments = Array.isArray(movements) && movements.length > 0 && movements[0] && movements[0].from && movements[0].to;
 
-  // ─── 2. Build a map of locations that are missing lat/lng ────────────────
+  // ─── 2. Build a map of locations that are missing lat/lng (only for pin mode) ────────────────
   const uniqueLocationsToGeocode = React.useMemo(() => {
-    // Map location => array of movements using it
+    if (isSegments) return [];
     const locMap = new Map();
     movements.forEach((mv) => {
       if (!mv.location) return;
@@ -49,7 +27,6 @@ export default function MigrationMap({
       if (!locMap.has(key)) locMap.set(key, []);
       locMap.get(key).push(mv);
     });
-    // Only include locations where at least one movement is missing lat/lng
     return Array.from(locMap.entries())
       .filter(([loc, mvs]) =>
         mvs.some(
@@ -63,7 +40,7 @@ export default function MigrationMap({
         )
       )
       .map(([loc]) => loc);
-  }, [movements]);
+  }, [movements, isSegments]);
 
   // ─── 3. geocodedMap state { place → [lat,lng]|null } ─────────────────────
   const [geocodedMap, setGeocodedMap] = useState({});
@@ -114,9 +91,9 @@ export default function MigrationMap({
 
   // ─── 5. Build finalMovements with fallback override ──────────────────────
   const finalMovements = React.useMemo(() => {
+    if (isSegments) return movements;
     return movements.map((mv) => {
       let [lat, lng] = [mv.latitude, mv.longitude];
-      // If missing, try to use geocodedMap
       if (
         (lat === undefined || lng === undefined || lat === null || lng === null || isNaN(Number(lat)) || isNaN(Number(lng))) &&
         mv.location
@@ -128,12 +105,14 @@ export default function MigrationMap({
       }
       return { ...mv, _markerLat: lat, _markerLng: lng };
     });
-  }, [movements, geocodedMap]);
+  }, [movements, geocodedMap, isSegments]);
 
   // filter movements with real coords
-  const validMovements = finalMovements.filter(
-    (mv) => typeof mv._markerLat === "number" && typeof mv._markerLng === "number" && !isNaN(mv._markerLat) && !isNaN(mv._markerLng),
-  );
+  const validMovements = isSegments
+    ? []
+    : finalMovements.filter(
+      (mv) => typeof mv._markerLat === "number" && typeof mv._markerLng === "number" && !isNaN(mv._markerLat) && !isNaN(mv._markerLng),
+    );
 
   // ─── 6. Dev warn for any still-null coords ───────────────────────────────
   useEffect(() => {
@@ -148,38 +127,28 @@ export default function MigrationMap({
     }
   }, [finalMovements, validMovements.length]);
 
-  const dynamicCenter =
-    validMovements.length > 0
-      ? [validMovements[0]._markerLat, validMovements[0]._markerLng]
-      : [37.8, -96];
-
-  const resetView = useCallback(() => {
-    if (!mapRef.current) return;
-    mapRef.current.setView(dynamicCenter, 4);
-  }, [dynamicCenter]);
+  const dynamicCenter = (() => {
+    if (isSegments && movements.length > 0 && movements[0].from) {
+      return [Number(movements[0].from.lat) || 37.8, Number(movements[0].from.lng) || -96];
+    }
+    if (validMovements.length > 0) {
+      return [validMovements[0]._markerLat, validMovements[0]._markerLng];
+    }
+    return [37.8, -96];
+  })();
 
   return (
     <div className="relative h-full w-full">
-      <MapContainer
-        key={`map-${validMovements.length}`}
-        center={dynamicCenter}
-        zoom={4}
-        scrollWheelZoom
-        zoomControl={false}
-        style={{ height: "100%", width: "100%", background: "#101010" }}
-        whenCreated={(m) => (mapRef.current = m)}
-        tabIndex={0}
-        aria-label="Migration map"
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="© OpenStreetMap contributors"
-        />
-        <ZoomControl position="bottomleft" />
-        <RecenterMap center={dynamicCenter} />
-
-        <MapMarkers movements={validMovements} onClick={onMarkerClick} />
-      </MapContainer>
+      <DeckMigrationMap
+        movements={validMovements}
+        year={year}
+        onSelect={(sel) => {
+          if (sel?.type === "point" && sel.data?.person_id) {
+            onMarkerClick(sel.data.person_id);
+          }
+          if (typeof onSelect === 'function') onSelect(sel)
+        }}
+      />
 
       {/* Dev HUD */}
       {import.meta.env.DEV && (
@@ -196,14 +165,9 @@ export default function MigrationMap({
         </div>
       )}
 
-      {/* Reset View button */}
-      <button
-        onClick={resetView}
-        className="absolute right-4 top-4 z-50 bg-black/70 text-white text-xs px-3 py-2 rounded-md border border-white/10 hover:bg-black/80"
-        aria-label="Reset map view"
-      >
-        Reset View
-      </button>
+      {/* QA warnings for segments */}
+      {isSegments && <MapWarnings segments={movements} />}
+
     </div>
   );
 }

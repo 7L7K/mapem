@@ -15,6 +15,7 @@ import requests
 
 from backend.config import settings
 from backend.models.location_models import LocationOut
+from backend.services.geocode_brain import GazetteerDBGeocoder, GeoContext, RateLimiter
 from pydantic import BaseModel
 from backend.utils.helpers import calculate_name_similarity, normalize_location
 from backend.utils.logger import get_file_logger
@@ -221,12 +222,28 @@ class ExternalAPIGeocoder:
 
     def __init__(self, api_key: Optional[str] = None) -> None:
         self.api_key = api_key
+        # Conservative provider limits (Nominatim: 1 rps per policy; Google generous default)
+        self._google_limiter = RateLimiter(5.0)
+        self._nominatim_limiter = RateLimiter(1.0)
 
     def resolve(self, geocode: "Geocode", session, place: str) -> Optional[LocationOut]:
         if geocode.mock_mode:
             logger.info("🛑 Mock mode active - skipping API call for '%s'", place)
             return None
-        result = geocode._google(place) or geocode._nominatim_geocode(place)
+        result = None
+        # Google first if available
+        if self.api_key:
+            try:
+                self._google_limiter.sleep_if_needed()
+            except Exception:
+                pass
+            result = geocode._google(place)
+        if not result:
+            try:
+                self._nominatim_limiter.sleep_if_needed()
+            except Exception:
+                pass
+            result = geocode._nominatim_geocode(place)
         if not result:
             logger.info("❌ External API miss for '%s'", place)
             return None
@@ -235,6 +252,26 @@ class ExternalAPIGeocoder:
             logger.info("❌ External API returned no coords for '%s'", place)
             return None
         logger.info("✅ %s geocode for '%s'", src, place)
+        # Persist attempt with minimal raw I/O for reproducibility
+        try:
+            from backend.models.geocode_debug import GeocodeAttempt  # local import to avoid circular at import-time
+            if session is not None:
+                attempt = GeocodeAttempt(
+                    raw_place=place,
+                    name_norm=normalize_location(place) or place,
+                    provider=src,
+                    chosen="yes",
+                    latitude=float(lat),
+                    longitude=float(lng),
+                    score=float(conf or 0.0),
+                    request_json={"q": place, "provider": src},
+                    response_json={"lat": lat, "lng": lng, "name": norm},
+                )
+                session.add(attempt)
+                session.flush()
+        except Exception:
+            logger.exception("Failed to persist geocode attempt for '%s'", place)
+
         return LocationOut(
             raw_name=place,
             normalized_name=norm,
@@ -279,6 +316,8 @@ class Geocode:
             ManualOverrideGeocoder(self.manual_fixes),
             HistoricalGeocoder(self.historical_lookup),
             PermanentCacheGeocoder(),
+            # Prefer local Gazetteer before external calls
+            GazetteerDBGeocoder(),
         ]
         if settings.ALLOW_GEOCODE_EXTERNAL:
             self.plugins.append(ExternalAPIGeocoder(api_key))
@@ -369,7 +408,10 @@ class Geocode:
             requests.get,
             url,
             params=params,
-            headers={"User-Agent": "GenealogyMapper"},
+            headers={
+                "User-Agent": "MapEm/1.0 (contact: admin@mapem.app)",
+                "Accept-Language": "en",
+            },
             timeout=10,
         )
         if not resp or resp.status_code != 200:
@@ -383,7 +425,7 @@ class Geocode:
         return lat, lng, name, 0.8, "nominatim"
 
     # ─── Main entry ───────────────────────────────────────────────
-    def get_or_create_location(self, session, place: str) -> Optional[LocationOut | GeocodeError]:
+    def get_or_create_location(self, session, place: str, *, event_year: int | None = None, admin_hint: str | None = None, family_coords: list[tuple[float, float]] | None = None) -> Optional[LocationOut | GeocodeError]:
         raw = place.strip()
         key = self._normalize_key(raw)
         now = time.time()
@@ -394,9 +436,20 @@ class Geocode:
             self._prune_cache()
             self._last_prune = now
 
+        # Build shared context for era-aware scoring
+        context = GeoContext(event_year=event_year, admin_hint=admin_hint, family_coords=family_coords)
+
         # Try each geocoder plugin in sequence
         for plugin in self.plugins:
-            result = plugin.resolve(self, session, raw)
+            # GazetteerDBGeocoder has different signature that uses context
+            if isinstance(plugin, GazetteerDBGeocoder):
+                try:
+                    result = plugin.resolve(session, raw, context=context, debug=True)
+                except Exception:
+                    logger.exception("❌ GazetteerDBGeocoder failed for '%s'", raw)
+                    result = None
+            else:
+                result = plugin.resolve(self, session, raw)
             if result:
                 # Cache successful lookups (unless from PermanentCacheGeocoder)
                 if self.cache_enabled and not isinstance(plugin, PermanentCacheGeocoder):

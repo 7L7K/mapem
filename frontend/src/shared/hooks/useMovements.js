@@ -28,7 +28,7 @@ export default function useMovements(treeId, filters, mode) {
         ? getFamilyMovements(treeId, selectedFamilyId, baseFilters)
         : mode === "compare"
           ? getGroupMovements(treeId, compareIds, baseFilters)
-          : getMovements(treeId, baseFilters)
+          : getMovements(treeId, { ...baseFilters, mode: 'segments' })
 
     if (abortRef.current) abortRef.current.abort()
     const controller = new AbortController()
@@ -37,19 +37,9 @@ export default function useMovements(treeId, filters, mode) {
     fetcher
       .then((data) => {
         if (controller.signal.aborted) return
-        let segments = []
-        if (Array.isArray(data) && data.length && data[0].event_type) {
-          segments = data
-        } else if (Array.isArray(data)) {
-          segments = data.flatMap((person) =>
-            (person.movements || []).map((m) => ({
-              ...m,
-              person_id: person.person_id,
-              person_name: person.name,
-            }))
-          )
-        }
-        setMovements(segments)
+        // Backend now returns segments for default mode
+        const list = Array.isArray(data) ? data : []
+        setMovements(list)
       })
       .catch((err) => {
         if (controller.signal.aborted) return

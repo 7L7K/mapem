@@ -1,7 +1,7 @@
 """Admin dashboard for geocode statistics and manual fixes."""
 
-from flask import Blueprint, render_template, request, redirect, url_for
-from sqlalchemy import func
+from flask import Blueprint, render_template, request, redirect, url_for, jsonify, current_app
+from sqlalchemy import func, text
 from pathlib import Path
 import json
 from datetime import datetime
@@ -125,4 +125,49 @@ def manual_fix():
         db.close()
 
     return redirect(url_for("geocode_dashboard.show_dashboard"))
+
+
+# ─── Debug JSON endpoints (read-only) ─────────────────────────────────────
+@geocode_dashboard.route("/api/attempts", methods=["GET"])
+def list_attempts():
+    db = current_app.session_maker()
+    try:
+        rows = db.execute(
+            text(
+                """
+                SELECT id, raw_place, name_norm, provider, score, created_at
+                FROM geocode_attempts
+                ORDER BY created_at DESC
+                LIMIT 200
+                """
+            )
+        ).fetchall()
+        data = [dict(r._mapping) for r in rows]
+        return jsonify({"data": data, "error": None})
+    except Exception as e:
+        return jsonify({"data": None, "error": str(e)}), 500
+    finally:
+        db.close()
+
+
+@geocode_dashboard.route("/api/gazetteer_stats", methods=["GET"])
+def gazetteer_stats():
+    db = current_app.session_maker()
+    try:
+        rows = db.execute(
+            text(
+                """
+                SELECT era_bucket, COUNT(*) AS n
+                FROM gazetteer_entries
+                GROUP BY era_bucket
+                ORDER BY era_bucket
+                """
+            )
+        ).fetchall()
+        data = [dict(r._mapping) for r in rows]
+        return jsonify({"data": data, "error": None})
+    except Exception as e:
+        return jsonify({"data": None, "error": str(e)}), 500
+    finally:
+        db.close()
 

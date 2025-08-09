@@ -5,6 +5,7 @@ import Providers from "./Providers";
 import Router from "./router";
 import UploadStatusOverlay from "@features/upload/components/UploadStatusOverlay";
 import { ToastContainer } from 'react-toastify';
+import DebugStatusBadge from '@shared/components/DebugStatusBadge';
 import "../shared/styles/main.css";
 
 const App = () => (
@@ -19,6 +20,7 @@ const App = () => (
         {/* Overlays are global and always available */}
         <UploadStatusOverlay />
         <ToastContainer position="top-right" theme="dark" autoClose={3000} />
+        <DebugStatusBadge />
 
         <Suspense fallback={<div className="text-white text-center p-8">Loading MapEm...</div>}>
           <Router />

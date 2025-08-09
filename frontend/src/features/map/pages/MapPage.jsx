@@ -13,6 +13,10 @@ import LoadingOverlay from "@/features/map/components/LoadingOverlay"
 import PersonMap from "@/features/map/components/PersonMap"
 import FamilyMap from "@/features/map/components/FamilyMap"
 import GroupMap from "@/features/map/components/GroupMap"
+import TimeSlider from "@shared/components/MapHUD/TimeSlider"
+import ShareLinkButton from "@shared/components/MapHUD/ShareLinkButton"
+import { resolveShareLink } from "@lib/api/api"
+import InspectorDrawer from "@/features/map/components/InspectorDrawer"
 
 export default function MapPage() {
   const { treeId } = useTree()
@@ -31,9 +35,24 @@ export default function MapPage() {
   const isEmpty = !loading && !error && movements.length === 0
 
   const [legendVisible, setLegendVisible] = useState(true)
+  const [selection, setSelection] = useState(null)
 
   // Sync filters and mode with URL query params
   useUrlQuerySync(filters, setFilters, mode, setMode)
+
+  // Apply shared-token filters from URL once
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const token = params.get('token')
+    if (!token) return
+      ; (async () => {
+        try {
+          const entry = await resolveShareLink(token)
+          if (entry?.filters) setFilters(entry.filters)
+        } catch { /* ignore */ }
+      })()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // keyboard shortcuts: F = filters, R = reset (clear filters), L = toggle legend
   const handleKey = useCallback((e) => {
@@ -48,12 +67,19 @@ export default function MapPage() {
     return () => window.removeEventListener('keydown', handleKey)
   }, [handleKey])
 
+  const yearMid = Array.isArray(debouncedFilters.yearRange)
+    ? Math.round((debouncedFilters.yearRange[0] + debouncedFilters.yearRange[1]) / 2)
+    : undefined
+
   return (
     <div className="relative w-full h-full">
       <MapFilters />
-      <MapComponent movements={movements} />
+      <MapComponent movements={movements} year={yearMid} onSelect={setSelection} />
+      <TimeSlider />
+      <ShareLinkButton />
       <LoadingOverlay loading={loading} error={error} empty={isEmpty} />
       {legendVisible && <LegendPanel />}
+      <InspectorDrawer open={!!selection} onClose={() => setSelection(null)} selection={selection} />
 
       {/* Legend toggle */}
       <button

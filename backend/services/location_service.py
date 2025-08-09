@@ -1,14 +1,14 @@
-"""
-LocationService – central “place resolver” for MapEm.
-"""
 from __future__ import annotations
 
+import os
 from pathlib import Path
 from datetime import datetime, timezone
 from typing import Optional, Any, List
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from geoalchemy2.shape import from_shape
+from shapely.geometry import Point
 
 from backend.models.location_models import LocationOut
 from backend.models.location import Location
@@ -50,7 +50,7 @@ class LocationService:
 
         # Set up geocoder instance
         self.geocoder = Geocode(
-            api_key=api_key,
+            api_key=api_key or os.getenv("GEOCODE_API_KEY"),
             cache_file=cache_file,
             use_cache=use_cache,
             mock_mode=mock_mode,

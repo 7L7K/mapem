@@ -13,7 +13,7 @@ from celery.result import AsyncResult
 from flask import Blueprint, jsonify, request
 
 from backend.db import SessionLocal
-from backend.models import TreeVersion, UploadedTree
+from backend.models import TreeVersion, UploadedTree, Job
 from backend.services.location_service import LocationService
 from backend.services.parser import GEDCOMParser
 from backend.services.upload_service import (
@@ -125,9 +125,12 @@ def upload_tree():
         if not tree_name:
             return jsonify({"error": "Missing tree_name"}), 400
 
+        # Optional simulate-only flag (no DB writes)
+        simulate = (request.form.get("simulate", "false").lower() == "true")
+
         # 3️⃣ Fail-fast duplicate check **before** touching disk or Celery
         with SessionLocal.begin() as db:
-            if _check_duplicate_tree(db, tree_name):
+            if not simulate and _check_duplicate_tree(db, tree_name):
                 return jsonify({"error": "Tree name already exists"}), 400
 
         # 4️⃣ Save GEDCOM to temp file
@@ -135,17 +138,31 @@ def upload_tree():
         logger.info("[%s] Temp GEDCOM saved → %s", request_id, temp_path)
 
         # 5️⃣ Large files get queued to Celery
-        if size_mb > ASYNC_THRESHOLD_MB:
+        if not simulate and size_mb > ASYNC_THRESHOLD_MB:
             with SessionLocal.begin() as db:
                 uploaded_tree = UploadedTree(tree_name=tree_name)
                 db.add(uploaded_tree)
+                db.flush()
+                job = Job(
+                    task_id="",
+                    job_type="gedcom_import",
+                    status="queued",
+                    progress=0,
+                    params={"tree_name": tree_name, "uploaded_tree_id": str(uploaded_tree.id)},
+                )
+                db.add(job)
                 db.flush()
 
             from backend.tasks.upload_tasks import process_gedcom_task
 
             task = process_gedcom_task.delay(
-                temp_path, tree_name, str(uploaded_tree.id)
+                temp_path, tree_name, str(uploaded_tree.id), str(job.id)
             )
+            # store Celery task id
+            with SessionLocal.begin() as db:
+                j = db.get(Job, job.id)
+                if j:
+                    j.task_id = task.id
             async_queued = True
             logger.info(
                 "📤 [%s] GEDCOM queued async (task=%s, tree=%s)",
@@ -158,6 +175,7 @@ def upload_tree():
                     status="queued",
                     uploaded_tree_id=str(uploaded_tree.id),
                     task_id=task.id,
+                    job_id=str(job.id),
                 ),
                 202,
             )
@@ -173,6 +191,29 @@ def upload_tree():
             len(parsed["individuals"]),
             len(parsed["events"]),
         )
+
+        # In simulate mode, return dry-run summary with warnings (no DB writes)
+        if simulate:
+            summary = {
+                "people_count": len(parsed.get("individuals", [])),
+                "event_count": len(parsed.get("events", [])),
+                "warnings": [
+                    "Simulate-only: no DB writes",
+                    "Dates/places validated best-effort",
+                ],
+                "errors": [],
+            }
+            return (
+                jsonify(
+                    status="simulated",
+                    uploaded_tree_id=None,
+                    version_id=None,
+                    summary=summary,
+                    tree_id=None,
+                    version=None,
+                ),
+                200,
+            )
 
         with SessionLocal.begin() as db:
             # Insert UploadedTree + TreeVersion

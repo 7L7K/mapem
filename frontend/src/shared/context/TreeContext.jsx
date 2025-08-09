@@ -12,7 +12,7 @@ import * as api from "@lib/api/api";
 export const TreeContext = createContext({
   tree: null,
   treeId: null,
-  setTreeId: () => {},
+  setTreeId: () => { },
   allTrees: [],
   loading: true,
   treeName: "Unknown Tree",
@@ -31,7 +31,7 @@ export function TreeProvider({ children }) {
   const setTreeId = (id) => {
     setTreeIdRaw(id);
     if (id) localStorage.setItem("lastTreeId", id);
-    else    localStorage.removeItem("lastTreeId");
+    else localStorage.removeItem("lastTreeId");
   };
 
   /* ───── 1. grab :treeId from the URL whenever it changes ───── */
@@ -49,9 +49,9 @@ export function TreeProvider({ children }) {
     api.getTrees()
       .then((res) => {
         // Accept both shapes
-        const list = Array.isArray(res)         ? res
-                  : Array.isArray(res.trees)    ? res.trees
-                  : [];
+        const list = Array.isArray(res) ? res
+          : Array.isArray(res.trees) ? res.trees
+            : [];
         console.debug("[TreeContext] 🌳 fetched trees:", list);
 
         setAllTrees(list);
@@ -59,8 +59,8 @@ export function TreeProvider({ children }) {
 
         if (!treeId) {
           const validIds = new Set(list.map((t) => t.uploaded_tree_id));
-          if (saved && validIds.has(saved))      setTreeIdRaw(saved);
-          else if (list.length)                  setTreeIdRaw(list[0].uploaded_tree_id);
+          if (saved && validIds.has(saved)) setTreeIdRaw(saved);
+          else if (list.length) setTreeIdRaw(list[0].uploaded_tree_id);
         }
       })
       .catch((err) => {
@@ -74,7 +74,7 @@ export function TreeProvider({ children }) {
     return (allTrees || []).find((t) => t.uploaded_tree_id === treeId) || null;
   }, [allTrees, treeId]);
 
-  const treeName = tree?.tree_name || "Unknown Tree";
+  const treeName = tree?.name || tree?.tree_name || "Unknown Tree";
 
   return (
     <TreeContext.Provider

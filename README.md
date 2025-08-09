@@ -1,3 +1,30 @@
+## Spatial (PostGIS)
+
+- Requires PostgreSQL with PostGIS extension.
+- Ensure `DB_HOST/DB_NAME/DB_USER/DB_PASSWORD` are set in `.env`.
+- Run migrations: `alembic upgrade head`.
+- Geometry columns added:
+  - `locations.geom`: `Geometry(POINT, 4326)` with GiST index.
+  - `events.geom`: `Geometry(POINT, 4326)` with GiST index.
+
+## Background Jobs
+
+- Celery + Redis configured in `backend/celery_app.py`.
+- `jobs` table tracks job status/progress.
+- GEDCOM upload over threshold enqueues `process_gedcom_task`; response returns `job_id` and `task_id`.
+- Jobs API: `/api/jobs` and `/api/jobs/<job_id>`.
+
+## Strict Versioning
+
+- `TreeVersion` rows represent immutable snapshots.
+- Reads that require a version must include `version_id` (e.g. `/api/events?version_id=...`).
+- People listing by latest remains at `/api/people/<uploaded_tree_id>`; strict variant: `/api/people/by-version/<version_id>`.
+
+## Frontend State
+
+- React Query enabled in `src/app/Providers.jsx`.
+- Replace ad-hoc fetches with `useQuery`. Example conversion in `PeopleViewer.jsx`.
+- Zustand available via `src/shared/state/uiStore.ts` for pure UI state.
 # MapEm (Refactored)
 
 Genealogy migration mapper built with React + Vite, Tailwind, and a feature‑based folder structure.

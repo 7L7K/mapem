@@ -58,10 +58,10 @@ export function fetchHistory(params = {}) {
 }
 
 export function manualFix(id, lat, lng) {
-  return _request(`/fix/${id}`, {
+  return _request(`/fix`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ lat, lng }),
+    body: JSON.stringify({ id, lat, lng }),
   });
 }
 

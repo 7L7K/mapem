@@ -1,6 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { FixedSizeList as List } from "react-window";
 import * as api from "@lib/api/api";
+import { useQuery } from "@tanstack/react-query";
 import { useTree } from "@shared/context/TreeContext";
 
 /**
@@ -16,21 +17,19 @@ export default function PeopleViewer() {
   const pageSize = 100;
   const listRef = useRef(null);
 
-  useEffect(() => {
-    if (!treeId) return;
-    let cancelled = false;
-    api
-      .getPeople(treeId, pageSize, page * pageSize)
-      .then(({ people, total }) => {
-        if (cancelled) return;
-        setPeople(people);
-        setTotal(total);
-      })
-      .catch((err) => console.error("[PeopleViewer] fetch failed", err));
-    return () => {
-      cancelled = true;
-    };
-  }, [treeId, page]);
+  const { isLoading, error } = useQuery({
+    queryKey: ["people", treeId, page, pageSize],
+    queryFn: async () => {
+      if (!treeId) return { people: [], total: 0 };
+      return await api.getPeople(treeId, pageSize, page * pageSize);
+    },
+    enabled: !!treeId,
+    keepPreviousData: true,
+    onSuccess: ({ people, total }) => {
+      setPeople(people);
+      setTotal(total);
+    }
+  });
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -63,6 +62,8 @@ export default function PeopleViewer() {
         />
       </div>
       <div className="flex-1 min-h-0">
+        {isLoading && <div className="p-2 text-sm opacity-70">Loading…</div>}
+        {error && <div className="p-2 text-sm text-red-500">Failed to load</div>}
         <List
           ref={listRef}
           height={Math.max(240, (typeof window !== 'undefined' ? window.innerHeight : 600) - 220)}

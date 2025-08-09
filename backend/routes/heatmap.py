@@ -10,7 +10,9 @@ from sqlalchemy import func
 
 from backend.db import get_db
 from backend.models import Event, Location, Individual
+from backend.utils.helpers import phonetic_keys
 from backend.utils.debug_routes import debug_route
+from backend.utils.redaction import is_authorized
 
 heatmap_routes = Blueprint("heatmap", __name__, url_prefix="/api/heatmap")
 
@@ -58,9 +60,11 @@ def get_heatmap():
     """
     db = next(get_db())
     try:
+        authorized = is_authorized(request.headers)
         tree_ids = request.args.get("tree_ids", "")
         year = request.args.get("year", "")
-        surname = request.args.get("surname", "").upper()
+        surname = (request.args.get("surname", "") or "").strip()
+        use_phonetic = request.args.get("phonetic", "true").lower() in {"1","true","yes"}
 
         # Fetch raw counts per location
         heat = {}
@@ -72,14 +76,30 @@ def get_heatmap():
             q = q.filter(func.extract("year", Event.date) == int(year))
         rows = q.all()
 
+        target_keys = None
+        if surname:
+            p, s = phonetic_keys(surname)
+            target_keys = {p, s}
+
         for evt, loc in rows:
             name = (loc.normalized_name or loc.raw_name or "").upper()
             if surname:
-                ind = db.query(Individual).filter(
-                    Individual.id.in_([p.id for p in evt.participants]),
-                    func.upper((Individual.first_name + ' ' + (Individual.last_name or '')).strip()).like(f"%{surname}%")
-                ).first()
-                if not ind:
+                # Check participants by surname (phonetic by default)
+                matched = False
+                for p in evt.participants:
+                    last = (p.last_name or "").strip()
+                    if not last:
+                        continue
+                    if use_phonetic:
+                        k1, k2 = phonetic_keys(last)
+                        if target_keys & {k1, k2}:
+                            matched = True
+                            break
+                    else:
+                        if last.lower() == surname.lower():
+                            matched = True
+                            break
+                if not matched:
                     continue
             entry = heat.setdefault(name, {
                 "location_name": loc.normalized_name or loc.raw_name,
@@ -103,6 +123,19 @@ def get_heatmap():
                 fcopy = feat.copy()
                 fcopy["properties"]["count"] = pin["count"]
                 fcopy["properties"]["tree_counts"] = pin["tree_counts"]
+                # Optional: if requesting a specific year, expose it for frontend styling
+                if year:
+                    fcopy["properties"]["year"] = int(year)
+                # If unauthorized viewers, strip any sensitive props (none expected here, but future-proof)
+                if not authorized:
+                    # keep only whitelisted props
+                    props = fcopy.get("properties", {})
+                    fcopy["properties"] = {
+                        "name": props.get("name"),
+                        "count": props.get("count"),
+                        "tree_counts": props.get("tree_counts"),
+                        "year": props.get("year"),
+                    }
                 shapes.append(fcopy)
 
         return jsonify({"pins": pins, "shapes": shapes}), 200

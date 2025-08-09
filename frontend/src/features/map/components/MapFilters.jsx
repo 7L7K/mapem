@@ -65,6 +65,9 @@ export default function MapFilters() {
             >
               Clear
             </button>
+            <span className="text-xs text-white/50 tabular-nums">
+              {Array.isArray(filters.yearRange) ? `${filters.yearRange[0]}–${filters.yearRange[1]}` : ''}
+            </span>
           </div>
         </FilterHeader>
       </div>

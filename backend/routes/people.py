@@ -17,6 +17,7 @@ from uuid import UUID
 from flask import Blueprint, jsonify, request
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import or_
+from backend.utils.redaction import should_redact_person, redact_name, is_authorized
 from backend.utils.uuid_utils import parse_uuid_arg_or_400
 from backend.db import get_db
 from backend.models import Individual, TreeVersion, UploadedTree
@@ -85,18 +86,25 @@ def get_people(uploaded_tree_id: str):
         person_query = request.args.get("person", "").strip()
         sort = (request.args.get("sort") or "name_asc").lower()
         count_only = (request.args.get("countOnly", "false").lower() == "true")
+        tag = (request.args.get("tag") or "").strip().lower()
 
         q = (db.query(Individual.id,
                       Individual.first_name,
                       Individual.last_name,
-                      Individual.occupation)
+                      Individual.birth_date,
+                      Individual.death_date,
+                      Individual.occupation,
+                      Individual.tags)
                .filter(Individual.tree_id == latest_tv.id))
 
         if person_query:
             term = f"%{person_query}%"
+            # Simple ilike OR on name parts; in Postgres we could add pg_trgm index for speed
             q = q.filter(or_(Individual.first_name.ilike(term),
                              Individual.last_name.ilike(term),
                              Individual.occupation.ilike(term)))
+        if tag:
+            q = q.filter(Individual.tags.ilike(f"%{tag}%"))
 
         total = q.count()
 
@@ -119,16 +127,24 @@ def get_people(uploaded_tree_id: str):
 
         rows  = q.limit(limit).offset(offset).all()
 
-        results = [{
-            "id": str(r.id),
-            "name": f"{(r.first_name or '').strip()} {(r.last_name or '').strip()}".strip() or "Unnamed",
-            "occupation": r.occupation or None,
-        } for r in rows]
+        authorized = is_authorized(request.headers)
+        results = []
+        for r in rows:
+            name = f"{(r.first_name or '').strip()} {(r.last_name or '').strip()}".strip()
+            hide = (not authorized) and should_redact_person(r.birth_date, r.death_date)
+            results.append({
+                "id": str(r.id),
+                "name": redact_name(name) if hide else (name or "Unnamed"),
+                "occupation": r.occupation or None,
+                "tags": [t for t in (r.tags or "").split(",") if t],
+                "redacted": hide,
+            })
 
         return jsonify({
             "total": total, "count": len(results),
             "limit": limit, "offset": offset,
             "people": results,
+            "version_id": str(latest_tv.id),
         }), 200
     except Exception:
         log.exception("❌ [GET /api/people] unexpected failure")
@@ -289,6 +305,72 @@ def export_people(uploaded_tree_id: str):
             pass
 
 
+# ── POST /api/people/<uploaded_tree_id>/bulk-tags ───────────────────────────
+@people_routes.route("/<string:uploaded_tree_id>/bulk-tags", methods=["POST"])
+@debug_route
+def bulk_tags(uploaded_tree_id: str):
+    parsed = parse_uuid_arg_or_400("uploaded_tree_id", uploaded_tree_id)
+    if isinstance(parsed, tuple):
+        return parsed
+
+    body = request.get_json(silent=True) or {}
+    action = (body.get("action") or "").lower()  # add|remove|set
+    tag = (body.get("tag") or "").strip().lower()
+    ids = body.get("ids") or []
+
+    if action not in {"add", "remove", "set"} or not tag or not isinstance(ids, list):
+        return jsonify({"error": "bad request"}), 400
+
+    db = None
+    try:
+        db = next(get_db())
+        latest_tv, code = _get_latest_version(db, parsed)
+        if latest_tv is None:
+            msg = "tree not found" if code == 404 else "tree_version lookup failed"
+            return jsonify({"error": msg}), code
+
+        # Coerce UUIDs
+        id_set = set()
+        for raw in ids:
+            try:
+                id_set.add(_UUID(str(raw)))
+            except Exception:
+                continue
+        if not id_set:
+            return jsonify({"updated": 0}), 200
+
+        q = db.query(Individual).filter(Individual.tree_id == latest_tv.id, Individual.id.in_(id_set))
+        updated = 0
+        for person in q.all():
+            parts = [t for t in (person.tags or "").split(",") if t]
+            if action == "set":
+                parts = [tag]
+            elif action == "add":
+                if tag not in parts:
+                    parts.append(tag)
+            elif action == "remove":
+                parts = [t for t in parts if t != tag]
+            person.tags = ",".join(parts)
+            updated += 1
+
+        db.commit()
+        return jsonify({"updated": updated}), 200
+    except Exception:
+        try:
+            if db is not None:
+                db.rollback()
+        except Exception:
+            pass
+        log.exception("❌ [bulk-tags] unexpected failure")
+        return jsonify({"error": "internal"}), 500
+    finally:
+        try:
+            if db is not None:
+                db.close()
+        except Exception:
+            pass
+
+
 @people_routes.route("/<string:uploaded_tree_id>/<string:person_id>", methods=["PATCH"])
 @debug_route
 def update_person(uploaded_tree_id: str, person_id: str):
@@ -301,7 +383,7 @@ def update_person(uploaded_tree_id: str, person_id: str):
         return jsonify({"error": "person_id must be a valid UUID"}), 400
 
     payload = request.get_json(silent=True) or {}
-    allowed = {"first_name", "last_name", "gender", "occupation", "birth_date", "death_date"}
+    allowed = {"first_name", "last_name", "gender", "occupation", "birth_date", "death_date", "tags"}
     updates = {k: v for k, v in payload.items() if k in allowed}
 
     def _parse_date(val):
@@ -386,6 +468,78 @@ def delete_person(uploaded_tree_id: str, person_id: str):
         except Exception:
             pass
         log.exception("❌ [DELETE person] unexpected failure")
+        return jsonify({"error": "internal"}), 500
+    finally:
+        try:
+            if db is not None:
+                db.close()
+        except Exception:
+            pass
+
+
+# ── GET /api/people/by-version/<version_id> (strict) ───────────────────────
+@people_routes.route("/by-version/<string:version_id>", methods=["GET"])
+@debug_route
+def get_people_by_version(version_id: str):
+    db = None
+    try:
+        try:
+            vid = _UUID(version_id)
+        except Exception:
+            return jsonify({"error": "version_id must be a valid UUID"}), 400
+        db = next(get_db())
+        limit, offset = _validated_pagination()
+        person_query = request.args.get("person", "").strip()
+        sort = (request.args.get("sort") or "name_asc").lower()
+        count_only = (request.args.get("countOnly", "false").lower() == "true")
+        tag = (request.args.get("tag") or "").strip().lower()
+
+        q = (db.query(Individual.id,
+                      Individual.first_name,
+                      Individual.last_name,
+                      Individual.occupation,
+                      Individual.tags)
+               .filter(Individual.tree_id == vid))
+
+        if person_query:
+            term = f"%{person_query}%"
+            q = q.filter(or_(Individual.first_name.ilike(term),
+                             Individual.last_name.ilike(term),
+                             Individual.occupation.ilike(term)))
+        if tag:
+            q = q.filter(Individual.tags.ilike(f"%{tag}%"))
+
+        total = q.count()
+        if count_only:
+            return jsonify({
+                "total": total, "count": 0,
+                "limit": limit, "offset": offset,
+                "people": [],
+            }), 200
+        if sort == "name_desc":
+            q = q.order_by(Individual.last_name.desc(), Individual.first_name.desc())
+        elif sort == "created_at_asc":
+            q = q.order_by(Individual.created_at.asc())
+        elif sort == "created_at_desc":
+            q = q.order_by(Individual.created_at.desc())
+        else:
+            q = q.order_by(Individual.last_name.asc(), Individual.first_name.asc())
+
+        rows = q.limit(limit).offset(offset).all()
+        results = [{
+            "id": str(r.id),
+            "name": f"{(r.first_name or '').strip()} {(r.last_name or '').strip()}".strip() or "Unnamed",
+            "occupation": r.occupation or None,
+            "tags": [t for t in (r.tags or "").split(",") if t],
+        } for r in rows]
+        return jsonify({
+            "total": total, "count": len(results),
+            "limit": limit, "offset": offset,
+            "people": results,
+            "version_id": str(vid),
+        }), 200
+    except Exception:
+        log.exception("❌ [GET /api/people/by-version] unexpected failure")
         return jsonify({"error": "internal"}), 500
     finally:
         try:
